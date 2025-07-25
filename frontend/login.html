@@ -178,10 +178,12 @@
                 </span>
                 OverXchange
             </a>
-            <div class="navbar-links">
+            <div class="navbar-links" id="navbar-links">
                 <a href="index.html">Home</a>
-                <a href="login.html">Login</a>
-                <a href="signup.html" class="signup-btn">Signup</a>
+                <a href="login.html" id="login-link">Login</a>
+                <a href="signup.html" class="signup-btn" id="signup-link">Signup</a>
+                <a href="profile.html" id="profile-link" style="display:none;">Profile</a>
+                <button id="logout-btn" style="display:none; background:linear-gradient(90deg,#6366f1 0%,#818cf8 100%);color:#fff;font-weight:800;font-size:1.13em;border:none;border-radius:10px;padding:10px 22px;margin-left:8px;cursor:pointer;">Logout</button>
             </div>
         </div>
     </nav>
@@ -190,9 +192,9 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4.5"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/></svg>
         </div>
         <h2>Login</h2>
-        <form>
-            <input type="text" placeholder="Phone or Email" required>
-            <input type="password" placeholder="Password" required>
+        <form id="login-form">
+            <input type="text" id="login-username" placeholder="Phone or Email" required>
+            <input type="password" id="login-password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
         <div class="login-links">
@@ -200,6 +202,48 @@
             <a href="signup_vendor.html">Vendor Signup</a> |
             <a href="signup_supplier.html">Supplier Signup</a>
         </div>
+        <div id="login-message" style="color:red;margin-top:10px;"></div>
     </div>
+    <script>
+    function updateNavbar() {
+        const isLoggedIn = localStorage.getItem('user_type') && localStorage.getItem('user_id');
+        document.getElementById('login-link').style.display = isLoggedIn ? 'none' : 'inline-block';
+        document.getElementById('signup-link').style.display = isLoggedIn ? 'none' : 'inline-block';
+        document.getElementById('profile-link').style.display = isLoggedIn ? 'inline-block' : 'none';
+        document.getElementById('logout-btn').style.display = isLoggedIn ? 'inline-block' : 'none';
+    }
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        localStorage.removeItem('user_type');
+        localStorage.removeItem('user_id');
+        updateNavbar();
+        window.location.href = 'index.html';
+    });
+    document.addEventListener('DOMContentLoaded', updateNavbar);
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        fetch('http://localhost:5000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Assume backend returns user_type and user_id
+                localStorage.setItem('user_type', data.user_type);
+                localStorage.setItem('user_id', data.user_id);
+                updateNavbar(); // Update navbar after successful login
+                window.location.href = 'index.html'; // Redirect to home page
+            } else {
+                document.getElementById('login-message').textContent = data.message || 'Login failed';
+            }
+        })
+        .catch(() => {
+            document.getElementById('login-message').textContent = 'Login failed. Please try again.';
+        });
+    });
+    </script>
 </body>
 </html> 

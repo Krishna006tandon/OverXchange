@@ -153,10 +153,12 @@
                 </span>
                 OverXchange
             </a>
-            <div class="navbar-links">
+            <div class="navbar-links" id="navbar-links">
                 <a href="index.html">Home</a>
-                <a href="login.html">Login</a>
-                <a href="signup.html" class="signup-btn">Signup</a>
+                <a href="login.html" id="login-link">Login</a>
+                <a href="signup.html" class="signup-btn" id="signup-link">Signup</a>
+                <a href="profile.html" id="profile-link" style="display:none;">Profile</a>
+                <button id="logout-btn" style="display:none; background:linear-gradient(90deg,#6366f1 0%,#818cf8 100%);color:#fff;font-weight:800;font-size:1.13em;border:none;border-radius:10px;padding:10px 22px;margin-left:8px;cursor:pointer;">Logout</button>
             </div>
         </div>
     </nav>
@@ -165,5 +167,21 @@
         <p>Empowering Indian street food vendors to source raw materials from trusted and affordable suppliers.<br>Connecting Vendors to Suppliers Digitally</p>
         <button class="cta-btn">Get Started</button>
     </section>
+    <script>
+    function updateNavbar() {
+        const isLoggedIn = localStorage.getItem('user_type') && localStorage.getItem('user_id');
+        document.getElementById('login-link').style.display = isLoggedIn ? 'none' : 'inline-block';
+        document.getElementById('signup-link').style.display = isLoggedIn ? 'none' : 'inline-block';
+        document.getElementById('profile-link').style.display = isLoggedIn ? 'inline-block' : 'none';
+        document.getElementById('logout-btn').style.display = isLoggedIn ? 'inline-block' : 'none';
+    }
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        localStorage.removeItem('user_type');
+        localStorage.removeItem('user_id');
+        updateNavbar();
+        window.location.href = 'index.html';
+    });
+    document.addEventListener('DOMContentLoaded', updateNavbar);
+    </script>
 </body>
 </html> 
