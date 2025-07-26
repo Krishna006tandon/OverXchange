@@ -158,6 +158,7 @@
                 <a href="login.html" id="login-link">Login</a>
                 <a href="signup.html" class="signup-btn" id="signup-link">Signup</a>
                 <a href="profile.html" id="profile-link" style="display:none;">Profile</a>
+                <a href="vendor-dashboard.html" id="vendor-dashboard-link" style="display:none;">Dashboard</a>
                 <button id="logout-btn" style="display:none; background:linear-gradient(90deg,#6366f1 0%,#818cf8 100%);color:#fff;font-weight:800;font-size:1.13em;border:none;border-radius:10px;padding:10px 22px;margin-left:8px;cursor:pointer;">Logout</button>
             </div>
         </div>
@@ -170,10 +171,15 @@
     <script>
     function updateNavbar() {
         const isLoggedIn = localStorage.getItem('user_type') && localStorage.getItem('user_id');
+        const userType = localStorage.getItem('user_type');
+        
         document.getElementById('login-link').style.display = isLoggedIn ? 'none' : 'inline-block';
         document.getElementById('signup-link').style.display = isLoggedIn ? 'none' : 'inline-block';
         document.getElementById('profile-link').style.display = isLoggedIn ? 'inline-block' : 'none';
         document.getElementById('logout-btn').style.display = isLoggedIn ? 'inline-block' : 'none';
+        
+        // Show dashboard link only for vendors
+        document.getElementById('vendor-dashboard-link').style.display = (isLoggedIn && userType === 'vendor') ? 'inline-block' : 'none';
     }
     document.getElementById('logout-btn').addEventListener('click', function() {
         localStorage.removeItem('user_type');

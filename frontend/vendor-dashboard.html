@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - OverXchange</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
+            box-shadow: 0 8px 32px 0 rgba(99,102,241,0.18);
+            border-radius: 0 0 22px 22px;
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid #a5b4fc44;
+            padding: 0;
+            transition: box-shadow 0.2s;
+        }
+        
+        .navbar-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            height: 72px;
+            padding: 0 28px;
+        }
+        
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            color: #fff;
+            font-size: 1.7em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-decoration: none;
+            margin-right: 38px;
+            gap: 12px;
+        }
+        
+        .navbar-logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px #6366f133;
+        }
+        
+        .navbar-logo-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: #fff;
+        }
+        
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+        
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.13em;
+            margin-right: 8px;
+            font-weight: 500;
+            padding: 10px 22px;
+            border-radius: 10px;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s;
+        }
+        
+        .navbar a:hover {
+            background: #fff3;
+            color: #3730a3;
+            box-shadow: 0 2px 8px #6366f133;
+            transform: translateY(-2px) scale(1.04);
+        }
+        
+        .navbar .logout-btn {
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.13em;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 22px;
+            margin-left: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.18s;
+        }
+        
+        .navbar .logout-btn:hover {
+            background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 72px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            border-right: 2px solid #a5b4fc44;
+            box-shadow: 4px 0 16px rgba(99, 102, 241, 0.1);
+            padding: 24px 0;
+        }
+        
+        .sidebar-header {
+            padding: 0 24px 24px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 16px;
+        }
+        
+        .sidebar-header h3 {
+            color: #3730a3;
+            margin: 0 0 8px 0;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+        
+        .sidebar-header p {
+            color: #6b7280;
+            margin: 0;
+            font-size: 0.9em;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin: 0;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: #f3f4f6;
+            color: #3730a3;
+            border-left-color: #6366f1;
+        }
+        
+        .sidebar-menu a.active {
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            color: #fff;
+            border-left-color: #3730a3;
+        }
+        
+        .sidebar-menu a svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            fill: currentColor;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 32px;
+        }
+        
+        .content-header {
+            margin-bottom: 32px;
+        }
+        
+        .content-header h1 {
+            color: #3730a3;
+            margin: 0 0 8px 0;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+        
+        .content-header p {
+            color: #6b7280;
+            margin: 0;
+            font-size: 1.1em;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.1);
+            border: 1px solid #a5b4fc44;
+        }
+        
+        .order-form {
+            display: grid;
+            gap: 20px;
+            max-width: 600px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            color: #3730a3;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 24px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Supplier Grid Styles */
+        .suppliers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 20px 0;
+        }
+        
+        .supplier-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .supplier-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .supplier-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .supplier-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff" opacity="0.1"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>') repeat;
+            background-size: 60px 60px;
+        }
+        
+        .supplier-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .supplier-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+        }
+        
+        .supplier-info {
+            padding: 20px;
+        }
+        
+        .supplier-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .supplier-specialization {
+            color: #6b7280;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+        }
+        
+        .supplier-location {
+            color: #9ca3af;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .supplier-location svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        .supplier-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .star {
+            color: #fbbf24;
+            font-size: 16px;
+        }
+        
+        .rating-text {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .order-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .loading-suppliers {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .welcome-message {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .welcome-message h2 {
+            color: #3730a3;
+            margin-bottom: 16px;
+        }
+        
+        .welcome-message p {
+            color: #6b7280;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid #a5b4fc44;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-logo">
+                <span class="navbar-logo-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 13l3 3 7-7" stroke="#fff" stroke-width="2" fill="none"/></svg>
+                </span>
+                OverXchange
+            </a>
+            <div class="navbar-links">
+                <a href="index.html">Home</a>
+                <a href="profile.html">Profile</a>
+                <button class="logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Vendor Dashboard</h3>
+                <p>Welcome back, <span id="vendor-name">Vendor</span>!</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="menu-item active" data-content="welcome">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    Dashboard
+                </a></li>
+                <li><a href="#" class="menu-item" data-content="order-supplier">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    Order from Supplier
+                </a></li>
+                <li><a href="#" class="menu-item" data-content="orders">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    My Orders
+                </a></li>
+                <li><a href="#" class="menu-item" data-content="profile">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    Profile Settings
+                </a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <!-- Welcome Content -->
+            <div id="welcome" class="content-section">
+                <div class="content-header">
+                    <h1>Welcome to Your Dashboard</h1>
+                    <p>Manage your orders and connect with suppliers</p>
+                </div>
+                <div class="content-card">
+                    <div class="welcome-message">
+                        <h2>Ready to Order?</h2>
+                        <p>Click on "Order from Supplier" in the sidebar to start placing orders for your raw materials.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order from Supplier Content -->
+            <div id="order-supplier" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h1>Order from Supplier</h1>
+                    <p>Choose from our trusted suppliers to place your orders</p>
+                </div>
+                <div class="content-card">
+                    <div class="suppliers-grid" id="suppliers-grid">
+                        <div class="loading-suppliers">
+                            <div class="loading-spinner"></div>
+                            <p>Loading suppliers...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- My Orders Content -->
+            <div id="orders" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h1>My Orders</h1>
+                    <p>Track your order history and status</p>
+                </div>
+                <div class="content-card">
+                    <p>Your order history will appear here.</p>
+                </div>
+            </div>
+            
+            <!-- Profile Settings Content -->
+            <div id="profile" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h1>Profile Settings</h1>
+                    <p>Manage your account information</p>
+                </div>
+                <div class="content-card">
+                    <p>Profile settings will appear here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is logged in and is a vendor
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            const userId = localStorage.getItem('user_id');
+            
+            if (!userType || !userId) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (userType !== 'vendor') {
+                alert('This dashboard is only for vendors.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Load vendor profile
+            loadVendorProfile();
+        }
+        
+        // Load vendor profile
+        function loadVendorProfile() {
+            const userId = localStorage.getItem('user_id');
+            fetch(`http://localhost:5000/api/profile/vendor/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('vendor-name').textContent = data.name || 'Vendor';
+                })
+                .catch(err => {
+                    console.error('Error loading profile:', err);
+                });
+        }
+        
+        // Load suppliers list
+        function loadSuppliers() {
+            console.log('Loading suppliers...');
+            fetch('http://localhost:5000/api/suppliers')
+                .then(res => {
+                    console.log('Response status:', res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('Suppliers data:', data);
+                    const suppliersGrid = document.getElementById('suppliers-grid');
+                    
+                    if (data.success && data.suppliers) {
+                        if (data.suppliers.length === 0) {
+                            // If no suppliers in database, add sample suppliers
+                            const sampleSuppliers = [
+                                { _id: 'sample1', company_name: 'Fresh Foods Supplier', specialization: 'Fresh Vegetables and Fruits', address: 'Mumbai, Maharashtra' },
+                                { _id: 'sample2', company_name: 'Quality Ingredients Co.', specialization: 'Premium Spices and Herbs', address: 'Delhi, NCR' },
+                                { _id: 'sample3', company_name: 'Local Market Supplier', specialization: 'Local Produce and Dairy', address: 'Ahmedabad, Gujarat' },
+                                { _id: 'sample4', company_name: 'Organic Foods Ltd.', specialization: 'Organic Vegetables and Grains', address: 'Pune, Maharashtra' },
+                                { _id: 'sample5', company_name: 'Premium Spices & Herbs', specialization: 'Premium Spices and Seasonings', address: 'Jaipur, Rajasthan' }
+                            ];
+                            createSupplierCards(sampleSuppliers);
+                        } else {
+                            createSupplierCards(data.suppliers);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading suppliers:', err);
+                    // Add fallback suppliers if API fails
+                    const fallbackSuppliers = [
+                        { _id: 'fallback1', company_name: 'Fresh Foods Supplier', specialization: 'Fresh Vegetables and Fruits', address: 'Mumbai, Maharashtra' },
+                        { _id: 'fallback2', company_name: 'Quality Ingredients Co.', specialization: 'Premium Spices and Herbs', address: 'Delhi, NCR' },
+                        { _id: 'fallback3', company_name: 'Local Market Supplier', specialization: 'Local Produce and Dairy', address: 'Ahmedabad, Gujarat' },
+                        { _id: 'fallback4', company_name: 'Organic Foods Ltd.', specialization: 'Organic Vegetables and Grains', address: 'Pune, Maharashtra' },
+                        { _id: 'fallback5', company_name: 'Premium Spices & Herbs', specialization: 'Premium Spices and Seasonings', address: 'Jaipur, Rajasthan' }
+                    ];
+                    createSupplierCards(fallbackSuppliers);
+                });
+        }
+        
+        // Create supplier cards
+        function createSupplierCards(suppliers) {
+            const suppliersGrid = document.getElementById('suppliers-grid');
+            suppliersGrid.innerHTML = '';
+            
+            suppliers.forEach(supplier => {
+                const card = document.createElement('div');
+                card.className = 'supplier-card';
+                card.onclick = () => openOrderForm(supplier);
+                
+                const rating = (Math.random() * 2 + 3).toFixed(1); // Random rating between 3-5
+                const stars = Math.floor(rating);
+                
+                card.innerHTML = `
+                    <div class="supplier-image">
+                        <div class="supplier-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="supplier-info">
+                        <div class="supplier-name">${supplier.company_name || supplier.name}</div>
+                        <div class="supplier-specialization">${supplier.specialization || 'Quality Food Supplies'}</div>
+                        <div class="supplier-location">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                            ${supplier.address || 'Location not specified'}
+                        </div>
+                        <div class="supplier-rating">
+                            <div class="rating-stars">
+                                ${'★'.repeat(stars)}${'☆'.repeat(5-stars)}
+                            </div>
+                            <span class="rating-text">${rating} • 100+ orders</span>
+                        </div>
+                        <button class="order-btn">Order Now</button>
+                    </div>
+                `;
+                
+                suppliersGrid.appendChild(card);
+            });
+        }
+        
+        // Open order form for specific supplier
+        function openOrderForm(supplier) {
+            // For now, just show an alert. You can expand this to show a modal or redirect to order page
+            alert(`Order form for ${supplier.company_name || supplier.name} will open here.`);
+        }
+        
+        // Sidebar menu functionality
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all menu items
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Hide all content sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Show selected content section
+                const contentId = this.getAttribute('data-content');
+                document.getElementById(contentId).style.display = 'block';
+            });
+        });
+        
+
+        
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('user_type');
+            localStorage.removeItem('user_id');
+            window.location.href = 'index.html';
+        });
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            
+            // Load suppliers list
+            loadSuppliers();
+            
+            // Set minimum date for delivery to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('delivery-date').min = today;
+            
+            // Fallback: If suppliers don't load within 3 seconds, show sample suppliers
+            setTimeout(() => {
+                const supplierSelect = document.getElementById('supplier');
+                if (supplierSelect.options.length <= 1) {
+                    console.log('Loading fallback suppliers...');
+                    supplierSelect.innerHTML = `
+                        <option value="">Choose a supplier...</option>
+                        <option value="sample1">Fresh Foods Supplier</option>
+                        <option value="sample2">Quality Ingredients Co.</option>
+                        <option value="sample3">Local Market Supplier</option>
+                        <option value="sample4">Organic Foods Ltd.</option>
+                        <option value="sample5">Premium Spices & Herbs</option>
+                        <option value="sample6">City Fresh Market</option>
+                        <option value="sample7">Spice Paradise</option>
+                        <option value="sample8">Vegetable Kingdom</option>
+                    `;
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html> 

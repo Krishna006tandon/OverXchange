@@ -85,5 +85,13 @@ def update_profile(user_type, user_id):
         abort(404, 'User not found')
     return jsonify({'success': True, 'message': 'Profile updated!'})
 
+@app.route('/api/suppliers', methods=['GET'])
+def get_suppliers():
+    """Get all suppliers for vendor order form"""
+    suppliers = list(db['suppliers'].find({}, {'password': 0}))  # Exclude password
+    for supplier in suppliers:
+        supplier['_id'] = str(supplier['_id'])
+    return jsonify({'success': True, 'suppliers': suppliers})
+
 if __name__ == '__main__':
     app.run(debug=True) 
