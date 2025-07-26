@@ -80,6 +80,170 @@
             background: var(--gradient-secondary);
         }
 
+        /* Coupon Styles */
+        .coupons-section {
+            margin-top: 2rem;
+        }
+
+        .coupons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .coupon-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .coupon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .coupon-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .coupon-code {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .coupon-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .coupon-status.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .coupon-status.expired {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .coupon-status.draft {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+        }
+
+        .coupon-body {
+            padding: 1.5rem;
+        }
+
+        .coupon-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .coupon-description {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .coupon-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 0.875rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .coupon-actions {
+            padding: 1rem 1.5rem;
+            background: var(--background-color);
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--gradient-secondary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(240, 113, 154, 0.3);
+        }
+
         .dashboard-container {
             display: flex;
             min-height: 100vh;
@@ -609,12 +773,14 @@
         }
 
         .modal-content {
-            background-color: var(--card-bg);
-            margin: 5% auto;
+            background: var(--card-bg);
+            margin: 2% auto;
             padding: 0;
-            border-radius: 16px;
+            border-radius: 12px;
             width: 90%;
             max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: var(--shadow-hover);
             animation: modalSlideIn 0.3s ease;
         }
@@ -631,50 +797,50 @@
         }
 
         .modal-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px 12px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 24px 32px;
-            border-bottom: 1px solid var(--border-color);
         }
 
         .modal-header h2 {
             margin: 0;
-            color: var(--text-color);
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
         .close {
-            color: var(--text-light);
-            font-size: 28px;
+            color: white;
+            font-size: 2rem;
             font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .close:hover {
-            color: var(--text-color);
+            transform: scale(1.1);
         }
 
         .modal form {
-            padding: 32px;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
+            gap: 1rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
             font-weight: 600;
             color: var(--text-color);
         }
@@ -683,13 +849,13 @@
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
-            background-color: var(--card-bg);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
             color: var(--text-color);
-            font-size: 14px;
-            transition: border-color 0.3s ease;
         }
 
         .form-group input:focus,
@@ -700,45 +866,18 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .form-actions {
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
-            margin-top: 32px;
-            padding-top: 24px;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .btn-secondary {
-            background: var(--border-color);
-            color: var(--text-color);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: var(--text-light);
-            color: white;
         }
 
         /* Quick Actions Styles */
@@ -899,9 +1038,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="suppliers">
-                            <i class="fas fa-truck nav-icon"></i>
-                            <span>Suppliers</span>
+                        <a href="#" class="nav-link" data-page="coupons">
+                            <i class="fas fa-ticket-alt nav-icon"></i>
+                            <span>Coupons</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1186,11 +1325,71 @@
                 <p>Orders page content will be here...</p>
             </div>
 
-            <div id="suppliers-page" class="page-content" style="display: none;">
+            <div id="coupons-page" class="page-content" style="display: none;">
                 <div class="page-header">
-                    <h1 class="page-title">Suppliers</h1>
+                    <h1 class="page-title">Coupon Management</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="openAddCouponModal()">
+                            <i class="fas fa-plus"></i> Add New Coupon
+                        </button>
+                    </div>
                 </div>
-                <p>Suppliers page content will be here...</p>
+                
+                <!-- Coupon Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="stat-title">Active Coupons</div>
+                        <div class="stat-value" id="activeCoupons">0</div>
+                        <div class="stat-change positive">Currently running</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-title">Total Redemptions</div>
+                        <div class="stat-value" id="totalRedemptions">0</div>
+                        <div class="stat-change positive">Customer engagement</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-title">Revenue Generated</div>
+                        <div class="stat-value" id="revenueGenerated">₹0</div>
+                        <div class="stat-change positive">From coupons</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-title">Conversion Rate</div>
+                        <div class="stat-value" id="conversionRate">0%</div>
+                        <div class="stat-change positive">Coupon effectiveness</div>
+                    </div>
+                </div>
+
+                <!-- Coupons List -->
+                <div class="coupons-section">
+                    <div class="section-header">
+                        <h2 class="section-title">All Coupons</h2>
+                        <div class="section-actions">
+                            <select id="couponFilter" onchange="filterCoupons()">
+                                <option value="all">All Coupons</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="couponsContainer">
+                        <div class="coupons-grid" id="couponsGrid">
+                            <!-- Coupons will be loaded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="analytics-page" class="page-content" style="display: none;">
@@ -1206,6 +1405,93 @@
                 </div>
                 <p>Settings page content will be here...</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Add Coupon Modal -->
+    <div id="addCouponModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Coupon</h2>
+                <span class="close" onclick="closeAddCouponModal()">&times;</span>
+            </div>
+            <form id="couponForm">
+                <div class="form-group">
+                    <label for="code">Coupon Code *</label>
+                    <input type="text" id="code" name="code" required placeholder="e.g., SAVE20">
+                </div>
+                
+                <div class="form-group">
+                    <label for="title">Coupon Title *</label>
+                    <input type="text" id="title" name="title" required placeholder="e.g., 20% Off on Fresh Vegetables">
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3" placeholder="Describe the coupon offer..."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="discount_type">Discount Type *</label>
+                        <select id="discount_type" name="discount_type" required>
+                            <option value="">Select Type</option>
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="fixed">Fixed Amount (₹)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="discount_value">Discount Value *</label>
+                        <input type="number" id="discount_value" name="discount_value" required min="0" step="0.01" placeholder="e.g., 20">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="min_order_amount">Minimum Order Amount (₹) *</label>
+                        <input type="number" id="min_order_amount" name="min_order_amount" required min="0" placeholder="e.g., 500">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="max_discount">Maximum Discount (₹)</label>
+                        <input type="number" id="max_discount" name="max_discount" min="0" placeholder="e.g., 200">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valid_from">Valid From *</label>
+                        <input type="date" id="valid_from" name="valid_from" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="valid_until">Valid Until *</label>
+                        <input type="date" id="valid_until" name="valid_until" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="usage_limit">Usage Limit *</label>
+                        <input type="number" id="usage_limit" name="usage_limit" required min="1" placeholder="e.g., 100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status *</label>
+                        <select id="status" name="status" required>
+                            <option value="">Select Status</option>
+                            <option value="active">Active</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddCouponModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitCouponBtn">Create Coupon</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1609,9 +1895,13 @@
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('stockModal');
-            if (event.target === modal) {
+            const stockModal = document.getElementById('stockModal');
+            const addCouponModal = document.getElementById('addCouponModal');
+            if (event.target === stockModal) {
                 closeStockModal();
+            }
+            if (event.target === addCouponModal) {
+                closeAddCouponModal();
             }
         }
 
@@ -1624,6 +1914,244 @@
                 localStorage.removeItem('user_id');
                 window.location.href = 'login.html';
             }
+        });
+
+        // Coupon Management Functions
+        let currentCoupons = [];
+
+        // Load coupons data
+        async function loadCoupons() {
+            try {
+                // For now, using sample data. Later connect to backend API
+                const sampleCoupons = [
+                    {
+                        id: '1',
+                        code: 'SAVE20',
+                        title: '20% Off on Fresh Vegetables',
+                        description: 'Get 20% discount on all fresh vegetables',
+                        discount_type: 'percentage',
+                        discount_value: 20,
+                        min_order_amount: 500,
+                        max_discount: 200,
+                        valid_from: '2024-01-01',
+                        valid_until: '2024-12-31',
+                        usage_limit: 100,
+                        used_count: 45,
+                        status: 'active',
+                        created_at: '2024-01-01'
+                    },
+                    {
+                        id: '2',
+                        code: 'FREESHIP',
+                        title: 'Free Delivery',
+                        description: 'Free delivery on orders above ₹1000',
+                        discount_type: 'fixed',
+                        discount_value: 50,
+                        min_order_amount: 1000,
+                        max_discount: 50,
+                        valid_from: '2024-01-01',
+                        valid_until: '2024-06-30',
+                        usage_limit: 50,
+                        used_count: 23,
+                        status: 'active',
+                        created_at: '2024-01-15'
+                    },
+                    {
+                        id: '3',
+                        code: 'NEWUSER',
+                        title: 'New Customer Discount',
+                        description: '₹100 off for new customers',
+                        discount_type: 'fixed',
+                        discount_value: 100,
+                        min_order_amount: 300,
+                        max_discount: 100,
+                        valid_from: '2024-01-01',
+                        valid_until: '2024-03-31',
+                        usage_limit: 200,
+                        used_count: 89,
+                        status: 'expired',
+                        created_at: '2024-01-01'
+                    }
+                ];
+
+                currentCoupons = sampleCoupons;
+                displayCoupons(sampleCoupons);
+                updateCouponStats(sampleCoupons);
+            } catch (error) {
+                console.error('Error loading coupons:', error);
+            }
+        }
+
+        // Display coupons
+        function displayCoupons(coupons) {
+            const couponsGrid = document.getElementById('couponsGrid');
+            couponsGrid.innerHTML = '';
+
+            coupons.forEach(coupon => {
+                const couponCard = document.createElement('div');
+                couponCard.className = 'coupon-card';
+                couponCard.innerHTML = `
+                    <div class="coupon-header">
+                        <div class="coupon-code">${coupon.code}</div>
+                        <div class="coupon-status ${coupon.status}">${coupon.status.toUpperCase()}</div>
+                    </div>
+                    <div class="coupon-body">
+                        <h3 class="coupon-title">${coupon.title}</h3>
+                        <p class="coupon-description">${coupon.description}</p>
+                        <div class="coupon-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Discount:</span>
+                                <span class="detail-value">${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '₹' + coupon.discount_value}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Min Order:</span>
+                                <span class="detail-value">₹${coupon.min_order_amount}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Valid Until:</span>
+                                <span class="detail-value">${new Date(coupon.valid_until).toLocaleDateString()}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Usage:</span>
+                                <span class="detail-value">${coupon.used_count}/${coupon.usage_limit}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="coupon-actions">
+                        <button class="btn btn-sm btn-primary" onclick="editCoupon('${coupon.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCoupon('${coupon.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewCouponDetails('${coupon.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </div>
+                `;
+                couponsGrid.appendChild(couponCard);
+            });
+        }
+
+        // Update coupon statistics
+        function updateCouponStats(coupons) {
+            const activeCoupons = coupons.filter(c => c.status === 'active').length;
+            const totalRedemptions = coupons.reduce((sum, c) => sum + c.used_count, 0);
+            const revenueGenerated = coupons.reduce((sum, c) => sum + (c.used_count * c.discount_value), 0);
+            const conversionRate = coupons.length > 0 ? Math.round((totalRedemptions / coupons.reduce((sum, c) => sum + c.usage_limit, 0)) * 100) : 0;
+
+            document.getElementById('activeCoupons').textContent = activeCoupons;
+            document.getElementById('totalRedemptions').textContent = totalRedemptions;
+            document.getElementById('revenueGenerated').textContent = '₹' + revenueGenerated;
+            document.getElementById('conversionRate').textContent = conversionRate + '%';
+        }
+
+        // Filter coupons
+        function filterCoupons() {
+            const filterValue = document.getElementById('couponFilter').value;
+            let filteredCoupons = currentCoupons;
+
+            if (filterValue !== 'all') {
+                filteredCoupons = currentCoupons.filter(coupon => coupon.status === filterValue);
+            }
+
+            displayCoupons(filteredCoupons);
+        }
+
+        // Add new coupon modal
+        function openAddCouponModal() {
+            const modal = document.getElementById('addCouponModal');
+            modal.style.display = 'block';
+            document.getElementById('couponForm').reset();
+            document.getElementById('modalTitle').textContent = 'Add New Coupon';
+            document.getElementById('submitCouponBtn').textContent = 'Create Coupon';
+            document.getElementById('submitCouponBtn').onclick = createCoupon;
+        }
+
+        // Create new coupon
+        function createCoupon() {
+            const form = document.getElementById('couponForm');
+            const formData = new FormData(form);
+            
+            const couponData = {
+                code: formData.get('code').toUpperCase(),
+                title: formData.get('title'),
+                description: formData.get('description'),
+                discount_type: formData.get('discount_type'),
+                discount_value: parseFloat(formData.get('discount_value')),
+                min_order_amount: parseFloat(formData.get('min_order_amount')),
+                max_discount: parseFloat(formData.get('max_discount')),
+                valid_from: formData.get('valid_from'),
+                valid_until: formData.get('valid_until'),
+                usage_limit: parseInt(formData.get('usage_limit')),
+                status: formData.get('status')
+            };
+
+            // Generate unique ID
+            const newId = (currentCoupons.length + 1).toString();
+            couponData.id = newId;
+            couponData.used_count = 0;
+            couponData.created_at = new Date().toISOString().split('T')[0];
+
+            // Add to current coupons
+            currentCoupons.push(couponData);
+            
+            // Update display
+            displayCoupons(currentCoupons);
+            updateCouponStats(currentCoupons);
+            
+            // Close modal
+            closeAddCouponModal();
+            alert('Coupon created successfully!');
+        }
+
+        // Close add coupon modal
+        function closeAddCouponModal() {
+            const modal = document.getElementById('addCouponModal');
+            modal.style.display = 'none';
+        }
+
+        // Edit coupon
+        function editCoupon(couponId) {
+            alert(`Edit coupon ${couponId} - This feature will be implemented with a proper edit form.`);
+        }
+
+        // Delete coupon
+        function deleteCoupon(couponId) {
+            if (confirm('Are you sure you want to delete this coupon?')) {
+                const updatedCoupons = currentCoupons.filter(c => c.id !== couponId);
+                currentCoupons = updatedCoupons;
+                displayCoupons(updatedCoupons);
+                updateCouponStats(updatedCoupons);
+                alert('Coupon deleted successfully!');
+            }
+        }
+
+        // View coupon details
+        function viewCouponDetails(couponId) {
+            const coupon = currentCoupons.find(c => c.id === couponId);
+            if (coupon) {
+                alert(`Coupon Details:\nCode: ${coupon.code}\nTitle: ${coupon.title}\nDescription: ${coupon.description}\nStatus: ${coupon.status}`);
+            }
+        }
+
+        // Load coupons when coupons page is accessed
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we're on the coupons page
+            const couponsPage = document.getElementById('coupons-page');
+            if (couponsPage && couponsPage.style.display !== 'none') {
+                loadCoupons();
+            }
+        });
+
+        // Add event listener for page navigation to load coupons
+        const couponNavLinks = document.querySelectorAll('.nav-link[data-page="coupons"]');
+        couponNavLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                setTimeout(() => {
+                    loadCoupons();
+                }, 100);
+            });
         });
     </script>
 </body>
