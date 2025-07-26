@@ -270,6 +270,32 @@
             font-size: 20px;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(180deg);
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -567,6 +593,211 @@
             border: none;
             cursor: pointer;
             padding: 8px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: var(--shadow-hover);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .close {
+            color: var(--text-light);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--text-color);
+        }
+
+        .modal form {
+            padding: 32px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: var(--border-color);
+            color: var(--text-color);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-light);
+            color: white;
+        }
+
+        /* Quick Actions Styles */
+        .quick-actions-section {
+            margin-top: 40px;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .quick-action-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-color);
+        }
+
+        .quick-action-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            color: white;
+            font-size: 24px;
+        }
+
+        .quick-action-card h3 {
+            margin: 0 0 8px 0;
+            color: var(--text-color);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .quick-action-card p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .action-btn {
             margin: 0 4px;
             border-radius: 8px;
             transition: all 0.3s ease;
@@ -704,8 +935,11 @@
                     <div class="header-actions">
                         <div class="welcome-message">
                             <i class="fas fa-user-circle"></i>
-                            <span>Welcome back, Admin!</span>
+                            <span id="welcomeMessage">Welcome back, Supplier!</span>
                         </div>
+                        <button class="refresh-btn" onclick="loadDashboardData()" title="Refresh Dashboard">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -716,32 +950,32 @@
                             <i class="fas fa-boxes"></i>
                         </div>
                         <div class="stat-title">Total Products</div>
-                        <div class="stat-value">1,247</div>
-                        <div class="stat-change positive">+12% from last month</div>
+                        <div class="stat-value" id="totalProducts">0</div>
+                        <div class="stat-change positive">Live data</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="stat-title">Low Stock Items</div>
-                        <div class="stat-value">23</div>
-                        <div class="stat-change negative">+5 from yesterday</div>
+                        <div class="stat-value" id="lowStockItems">0</div>
+                        <div class="stat-change negative">Needs attention</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-times-circle"></i>
                         </div>
                         <div class="stat-title">Out of Stock</div>
-                        <div class="stat-value">8</div>
-                        <div class="stat-change negative">+2 from yesterday</div>
+                        <div class="stat-value" id="outOfStockItems">0</div>
+                        <div class="stat-change negative">Requires restocking</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-rupee-sign"></i>
                         </div>
                         <div class="stat-title">Total Value</div>
-                        <div class="stat-value">₹2.4M</div>
-                        <div class="stat-change positive">+8% from last month</div>
+                        <div class="stat-value" id="totalValue">₹0</div>
+                        <div class="stat-change positive">Current inventory</div>
                     </div>
                 </div>
 
@@ -749,8 +983,8 @@
                 <div class="stocks-section">
                     <div class="section-header">
                         <h2 class="section-title">Recent Stock Updates</h2>
-                        <button class="add-stock-btn">Add New Stock</button>
                     </div>
+                    <div id="dashboardStocksContainer">
                     <table class="stocks-table">
                         <thead>
                             <tr>
@@ -762,53 +996,53 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Laptop Dell XPS 13</td>
-                                <td>Electronics</td>
-                                <td>45</td>
-                                <td><span class="stock-status status-in-stock">In Stock</span></td>
-                                <td>2 hours ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Wireless Mouse</td>
-                                <td>Accessories</td>
-                                <td>8</td>
-                                <td><span class="stock-status status-low-stock">Low Stock</span></td>
-                                <td>1 day ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>USB-C Cable</td>
-                                <td>Cables</td>
-                                <td>0</td>
-                                <td><span class="stock-status status-out-of-stock">Out of Stock</span></td>
-                                <td>3 days ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Bluetooth Headphones</td>
-                                <td>Audio</td>
-                                <td>67</td>
-                                <td><span class="stock-status status-in-stock">In Stock</span></td>
-                                <td>5 hours ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            <tbody id="dashboardStocksTableBody">
+                                <!-- Dynamic content will be loaded here -->
                         </tbody>
                     </table>
+                        <div id="dashboardNoStocksMessage" style="text-align: center; padding: 40px; color: var(--text-light); display: none;">
+                            <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <h3>No stocks found</h3>
+                            <p>Add your first stock item to get started!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Quick Actions</h2>
+                    </div>
+                    <div class="quick-actions-grid">
+                        <div class="quick-action-card" onclick="openStockModal()">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <h3>Add New Stock</h3>
+                            <p>Add a new product to your inventory</p>
+                        </div>
+                        <div class="quick-action-card" onclick="navigateToPage('stocks')">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <h3>Manage Stocks</h3>
+                            <p>View and edit all your stock items</p>
+                        </div>
+                        <div class="quick-action-card" onclick="navigateToPage('analytics')">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h3>View Analytics</h3>
+                            <p>Check your business performance</p>
+                        </div>
+                        <div class="quick-action-card" onclick="navigateToPage('settings')">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <h3>Settings</h3>
+                            <p>Manage your account settings</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -816,103 +1050,131 @@
             <div id="stocks-page" class="page-content" style="display: none;">
                 <div class="page-header">
                     <h1 class="page-title">Stock Management</h1>
-                    <button class="add-stock-btn">Add New Stock</button>
+                    <button class="add-stock-btn" onclick="openStockModal()">Add New Stock</button>
                 </div>
 
                 <div class="stocks-section">
                     <div class="section-header">
                         <h2 class="section-title">All Stocks</h2>
                         <div class="filters">
-                            <select style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color);">
-                                <option>All Categories</option>
-                                <option>Electronics</option>
-                                <option>Accessories</option>
-                                <option>Cables</option>
-                                <option>Audio</option>
+                            <select id="categoryFilter" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color);">
+                                <option value="">All Categories</option>
+                                <option value="Vegetables">Vegetables</option>
+                                <option value="Spices">Spices</option>
+                                <option value="Dairy">Dairy</option>
+                                <option value="Grains">Grains</option>
+                                <option value="Meat">Meat</option>
+                                <option value="Seafood">Seafood</option>
                             </select>
                         </div>
                     </div>
+                    <div id="stocksTableContainer">
                     <table class="stocks-table">
                         <thead>
                             <tr>
                                 <th>Product Name</th>
                                 <th>Category</th>
-                                <th>SKU</th>
+                                    <th>Description</th>
                                 <th>Quantity</th>
-                                <th>Price</th>
+                                    <th>Unit</th>
+                                    <th>Price/Unit</th>
                                 <th>Status</th>
                                 <th>Last Updated</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Laptop Dell XPS 13</td>
-                                <td>Electronics</td>
-                                <td>DELL-XPS-001</td>
-                                <td>45</td>
-                                <td>₹85,000</td>
-                                <td><span class="stock-status status-in-stock">In Stock</span></td>
-                                <td>2 hours ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Wireless Mouse</td>
-                                <td>Accessories</td>
-                                <td>WM-001</td>
-                                <td>8</td>
-                                <td>₹1,200</td>
-                                <td><span class="stock-status status-low-stock">Low Stock</span></td>
-                                <td>1 day ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>USB-C Cable</td>
-                                <td>Cables</td>
-                                <td>USB-C-001</td>
-                                <td>0</td>
-                                <td>₹500</td>
-                                <td><span class="stock-status status-out-of-stock">Out of Stock</span></td>
-                                <td>3 days ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Bluetooth Headphones</td>
-                                <td>Audio</td>
-                                <td>BT-HP-001</td>
-                                <td>67</td>
-                                <td>₹2,500</td>
-                                <td><span class="stock-status status-in-stock">In Stock</span></td>
-                                <td>5 hours ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Mechanical Keyboard</td>
-                                <td>Accessories</td>
-                                <td>MK-001</td>
-                                <td>23</td>
-                                <td>₹4,500</td>
-                                <td><span class="stock-status status-in-stock">In Stock</span></td>
-                                <td>1 day ago</td>
-                                <td>
-                                    <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            <tbody id="stocksTableBody">
+                                <!-- Dynamic content will be loaded here -->
                         </tbody>
                     </table>
+                        <div id="noStocksMessage" style="text-align: center; padding: 40px; color: var(--text-light); display: none;">
+                            <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <h3>No stocks found</h3>
+                            <p>Add your first stock item to get started!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Modal -->
+            <div id="stockModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalTitle">Add New Stock</h2>
+                        <span class="close" onclick="closeStockModal()">&times;</span>
+                    </div>
+                    <form id="stockForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productName">Product Name *</label>
+                                <input type="text" id="productName" name="product_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Category *</label>
+                                <select id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Spices">Spices</option>
+                                    <option value="Dairy">Dairy</option>
+                                    <option value="Grains">Grains</option>
+                                    <option value="Meat">Meat</option>
+                                    <option value="Seafood">Seafood</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="quantity">Quantity Available *</label>
+                                <input type="number" id="quantity" name="quantity_available" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="unit">Unit *</label>
+                                <select id="unit" name="unit" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="gram">Gram (g)</option>
+                                    <option value="liter">Liter (L)</option>
+                                    <option value="piece">Piece</option>
+                                    <option value="dozen">Dozen</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pricePerUnit">Price per Unit (₹) *</label>
+                                <input type="number" id="pricePerUnit" name="price_per_unit" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="minOrderQuantity">Minimum Order Quantity *</label>
+                                <input type="number" id="minOrderQuantity" name="minimum_order_quantity" min="1" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="qualityGrade">Quality Grade</label>
+                                <select id="qualityGrade" name="quality_grade">
+                                    <option value="A">Grade A</option>
+                                    <option value="B">Grade B</option>
+                                    <option value="Premium">Premium</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="isOrganic">Organic Product</label>
+                                <select id="isOrganic" name="is_organic">
+                                    <option value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" onclick="closeStockModal()" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary">Save Stock</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -1027,31 +1289,331 @@
             });
         });
 
-        // Add some interactivity to the stock table
-        const editButtons = document.querySelectorAll('.edit-btn');
-        const deleteButtons = document.querySelectorAll('.delete-btn');
+        // Stock Management Variables
+        let currentStocks = [];
+        let editingStockId = null;
 
-        editButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                alert('Edit functionality will be implemented here');
-            });
+        // Load stocks when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStocks();
+            loadSupplierProfile();
+            loadDashboardData(); // Load dashboard data from backend
         });
 
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete this item?')) {
-                    alert('Delete functionality will be implemented here');
+        // Navigation function for quick actions
+        function navigateToPage(pageName) {
+            const navLink = document.querySelector(`[data-page="${pageName}"]`);
+            if (navLink) {
+                navLink.click();
+            }
+        }
+
+        // Load dashboard data from backend
+        async function loadDashboardData() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                const response = await fetch(`http://localhost:5000/api/dashboard/${userId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update stats
+                    document.getElementById('totalProducts').textContent = data.analytics.total_products;
+                    document.getElementById('lowStockItems').textContent = data.analytics.low_stock_items;
+                    document.getElementById('outOfStockItems').textContent = data.analytics.out_of_stock_items;
+                    document.getElementById('totalValue').textContent = `₹${data.analytics.total_value.toLocaleString()}`;
+                    
+                    // Update recent stocks
+                    displayDashboardStocks(data.recent_stocks);
+                } else {
+                    console.error('Failed to load dashboard data:', data.message);
                 }
-            });
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load dashboard stocks (recent 5 stocks)
+        function loadDashboardStocks() {
+            if (currentStocks.length === 0) {
+                displayDashboardStocks([]);
+                return;
+            }
+            
+            // Get recent 5 stocks
+            const recentStocks = currentStocks
+                .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+                .slice(0, 5);
+            
+            displayDashboardStocks(recentStocks);
+        }
+
+        // Display dashboard stocks
+        function displayDashboardStocks(stocks) {
+            const tbody = document.getElementById('dashboardStocksTableBody');
+            const noStocksMessage = document.getElementById('dashboardNoStocksMessage');
+            
+            if (stocks.length === 0) {
+                tbody.innerHTML = '';
+                noStocksMessage.style.display = 'block';
+                return;
+            }
+            
+            noStocksMessage.style.display = 'none';
+            
+            tbody.innerHTML = stocks.map(stock => `
+                <tr>
+                    <td>${stock.product_name}</td>
+                    <td>${stock.category}</td>
+                    <td>${stock.quantity_available}</td>
+                    <td><span class="stock-status ${getStockStatusClass(stock.quantity_available)}">${getStockStatus(stock.quantity_available)}</span></td>
+                    <td>${formatDate(stock.updated_at)}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editStock('${stock._id}')"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteStock('${stock._id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load supplier profile
+        async function loadSupplierProfile() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                const userType = localStorage.getItem('user_type');
+                const response = await fetch(`http://localhost:5000/api/profile/${userType}/${userId}`);
+                const data = await response.json();
+                
+                if (data.name) {
+                    document.getElementById('welcomeMessage').textContent = `Welcome back, ${data.name}!`;
+                }
+            } catch (error) {
+                console.error('Error loading supplier profile:', error);
+            }
+        }
+
+        // Update dashboard stats
+        function updateDashboardStats(stocks) {
+            const totalProducts = stocks.length;
+            const lowStockItems = stocks.filter(stock => stock.quantity_available > 0 && stock.quantity_available <= 10).length;
+            const outOfStockItems = stocks.filter(stock => stock.quantity_available === 0).length;
+            const totalValue = stocks.reduce((sum, stock) => sum + (stock.quantity_available * stock.price_per_unit), 0);
+            
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('lowStockItems').textContent = lowStockItems;
+            document.getElementById('outOfStockItems').textContent = outOfStockItems;
+            document.getElementById('totalValue').textContent = `₹${totalValue.toLocaleString()}`;
+        }
+
+        // Stock Management Functions
+        async function loadStocks() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                const response = await fetch(`http://localhost:5000/api/stocks/supplier/${userId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentStocks = data.stocks;
+                    displayStocks(currentStocks);
+                    updateDashboardStats(currentStocks);
+                    loadDashboardStocks();
+                } else {
+                    console.error('Failed to load stocks:', data.message);
+                    displayStocks([]);
+                    updateDashboardStats([]);
+                    loadDashboardStocks();
+                }
+            } catch (error) {
+                console.error('Error loading stocks:', error);
+                displayStocks([]);
+            }
+        }
+
+        function displayStocks(stocks) {
+            const tbody = document.getElementById('stocksTableBody');
+            const noStocksMessage = document.getElementById('noStocksMessage');
+            
+            if (stocks.length === 0) {
+                tbody.innerHTML = '';
+                noStocksMessage.style.display = 'block';
+                return;
+            }
+            
+            noStocksMessage.style.display = 'none';
+            
+            tbody.innerHTML = stocks.map(stock => `
+                <tr>
+                    <td>${stock.product_name}</td>
+                    <td>${stock.category}</td>
+                    <td>${stock.description || '-'}</td>
+                    <td>${stock.quantity_available}</td>
+                    <td>${stock.unit}</td>
+                    <td>₹${stock.price_per_unit}</td>
+                    <td><span class="stock-status ${getStockStatusClass(stock.quantity_available)}">${getStockStatus(stock.quantity_available)}</span></td>
+                    <td>${formatDate(stock.updated_at)}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editStock('${stock._id}')"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteStock('${stock._id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStockStatus(quantity) {
+            if (quantity === 0) return 'Out of Stock';
+            if (quantity <= 10) return 'Low Stock';
+            return 'In Stock';
+        }
+
+        function getStockStatusClass(quantity) {
+            if (quantity === 0) return 'status-out-of-stock';
+            if (quantity <= 10) return 'status-low-stock';
+            return 'status-in-stock';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+            
+            if (diffInHours < 1) return 'Just now';
+            if (diffInHours < 24) return `${diffInHours} hours ago`;
+            if (diffInHours < 48) return '1 day ago';
+            return `${Math.floor(diffInHours / 24)} days ago`;
+        }
+
+        // Modal Functions
+        function openStockModal(stockId = null) {
+            const modal = document.getElementById('stockModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('stockForm');
+            
+            editingStockId = stockId;
+            
+            if (stockId) {
+                modalTitle.textContent = 'Edit Stock';
+                const stock = currentStocks.find(s => s._id === stockId);
+                if (stock) {
+                    fillStockForm(stock);
+                }
+            } else {
+                modalTitle.textContent = 'Add New Stock';
+                form.reset();
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeStockModal() {
+            const modal = document.getElementById('stockModal');
+            modal.style.display = 'none';
+            editingStockId = null;
+        }
+
+        function fillStockForm(stock) {
+            document.getElementById('productName').value = stock.product_name;
+            document.getElementById('category').value = stock.category;
+            document.getElementById('description').value = stock.description || '';
+            document.getElementById('quantity').value = stock.quantity_available;
+            document.getElementById('unit').value = stock.unit;
+            document.getElementById('pricePerUnit').value = stock.price_per_unit;
+            document.getElementById('minOrderQuantity').value = stock.minimum_order_quantity;
+            document.getElementById('qualityGrade').value = stock.quality_grade || 'A';
+            document.getElementById('isOrganic').value = stock.is_organic ? 'true' : 'false';
+        }
+
+        // Form submission
+        document.getElementById('stockForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const stockData = {
+                supplier_id: localStorage.getItem('user_id'),
+                product_name: formData.get('product_name'),
+                category: formData.get('category'),
+                description: formData.get('description'),
+                quantity_available: parseInt(formData.get('quantity_available')),
+                unit: formData.get('unit'),
+                price_per_unit: parseFloat(formData.get('price_per_unit')),
+                minimum_order_quantity: parseInt(formData.get('minimum_order_quantity')),
+                quality_grade: formData.get('quality_grade'),
+                is_organic: formData.get('is_organic') === 'true'
+            };
+
+            try {
+                let response;
+                if (editingStockId) {
+                    // Update existing stock
+                    response = await fetch(`http://localhost:5000/api/stocks/${editingStockId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(stockData)
+                    });
+                } else {
+                    // Add new stock
+                    response = await fetch('http://localhost:5000/api/stocks', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(stockData)
+                    });
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeStockModal();
+                    loadStocks(); // Reload stocks
+                    alert(editingStockId ? 'Stock updated successfully!' : 'Stock added successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error saving stock:', error);
+                alert('Error saving stock. Please try again.');
+            }
         });
 
-        // Add stock button functionality
-        const addStockButtons = document.querySelectorAll('.add-stock-btn');
-        addStockButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                alert('Add new stock functionality will be implemented here');
-            });
+        async function editStock(stockId) {
+            openStockModal(stockId);
+        }
+
+        async function deleteStock(stockId) {
+            if (confirm('Are you sure you want to delete this stock item?')) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/stocks/${stockId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        loadStocks(); // Reload stocks
+                        alert('Stock deleted successfully!');
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error deleting stock:', error);
+                    alert('Error deleting stock. Please try again.');
+                }
+            }
+        }
+
+        // Category filter
+        document.getElementById('categoryFilter').addEventListener('change', function(e) {
+            const selectedCategory = e.target.value;
+            const filteredStocks = selectedCategory 
+                ? currentStocks.filter(stock => stock.category === selectedCategory)
+                : currentStocks;
+            displayStocks(filteredStocks);
         });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('stockModal');
+            if (event.target === modal) {
+                closeStockModal();
+            }
+        }
 
         // Logout functionality
         const logoutBtn = document.getElementById('logout-btn');

@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash
 from bson import ObjectId
 from flask import abort
 from werkzeug.security import check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -92,6 +93,93 @@ def get_suppliers():
     for supplier in suppliers:
         supplier['_id'] = str(supplier['_id'])
     return jsonify({'success': True, 'suppliers': suppliers})
+
+@app.route('/api/stocks', methods=['GET'])
+def get_stocks():
+    """Get all stocks"""
+    stocks = list(db['stocks'].find({}))
+    for stock in stocks:
+        stock['_id'] = str(stock['_id'])
+        stock['supplier_id'] = str(stock['supplier_id'])
+    return jsonify({'success': True, 'stocks': stocks})
+
+@app.route('/api/stocks/supplier/<supplier_id>', methods=['GET'])
+def get_supplier_stocks(supplier_id):
+    """Get stocks for a specific supplier"""
+    stocks = list(db['stocks'].find({'supplier_id': supplier_id}))
+    for stock in stocks:
+        stock['_id'] = str(stock['_id'])
+        stock['supplier_id'] = str(stock['supplier_id'])
+    return jsonify({'success': True, 'stocks': stocks})
+
+@app.route('/api/stocks', methods=['POST'])
+def add_stock():
+    """Add a new stock item"""
+    data = request.json
+    data['created_at'] = datetime.now()
+    data['updated_at'] = datetime.now()
+    result = db['stocks'].insert_one(data)
+    return jsonify({'success': True, 'message': 'Stock added successfully!', 'id': str(result.inserted_id)})
+
+@app.route('/api/stocks/<stock_id>', methods=['PUT'])
+def update_stock(stock_id):
+    """Update a stock item"""
+    data = request.json
+    data['updated_at'] = datetime.now()
+    result = db['stocks'].update_one({'_id': ObjectId(stock_id)}, {'$set': data})
+    if result.matched_count == 0:
+        return jsonify({'success': False, 'message': 'Stock not found'}), 404
+    return jsonify({'success': True, 'message': 'Stock updated successfully!'})
+
+@app.route('/api/stocks/<stock_id>', methods=['DELETE'])
+def delete_stock(stock_id):
+    """Delete a stock item"""
+    result = db['stocks'].delete_one({'_id': ObjectId(stock_id)})
+    if result.deleted_count == 0:
+        return jsonify({'success': False, 'message': 'Stock not found'}), 404
+    return jsonify({'success': True, 'message': 'Stock deleted successfully!'})
+
+@app.route('/api/dashboard/<supplier_id>', methods=['GET'])
+def get_dashboard_data(supplier_id):
+    """Get dashboard analytics for a supplier"""
+    try:
+        # Get all stocks for the supplier
+        stocks = list(db['stocks'].find({'supplier_id': supplier_id}))
+        
+        # Calculate analytics
+        total_products = len(stocks)
+        low_stock_items = len([s for s in stocks if s['quantity_available'] > 0 and s['quantity_available'] <= 10])
+        out_of_stock_items = len([s for s in stocks if s['quantity_available'] == 0])
+        total_value = sum(s['quantity_available'] * s['price_per_unit'] for s in stocks)
+        
+        # Get recent stocks (last 5 updated)
+        recent_stocks = sorted(stocks, key=lambda x: x['updated_at'], reverse=True)[:5]
+        
+        # Category distribution
+        category_counts = {}
+        for stock in stocks:
+            category = stock['category']
+            category_counts[category] = category_counts.get(category, 0) + 1
+        
+        # Convert ObjectId to string for JSON serialization
+        for stock in recent_stocks:
+            stock['_id'] = str(stock['_id'])
+            stock['supplier_id'] = str(stock['supplier_id'])
+        
+        return jsonify({
+            'success': True,
+            'analytics': {
+                'total_products': total_products,
+                'low_stock_items': low_stock_items,
+                'out_of_stock_items': out_of_stock_items,
+                'total_value': total_value,
+                'category_distribution': category_counts
+            },
+            'recent_stocks': recent_stocks
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True) 
