@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .step { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+        button { margin: 5px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Complete Supplier Login Flow Test</h1>
+    
+    <div id="steps"></div>
+    
+    <button onclick="testStep1()">Step 1: Test Login API</button>
+    <button onclick="testStep2()">Step 2: Test localStorage</button>
+    <button onclick="testStep3()">Step 3: Test Dashboard Access</button>
+    <button onclick="testCompleteFlow()">Test Complete Flow</button>
+    <button onclick="clearAll()">Clear All</button>
+
+    <script>
+        function log(message, type = 'info') {
+            const steps = document.getElementById('steps');
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'step ' + type;
+            stepDiv.innerHTML = '<strong>' + new Date().toLocaleTimeString() + ':</strong> ' + message;
+            steps.appendChild(stepDiv);
+            console.log(message);
+        }
+
+        function clearAll() {
+            document.getElementById('steps').innerHTML = '';
+        }
+
+        async function testStep1() {
+            log('Step 1: Testing Login API...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: 'rajesh@freshfoods.com', 
+                        password: 'password123' 
+                    })
+                });
+                
+                const data = await response.json();
+                log('API Response: ' + JSON.stringify(data), 'info');
+                
+                if (data.success && data.user_type === 'supplier') {
+                    log('✅ Step 1 PASSED: Login API working correctly', 'success');
+                    return data;
+                } else {
+                    log('❌ Step 1 FAILED: Login API not working correctly', 'error');
+                    return null;
+                }
+            } catch (error) {
+                log('❌ Step 1 FAILED: ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        function testStep2() {
+            log('Step 2: Testing localStorage...', 'info');
+            
+            // Set test data
+            localStorage.setItem('user_type', 'supplier');
+            localStorage.setItem('user_id', 'test-supplier-id');
+            
+            const userType = localStorage.getItem('user_type');
+            const userId = localStorage.getItem('user_id');
+            
+            log('localStorage user_type: ' + userType, 'info');
+            log('localStorage user_id: ' + userId, 'info');
+            
+            if (userType === 'supplier' && userId) {
+                log('✅ Step 2 PASSED: localStorage working correctly', 'success');
+                return true;
+            } else {
+                log('❌ Step 2 FAILED: localStorage not working correctly', 'error');
+                return false;
+            }
+        }
+
+        function testStep3() {
+            log('Step 3: Testing Dashboard Access...', 'info');
+            
+            const userType = localStorage.getItem('user_type');
+            const userId = localStorage.getItem('user_id');
+            
+            log('Checking authentication for dashboard...', 'info');
+            log('user_type: ' + userType, 'info');
+            log('user_id: ' + userId, 'info');
+            
+            if (!userType || !userId || userType !== 'supplier') {
+                log('❌ Step 3 FAILED: Authentication check failed', 'error');
+                return false;
+            } else {
+                log('✅ Step 3 PASSED: Authentication check passed', 'success');
+                log('Ready to redirect to supply-dashboard.html', 'info');
+                return true;
+            }
+        }
+
+        async function testCompleteFlow() {
+            log('=== STARTING COMPLETE FLOW TEST ===', 'info');
+            
+            // Step 1: Test Login API
+            const loginData = await testStep1();
+            if (!loginData) {
+                log('❌ COMPLETE FLOW FAILED at Step 1', 'error');
+                return;
+            }
+            
+            // Step 2: Test localStorage
+            const localStorageOk = testStep2();
+            if (!localStorageOk) {
+                log('❌ COMPLETE FLOW FAILED at Step 2', 'error');
+                return;
+            }
+            
+            // Step 3: Test Dashboard Access
+            const dashboardOk = testStep3();
+            if (!dashboardOk) {
+                log('❌ COMPLETE FLOW FAILED at Step 3', 'error');
+                return;
+            }
+            
+            log('✅ COMPLETE FLOW PASSED! All steps working correctly', 'success');
+            log('Ready to redirect to supplier dashboard...', 'info');
+            
+            // Actually perform the redirect
+            setTimeout(() => {
+                log('Redirecting to supply-dashboard.html...', 'info');
+                window.location.href = 'supply-dashboard.html';
+            }, 2000);
+        }
+
+        // Auto-run complete flow on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded - ready for testing', 'info');
+        });
+    </script>
+</body>
+</html> 

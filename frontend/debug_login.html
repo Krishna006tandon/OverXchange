@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login - OverXchange</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-info { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        input, button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Debug Login</h1>
+    <div class="debug-info" id="debug-info">Debug info will appear here...</div>
+    
+    <form id="login-form">
+        <input type="text" id="login-username" placeholder="Email" value="rajesh@freshfoods.com"><br>
+        <input type="password" id="login-password" placeholder="Password" value="password123"><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        function log(message) {
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
+            console.log(message);
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            log('Login form submitted');
+            
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            log('Username: ' + username);
+            log('Password: ' + password);
+            
+            fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(res => {
+                log('Response status: ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                log('Response data: ' + JSON.stringify(data));
+                
+                if (data.success) {
+                    log('Login successful!');
+                    log('User type: ' + data.user_type);
+                    log('User ID: ' + data.user_id);
+                    
+                    localStorage.setItem('user_type', data.user_type);
+                    localStorage.setItem('user_id', data.user_id);
+                    
+                    log('Stored in localStorage: user_type=' + localStorage.getItem('user_type'));
+                    log('Stored in localStorage: user_id=' + localStorage.getItem('user_id'));
+                    
+                    if (data.user_type === 'supplier') {
+                        log('Redirecting to supply-dashboard.html...');
+                        window.location.href = 'supply-dashboard.html';
+                    } else if (data.user_type === 'vendor') {
+                        log('Redirecting to vendor-dashboard.html...');
+                        window.location.href = 'vendor-dashboard.html';
+                    } else {
+                        log('Redirecting to index.html...');
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    log('Login failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                log('Error: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html> 
