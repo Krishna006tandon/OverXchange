@@ -870,6 +870,22 @@
             resize: vertical;
             min-height: 80px;
         }
+        
+        .form-section-divider {
+            margin: 2rem 0 1.5rem 0;
+            padding: 1rem 0;
+            border-top: 2px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .form-section-divider h4 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
         .modal-actions {
             display: flex;
@@ -1676,6 +1692,64 @@
                                 </select>
                             </div>
                         </div>
+                        
+                        <!-- Additional Product Details -->
+                        <div class="form-section-divider">
+                            <h4>Additional Product Details</h4>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sku">SKU (Stock Keeping Unit)</label>
+                                <input type="text" id="sku" name="sku" placeholder="e.g., MILK-001">
+                            </div>
+                            <div class="form-group">
+                                <label for="brand">Brand</label>
+                                <input type="text" id="brand" name="brand" placeholder="e.g., Amul, Nestle">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weight">Weight</label>
+                                <input type="number" id="weight" name="weight" min="0" step="0.01" placeholder="e.g., 1.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="weightUnit">Weight Unit</label>
+                                <select id="weightUnit" name="weight_unit">
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="gram">Gram (g)</option>
+                                    <option value="pound">Pound (lb)</option>
+                                    <option value="ounce">Ounce (oz)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiryDate">Expiry Date</label>
+                                <input type="date" id="expiryDate" name="expiry_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="storageInstructions">Storage Instructions</label>
+                                <input type="text" id="storageInstructions" name="storage_instructions" placeholder="e.g., Keep refrigerated">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ingredients">Ingredients</label>
+                            <textarea id="ingredients" name="ingredients" rows="2" placeholder="List all ingredients separated by commas"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nutritionalInfo">Nutritional Information</label>
+                            <textarea id="nutritionalInfo" name="nutritional_info" rows="2" placeholder="e.g., Protein: 3.2g, Fat: 3.6g per 100ml"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="allergenInfo">Allergen Information</label>
+                            <textarea id="allergenInfo" name="allergen_info" rows="2" placeholder="e.g., Contains: Milk, Soy"></textarea>
+                        </div>
                         <div class="form-actions">
                             <button type="button" onclick="closeStockModal()" class="btn-secondary">Cancel</button>
                             <button type="submit" class="btn-primary">Save Stock</button>
@@ -2434,6 +2508,17 @@
             document.getElementById('minOrderQuantity').value = stock.minimum_order_quantity;
             document.getElementById('qualityGrade').value = stock.quality_grade || 'A';
             document.getElementById('isOrganic').value = stock.is_organic ? 'true' : 'false';
+            
+            // Fill additional fields
+            document.getElementById('sku').value = stock.sku || '';
+            document.getElementById('brand').value = stock.brand || '';
+            document.getElementById('weight').value = stock.weight || '';
+            document.getElementById('weightUnit').value = stock.weight_unit || 'kg';
+            document.getElementById('expiryDate').value = stock.expiry_date || '';
+            document.getElementById('storageInstructions').value = stock.storage_instructions || '';
+            document.getElementById('ingredients').value = stock.ingredients || '';
+            document.getElementById('nutritionalInfo').value = stock.nutritional_info || '';
+            document.getElementById('allergenInfo').value = stock.allergen_info || '';
         }
 
         // Form submission
@@ -2451,7 +2536,18 @@
                 price_per_unit: parseFloat(formData.get('price_per_unit')),
                 minimum_order_quantity: parseInt(formData.get('minimum_order_quantity')),
                 quality_grade: formData.get('quality_grade'),
-                is_organic: formData.get('is_organic') === 'true'
+                is_organic: formData.get('is_organic') === 'true',
+                
+                // Additional fields
+                sku: formData.get('sku'),
+                brand: formData.get('brand'),
+                weight: formData.get('weight') ? parseFloat(formData.get('weight')) : null,
+                weight_unit: formData.get('weight_unit'),
+                expiry_date: formData.get('expiry_date'),
+                storage_instructions: formData.get('storage_instructions'),
+                ingredients: formData.get('ingredients'),
+                nutritional_info: formData.get('nutritional_info'),
+                allergen_info: formData.get('allergen_info')
             };
 
             try {

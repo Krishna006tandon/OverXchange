@@ -290,28 +290,47 @@
         }
         
         .supplier-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.1);
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
+            position: relative;
+        }
+        
+        .supplier-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
         
         .supplier-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        
+        .supplier-card:hover::before {
+            transform: scaleX(1);
         }
         
         .supplier-image {
             width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+            height: 200px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow: hidden;
         }
         
         .supplier-image::before {
@@ -321,36 +340,57 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff" opacity="0.1"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>') repeat;
-            background-size: 60px 60px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="supplier-pattern" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="2" fill="%23ffffff" opacity="0.1"/><circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.05"/><circle cx="40" cy="40" r="1" fill="%23ffffff" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23supplier-pattern)"/></svg>');
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
         
         .supplier-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.2);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .supplier-card:hover .supplier-icon {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
         .supplier-icon svg {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             fill: #fff;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
         
         .supplier-info {
-            padding: 20px;
+            padding: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         }
         
         .supplier-name {
-            font-size: 1.3em;
-            font-weight: 700;
+            font-size: 1.4em;
+            font-weight: 800;
             color: #1f2937;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .supplier-specialization {
@@ -372,6 +412,21 @@
             width: 16px;
             height: 16px;
             fill: currentColor;
+        }
+        
+        .supplier-gstin, .supplier-moq {
+            color: #6b7280;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .supplier-gstin {
+            color: #059669;
+        }
+        
+        .supplier-moq {
+            color: #dc2626;
         }
         
         .supplier-rating {
@@ -398,19 +453,43 @@
         
         .order-btn {
             width: 100%;
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
             color: #fff;
             border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: 600;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-weight: 700;
+            font-size: 0.95em;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .order-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
         
         .order-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .order-btn:hover::before {
+            left: 100%;
+        }
+        
+        .order-btn:active {
+            transform: translateY(-1px) scale(0.98);
         }
         
         .loading-suppliers {
@@ -428,6 +507,63 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 16px auto;
         }
+        
+        .no-suppliers-message, .error-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .no-suppliers-icon, .error-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px auto;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .no-suppliers-icon svg, .error-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: #9ca3af;
+        }
+        
+        .no-suppliers-message h3, .error-message h3 {
+            color: #374151;
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .no-suppliers-message p, .error-message p {
+            color: #6b7280;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        
+        .error-message .btn {
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .error-message .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -1059,6 +1195,8 @@
         </div>
     </div>
     
+
+    
     <script>
         // Check if user is logged in and is a vendor
         function checkAuth() {
@@ -1107,15 +1245,18 @@
                     
                     if (data.success && data.suppliers) {
                         if (data.suppliers.length === 0) {
-                            // If no suppliers in database, add sample suppliers
-                            const sampleSuppliers = [
-                                { _id: 'sample1', company_name: 'Fresh Foods Supplier', specialization: 'Fresh Vegetables and Fruits', address: 'Mumbai, Maharashtra' },
-                                { _id: 'sample2', company_name: 'Quality Ingredients Co.', specialization: 'Premium Spices and Herbs', address: 'Delhi, NCR' },
-                                { _id: 'sample3', company_name: 'Local Market Supplier', specialization: 'Local Produce and Dairy', address: 'Ahmedabad, Gujarat' },
-                                { _id: 'sample4', company_name: 'Organic Foods Ltd.', specialization: 'Organic Vegetables and Grains', address: 'Pune, Maharashtra' },
-                                { _id: 'sample5', company_name: 'Premium Spices & Herbs', specialization: 'Premium Spices and Seasonings', address: 'Jaipur, Rajasthan' }
-                            ];
-                            createSupplierCards(sampleSuppliers);
+                            // Show message when no suppliers are available
+                            suppliersGrid.innerHTML = `
+                                <div class="no-suppliers-message">
+                                    <div class="no-suppliers-icon">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <h3>No Suppliers Available</h3>
+                                    <p>Currently there are no suppliers registered in the system. Please check back later.</p>
+                                </div>
+                            `;
                         } else {
                             createSupplierCards(data.suppliers);
                         }
@@ -1123,15 +1264,20 @@
                 })
                 .catch(err => {
                     console.error('Error loading suppliers:', err);
-                    // Add fallback suppliers if API fails
-                    const fallbackSuppliers = [
-                        { _id: 'fallback1', company_name: 'Fresh Foods Supplier', specialization: 'Fresh Vegetables and Fruits', address: 'Mumbai, Maharashtra' },
-                        { _id: 'fallback2', company_name: 'Quality Ingredients Co.', specialization: 'Premium Spices and Herbs', address: 'Delhi, NCR' },
-                        { _id: 'fallback3', company_name: 'Local Market Supplier', specialization: 'Local Produce and Dairy', address: 'Ahmedabad, Gujarat' },
-                        { _id: 'fallback4', company_name: 'Organic Foods Ltd.', specialization: 'Organic Vegetables and Grains', address: 'Pune, Maharashtra' },
-                        { _id: 'fallback5', company_name: 'Premium Spices & Herbs', specialization: 'Premium Spices and Seasonings', address: 'Jaipur, Rajasthan' }
-                    ];
-                    createSupplierCards(fallbackSuppliers);
+                    // Show error message instead of fake suppliers
+                    const suppliersGrid = document.getElementById('suppliers-grid');
+                    suppliersGrid.innerHTML = `
+                        <div class="error-message">
+                            <div class="error-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                </svg>
+                            </div>
+                            <h3>Error Loading Suppliers</h3>
+                            <p>Unable to load suppliers at the moment. Please try again later.</p>
+                            <button class="btn btn-primary" onclick="loadSuppliers()">Retry</button>
+                        </div>
+                    `;
                 });
         }
         
@@ -1157,14 +1303,16 @@
                         </div>
                     </div>
                     <div class="supplier-info">
-                        <div class="supplier-name">${supplier.company_name || supplier.name}</div>
-                        <div class="supplier-specialization">${supplier.specialization || 'Quality Food Supplies'}</div>
+                        <div class="supplier-name">${supplier.business_name || supplier.company_name || supplier.name || 'Supplier'}</div>
+                        <div class="supplier-specialization">${supplier.product_categories || supplier.specialization || 'Quality Food Supplies'}</div>
                         <div class="supplier-location">
                             <svg viewBox="0 0 24 24">
                                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                             </svg>
-                            ${supplier.address || 'Location not specified'}
+                            ${supplier.warehouse_address || supplier.address || 'Location not specified'}
                         </div>
+                        ${supplier.gstin ? `<div class="supplier-gstin">GSTIN: ${supplier.gstin}</div>` : ''}
+                        ${supplier.moq ? `<div class="supplier-moq">Min. Order: ${supplier.moq} units</div>` : ''}
                         <div class="supplier-rating">
                             <div class="rating-stars">
                                 ${'★'.repeat(stars)}${'☆'.repeat(5-stars)}
@@ -1181,9 +1329,11 @@
         
         // Open order form for specific supplier
         function openOrderForm(supplier) {
-            // For now, just show an alert. You can expand this to show a modal or redirect to order page
-            alert(`Order form for ${supplier.company_name || supplier.name} will open here.`);
+            // Navigate to products page
+            window.location.href = `supplier-products.html?supplier_id=${supplier._id}`;
         }
+        
+
         
         // Sidebar menu functionality
         document.querySelectorAll('.menu-item').forEach(item => {
@@ -1569,24 +1719,7 @@
                 deliveryDateInput.min = today;
             }
             
-            // Fallback: If suppliers don't load within 3 seconds, show sample suppliers
-            setTimeout(() => {
-                const supplierSelect = document.getElementById('supplier');
-                if (supplierSelect && supplierSelect.options.length <= 1) {
-                    console.log('Loading fallback suppliers...');
-                    supplierSelect.innerHTML = `
-                        <option value="">Choose a supplier...</option>
-                        <option value="sample1">Fresh Foods Supplier</option>
-                        <option value="sample2">Quality Ingredients Co.</option>
-                        <option value="sample3">Local Market Supplier</option>
-                        <option value="sample4">Organic Foods Ltd.</option>
-                        <option value="sample5">Premium Spices & Herbs</option>
-                        <option value="sample6">City Fresh Market</option>
-                        <option value="sample7">Spice Paradise</option>
-                        <option value="sample8">Vegetable Kingdom</option>
-                    `;
-                }
-            }, 3000);
+
         });
     </script>
 </body>
