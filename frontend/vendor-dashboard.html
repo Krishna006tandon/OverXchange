@@ -200,6 +200,31 @@
             fill: currentColor;
         }
         
+        .cart-menu-item {
+            position: relative;
+        }
+        
+        .cart-count-sidebar {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 18px;
+        }
+        
+        .cart-count-sidebar:empty {
+            display: none;
+        }
+        
         .main-content {
             flex: 1;
             padding: 32px;
@@ -208,6 +233,8 @@
         .content-header {
             margin-bottom: 32px;
         }
+        
+
         
         .content-header h1 {
             color: #3730a3;
@@ -929,6 +956,11 @@
                     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
                     My Orders
                 </a></li>
+                <li><a href="cart.html" class="menu-item cart-menu-item" id="cartMenuItem">
+                    <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    Shopping Cart
+                    <span class="cart-count-sidebar" id="cartCountSidebar">0</span>
+                </a></li>
                 <li><a href="#" class="menu-item" data-content="profile">
                     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                     Profile Settings
@@ -951,6 +983,20 @@
                     <div class="welcome-message">
                         <h2>Ready to Order?</h2>
                         <p>Click on "Order from Supplier" in the sidebar to start placing orders for your raw materials.</p>
+                        
+                        <!-- Test button for cart functionality -->
+                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; border: 1px solid #e9ecef;">
+                            <h3 style="margin-bottom: 10px; color: #6366f1;">🧪 Test Cart Functionality</h3>
+                            <p style="margin-bottom: 15px; color: #6b7280; font-size: 0.9em;">
+                                Click the button below to add sample items to your cart for testing purposes.
+                            </p>
+                            <button onclick="addSampleToCart()" style="background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-right: 10px;">
+                                Add Sample Items to Cart
+                            </button>
+                            <button onclick="checkCartStatus()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                Check Cart Status
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1340,6 +1386,14 @@
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 
+                // Check if this is a cart menu item (has href to cart.html)
+                const href = this.getAttribute('href');
+                if (href && href.includes('cart.html')) {
+                    // Navigate to cart page
+                    window.location.href = href;
+                    return;
+                }
+                
                 // Remove active class from all menu items
                 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                 
@@ -1353,7 +1407,12 @@
                 
                 // Show selected content section
                 const contentId = this.getAttribute('data-content');
-                document.getElementById(contentId).style.display = 'block';
+                if (contentId) {
+                    const contentSection = document.getElementById(contentId);
+                    if (contentSection) {
+                        contentSection.style.display = 'block';
+                    }
+                }
             });
         });
         
@@ -1702,8 +1761,99 @@
             }
         }
 
+        // Cart functionality
+        function updateCartCount() {
+            console.log('updateCartCount function called');
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            console.log('Current cart from localStorage:', cart);
+            console.log('Cart length:', cart.length);
+            
+            const cartCountSidebar = document.getElementById('cartCountSidebar');
+            console.log('Cart count sidebar element:', cartCountSidebar);
+            
+            if (cartCountSidebar) {
+                cartCountSidebar.textContent = cart.length;
+                cartCountSidebar.style.display = cart.length > 0 ? 'flex' : 'none';
+                console.log('Cart count updated to:', cartCountSidebar.textContent);
+                console.log('Cart count display style:', cartCountSidebar.style.display);
+            } else {
+                console.log('Cart count sidebar element not found!');
+            }
+        }
+        
+        // Test function to add sample items to cart (for testing purposes)
+        function addSampleToCart() {
+            console.log('addSampleToCart function called');
+            
+            const sampleCart = [
+                {
+                    id: 'sample1',
+                    name: 'Fresh Milk',
+                    price: 56,
+                    supplierName: 'Fresh Foods Supplier',
+                    category: 'Dairy',
+                    unit: 'liter',
+                    quantity: 2,
+                    maxQuantity: 100
+                },
+                {
+                    id: 'sample2',
+                    name: 'Organic Tomatoes',
+                    price: 40,
+                    supplierName: 'Organic Foods Ltd.',
+                    category: 'Vegetables',
+                    unit: 'kg',
+                    quantity: 1,
+                    maxQuantity: 50
+                }
+            ];
+            
+            console.log('Setting cart in localStorage:', sampleCart);
+            localStorage.setItem('cart', JSON.stringify(sampleCart));
+            
+            console.log('Updating cart count');
+            updateCartCount();
+            
+            // Force refresh the cart count display
+            const cartCountSidebar = document.getElementById('cartCountSidebar');
+            console.log('Cart count element:', cartCountSidebar);
+            if (cartCountSidebar) {
+                console.log('Current cart count:', sampleCart.length);
+                cartCountSidebar.textContent = sampleCart.length;
+                cartCountSidebar.style.display = 'flex';
+                console.log('Cart count updated to:', cartCountSidebar.textContent);
+            }
+            
+            alert('Sample items added to cart! Check the cart now. Cart count should be: ' + sampleCart.length);
+        }
+        
+        // Function to check current cart status
+        function checkCartStatus() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartCountSidebar = document.getElementById('cartCountSidebar');
+            
+            let status = 'Cart Status:\n';
+            status += '- Items in cart: ' + cart.length + '\n';
+            status += '- Cart count element found: ' + (cartCountSidebar ? 'Yes' : 'No') + '\n';
+            
+            if (cartCountSidebar) {
+                status += '- Current display: ' + cartCountSidebar.style.display + '\n';
+                status += '- Current text: ' + cartCountSidebar.textContent + '\n';
+            }
+            
+            if (cart.length > 0) {
+                status += '\nCart Items:\n';
+                cart.forEach((item, index) => {
+                    status += `${index + 1}. ${item.name} (${item.quantity}x) - ₹${item.price}\n`;
+                });
+            }
+            
+            alert(status);
+        }
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initialized');
             checkAuth();
             
             // Load suppliers list
@@ -1712,6 +1862,10 @@
             // Load settings
             loadSettings();
             
+            // Update cart count
+            console.log('Initializing cart count...');
+            updateCartCount();
+            
             // Set minimum date for delivery to today
             const today = new Date().toISOString().split('T')[0];
             const deliveryDateInput = document.getElementById('delivery-date');
@@ -1719,7 +1873,7 @@
                 deliveryDateInput.min = today;
             }
             
-
+            console.log('Dashboard initialization complete');
         });
     </script>
 </body>
