@@ -6,6 +6,8 @@ from bson import ObjectId
 from flask import abort
 from werkzeug.security import check_password_hash
 from datetime import datetime
+import os
+from flask import send_from_directory
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -14,9 +16,21 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')
 db = mongo_client['OverXchange']
 
-@app.route('/')
-def home():
-    return 'Welcome to OverXchange Backend!'
+# Serve frontend static files
+FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path != "" and os.path.exists(os.path.join(FRONTEND_DIR, path)):
+        return send_from_directory(FRONTEND_DIR, path)
+    else:
+        return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -182,4 +196,4 @@ def get_dashboard_data(supplier_id):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True, port=8000) 
