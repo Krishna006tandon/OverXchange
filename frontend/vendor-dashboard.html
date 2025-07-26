@@ -464,6 +464,292 @@
                 padding: 20px;
             }
         }
+
+        /* Settings Styles */
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .settings-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            color: #3730a3;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #6366f1;
+            padding-bottom: 8px;
+        }
+
+        .section-description {
+            color: #6b7280;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95em;
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-text {
+            font-size: 0.85em;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        /* License Verification Styles */
+        .license-number-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .subsection-title {
+            color: #3730a3;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subsection-description {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+
+        .license-number-form {
+            display: flex;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .license-number-form .form-group {
+            flex: 1;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            background: #fff;
+            padding: 0 16px;
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .license-upload-section {
+            margin-top: 2rem;
+        }
+
+        .license-status {
+            margin-bottom: 1.5rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .status-indicator.verified {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-indicator.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-indicator.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-indicator:not(.verified):not(.pending):not(.rejected) {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f9fafb;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #6366f1;
+            background: #f0f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #6366f1;
+            background: #f0f9ff;
+        }
+
+        .upload-content i {
+            font-size: 3em;
+            color: #6366f1;
+            margin-bottom: 16px;
+        }
+
+        .upload-content p {
+            margin: 8px 0;
+            color: #6b7280;
+        }
+
+        .file-preview {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .preview-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .preview-content i {
+            color: #6366f1;
+            font-size: 1.2em;
+        }
+
+        .preview-content span {
+            flex: 1;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .license-number-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -510,6 +796,10 @@
                 <li><a href="#" class="menu-item" data-content="profile">
                     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                     Profile Settings
+                </a></li>
+                <li><a href="#" class="menu-item" data-content="settings">
+                    <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                    Settings
                 </a></li>
             </ul>
         </div>
@@ -566,6 +856,206 @@
                     <p>Profile settings will appear here.</p>
                 </div>
             </div>
+            
+            <!-- Settings Content -->
+            <div id="settings" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h1>Settings</h1>
+                    <p>Manage your account settings and preferences</p>
+                </div>
+                
+                <div class="settings-container">
+                    <!-- Profile Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="section-title">Profile Settings</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="vendorName">Business Name</label>
+                                <input type="text" id="vendorName" class="form-control" placeholder="Enter your business name">
+                            </div>
+                            <div class="form-group">
+                                <label for="vendorEmail">Email Address</label>
+                                <input type="email" id="vendorEmail" class="form-control" placeholder="Enter your email">
+                            </div>
+                            <div class="form-group">
+                                <label for="vendorPhone">Phone Number</label>
+                                <input type="tel" id="vendorPhone" class="form-control" placeholder="Enter your phone number">
+                            </div>
+                            <div class="form-group">
+                                <label for="vendorAddress">Business Address</label>
+                                <textarea id="vendorAddress" class="form-control" rows="3" placeholder="Enter your business address"></textarea>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveProfileSettings()">Save Profile Settings</button>
+                        </div>
+                    </div>
+
+                    <!-- Business Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="section-title">Business Settings</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="businessType">Business Type</label>
+                                <select id="businessType" class="form-control">
+                                    <option value="">Select business type</option>
+                                    <option value="restaurant">Restaurant</option>
+                                    <option value="cafe">Cafe</option>
+                                    <option value="bakery">Bakery</option>
+                                    <option value="catering">Catering</option>
+                                    <option value="food-truck">Food Truck</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cuisineType">Cuisine Type</label>
+                                <select id="cuisineType" class="form-control">
+                                    <option value="">Select cuisine type</option>
+                                    <option value="indian">Indian</option>
+                                    <option value="chinese">Chinese</option>
+                                    <option value="italian">Italian</option>
+                                    <option value="mexican">Mexican</option>
+                                    <option value="continental">Continental</option>
+                                    <option value="fast-food">Fast Food</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="operatingHours">Operating Hours</label>
+                                <input type="text" id="operatingHours" class="form-control" placeholder="e.g., 9:00 AM - 10:00 PM">
+                            </div>
+                            <button class="btn btn-primary" onclick="saveBusinessSettings()">Save Business Settings</button>
+                        </div>
+                    </div>
+
+                    <!-- Security Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="section-title">Security Settings</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="currentPassword">Current Password</label>
+                                <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm New Password</label>
+                                <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password">
+                            </div>
+                            <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
+                        </div>
+                    </div>
+
+                    <!-- License Verification Section -->
+                    <div class="settings-section">
+                        <h3 class="section-title">License Verification</h3>
+                        <p class="section-description">Verify your food business license for enhanced credibility</p>
+                        
+                        <!-- License Number Verification -->
+                        <div class="license-number-section">
+                            <h3 class="subsection-title">Verify by License Number</h3>
+                            <p class="subsection-description">Enter your 14-digit FSSAI license number for instant verification</p>
+                            <div class="license-number-form">
+                                <div class="form-group">
+                                    <label for="licenseNumber">FSSAI License Number</label>
+                                    <input type="text" id="licenseNumber" placeholder="Enter 14-digit license number" maxlength="14" class="form-control">
+                                    <small class="form-text">Example: 22119005000732</small>
+                                </div>
+                                <button class="btn btn-primary" onclick="verifyLicenseNumber()">
+                                    <i class="fas fa-search"></i> Verify License
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="divider"><span>OR</span></div>
+                        
+                        <!-- File Upload Verification -->
+                        <div class="license-upload-section">
+                            <h3 class="subsection-title">Upload License Document</h3>
+                            <p class="subsection-description">Upload your FSSAI license document (PDF, JPG, PNG)</p>
+                            
+                            <!-- License Status Display -->
+                            <div class="license-status">
+                                <div class="status-indicator" id="verificationStatus">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Not Verified</span>
+                                </div>
+                            </div>
+                            
+                            <!-- File Upload Area -->
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag & drop your license file here</p>
+                                    <p>or</p>
+                                    <input type="file" id="licenseFile" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                    <button class="btn btn-secondary" onclick="document.getElementById('licenseFile').click()">
+                                        Choose File
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- File Preview -->
+                            <div class="file-preview" id="filePreview" style="display: none;">
+                                <div class="preview-content">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span id="fileName">filename.pdf</span>
+                                    <button class="btn btn-danger btn-sm" onclick="removeFile()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <button class="btn btn-primary" id="submitLicenseBtn" onclick="submitLicense()" style="display: none;">
+                                <i class="fas fa-upload"></i> Submit License for Verification
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Theme Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="section-title">Theme Settings</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="themeSelect">Theme</label>
+                                <select id="themeSelect" class="form-control" onchange="changeTheme()">
+                                    <option value="light">Light Theme</option>
+                                    <option value="dark">Dark Theme</option>
+                                    <option value="auto">Auto (System)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="languageSelect">Language</label>
+                                <select id="languageSelect" class="form-control" onchange="changeLanguage()">
+                                    <option value="en">English</option>
+                                    <option value="hi">Hindi</option>
+                                    <option value="gu">Gujarati</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Export Section -->
+                    <div class="settings-section">
+                        <h3 class="section-title">Data Export</h3>
+                        <div class="settings-form">
+                            <p class="section-description">Export your data for backup or analysis</p>
+                            <div class="export-buttons">
+                                <button class="btn btn-secondary" onclick="exportData('orders')">
+                                    <i class="fas fa-download"></i> Export Orders
+                                </button>
+                                <button class="btn btn-secondary" onclick="exportData('profile')">
+                                    <i class="fas fa-download"></i> Export Profile
+                                </button>
+                                <button class="btn btn-secondary" onclick="exportData('all')">
+                                    <i class="fas fa-download"></i> Export All Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -593,7 +1083,7 @@
         // Load vendor profile
         function loadVendorProfile() {
             const userId = localStorage.getItem('user_id');
-            fetch(`http://localhost:5000/api/profile/vendor/${userId}`)
+            fetch(`/api/profile/vendor/${userId}`)
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('vendor-name').textContent = data.name || 'Vendor';
@@ -606,7 +1096,7 @@
         // Load suppliers list
         function loadSuppliers() {
             console.log('Loading suppliers...');
-            fetch('http://localhost:5000/api/suppliers')
+            fetch('/api/suppliers')
                 .then(res => {
                     console.log('Response status:', res.status);
                     return res.json();
@@ -726,6 +1216,342 @@
             window.location.href = 'index.html';
         });
         
+        // Settings Functions
+        function saveProfileSettings() {
+            const settings = {
+                vendorName: document.getElementById('vendorName').value,
+                vendorEmail: document.getElementById('vendorEmail').value,
+                vendorPhone: document.getElementById('vendorPhone').value,
+                vendorAddress: document.getElementById('vendorAddress').value
+            };
+            
+            localStorage.setItem('vendor_profile_settings', JSON.stringify(settings));
+            alert('Profile settings saved successfully!');
+        }
+
+        function saveBusinessSettings() {
+            const settings = {
+                businessType: document.getElementById('businessType').value,
+                cuisineType: document.getElementById('cuisineType').value,
+                operatingHours: document.getElementById('operatingHours').value
+            };
+            
+            localStorage.setItem('vendor_business_settings', JSON.stringify(settings));
+            alert('Business settings saved successfully!');
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Please fill in all password fields.');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match.');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+            
+            // Here you would typically make an API call to change password
+            alert('Password changed successfully!');
+            
+            // Clear password fields
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function changeTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            localStorage.setItem('vendor_theme', theme);
+            alert('Theme changed successfully!');
+        }
+
+        function changeLanguage() {
+            const language = document.getElementById('languageSelect').value;
+            localStorage.setItem('vendor_language', language);
+            alert('Language changed successfully!');
+        }
+
+        function exportData(type) {
+            let data = {};
+            
+            switch(type) {
+                case 'orders':
+                    data = { orders: 'Your order data will be exported here' };
+                    break;
+                case 'profile':
+                    data = { profile: 'Your profile data will be exported here' };
+                    break;
+                case 'all':
+                    data = { 
+                        orders: 'Your order data will be exported here',
+                        profile: 'Your profile data will be exported here',
+                        settings: 'Your settings data will be exported here'
+                    };
+                    break;
+            }
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vendor_${type}_data.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
+        }
+
+        // License Verification Functions
+        async function verifyLicenseNumber() {
+            const licenseNumber = document.getElementById('licenseNumber').value.trim();
+            const userId = localStorage.getItem('user_id');
+            
+            // Get button and store original text
+            const verifyBtn = document.querySelector('.license-number-form .btn-primary');
+            const originalText = verifyBtn ? verifyBtn.innerHTML : '<i class="fas fa-search"></i> Verify License';
+
+            if (!licenseNumber || !userId || !/^\d{14}$/.test(licenseNumber)) {
+                alert('Please enter a valid 14-digit license number.');
+                return;
+            }
+
+            try {
+                if (verifyBtn) {
+                    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                    verifyBtn.disabled = true;
+                }
+
+                // Call backend API
+                const response = await fetch('/api/license/verify-number', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        license_number: licenseNumber,
+                        supplier_id: userId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update status
+                    updateVerificationStatus('verified');
+                    localStorage.setItem(`verification_${userId}`, 'verified');
+                    
+                    // Show success message with license details
+                    const licenseInfo = result.verification_result.license_info;
+                    alert(`🎉 License verified successfully!\n\nBusiness: ${licenseInfo.business_name}\nAddress: ${licenseInfo.address}\nValid Until: ${licenseInfo.valid_until}`);
+                    
+                    // Clear input
+                    document.getElementById('licenseNumber').value = '';
+                } else {
+                    alert('License verification failed: ' + result.message);
+                }
+
+            } catch (error) {
+                console.error('Error verifying license:', error);
+                alert('Error verifying license. Please try again.');
+            } finally {
+                // Reset button state
+                if (verifyBtn) {
+                    verifyBtn.innerHTML = originalText;
+                    verifyBtn.disabled = false;
+                }
+            }
+        }
+
+        // Update verification status display
+        function updateVerificationStatus(status) {
+            const statusElement = document.getElementById('verificationStatus');
+            const icon = statusElement.querySelector('i');
+            const text = statusElement.querySelector('span');
+
+            statusElement.className = `status-indicator ${status}`;
+
+            switch(status) {
+                case 'verified':
+                    icon.className = 'fas fa-check-circle';
+                    text.textContent = 'Verified';
+                    break;
+                case 'pending':
+                    icon.className = 'fas fa-clock';
+                    text.textContent = 'Pending Verification';
+                    break;
+                case 'rejected':
+                    icon.className = 'fas fa-times-circle';
+                    text.textContent = 'Verification Rejected';
+                    break;
+                default:
+                    icon.className = 'fas fa-times-circle';
+                    text.textContent = 'Not Verified';
+            }
+        }
+
+        // File upload handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('licenseFile');
+            const uploadArea = document.getElementById('uploadArea');
+
+            // File input change
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                validateAndDisplayFile(file);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                validateAndDisplayFile(files[0]);
+            }
+        }
+
+        function validateAndDisplayFile(file) {
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid file type (PDF, JPG, PNG).');
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert('File size must be less than 5MB.');
+                return;
+            }
+
+            // Display file preview
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('filePreview').style.display = 'block';
+            document.getElementById('submitLicenseBtn').style.display = 'block';
+        }
+
+        function removeFile() {
+            document.getElementById('licenseFile').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('submitLicenseBtn').style.display = 'none';
+        }
+
+        async function submitLicense() {
+            const fileInput = document.getElementById('licenseFile');
+            const file = fileInput.files[0];
+            const userId = localStorage.getItem('user_id');
+
+            if (!file || !userId) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            // Get button and store original text
+            const submitBtn = document.getElementById('submitLicenseBtn');
+            const originalText = submitBtn ? submitBtn.innerHTML : '<i class="fas fa-upload"></i> Submit License for Verification';
+
+            try {
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                    submitBtn.disabled = true;
+                }
+
+                const formData = new FormData();
+                formData.append('license_file', file);
+                formData.append('supplier_id', userId);
+
+                // Submit to backend API
+                const response = await fetch('/api/license/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    updateVerificationStatus(result.status);
+                    localStorage.setItem(`verification_${userId}`, result.status);
+                    alert('License uploaded successfully! Verification in progress.');
+                    
+                    // Clear file
+                    removeFile();
+                } else {
+                    alert('License upload failed: ' + result.message);
+                }
+
+            } catch (error) {
+                console.error('Error uploading license:', error);
+                alert('Error uploading license. Please try again.');
+            } finally {
+                // Reset button state
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+
+        // Load settings on page load
+        function loadSettings() {
+            // Load profile settings
+            const profileSettings = JSON.parse(localStorage.getItem('vendor_profile_settings') || '{}');
+            if (profileSettings.vendorName) document.getElementById('vendorName').value = profileSettings.vendorName;
+            if (profileSettings.vendorEmail) document.getElementById('vendorEmail').value = profileSettings.vendorEmail;
+            if (profileSettings.vendorPhone) document.getElementById('vendorPhone').value = profileSettings.vendorPhone;
+            if (profileSettings.vendorAddress) document.getElementById('vendorAddress').value = profileSettings.vendorAddress;
+
+            // Load business settings
+            const businessSettings = JSON.parse(localStorage.getItem('vendor_business_settings') || '{}');
+            if (businessSettings.businessType) document.getElementById('businessType').value = businessSettings.businessType;
+            if (businessSettings.cuisineType) document.getElementById('cuisineType').value = businessSettings.cuisineType;
+            if (businessSettings.operatingHours) document.getElementById('operatingHours').value = businessSettings.operatingHours;
+
+            // Load theme and language
+            const theme = localStorage.getItem('vendor_theme') || 'light';
+            const language = localStorage.getItem('vendor_language') || 'en';
+            document.getElementById('themeSelect').value = theme;
+            document.getElementById('languageSelect').value = language;
+
+            // Load license verification status
+            const userId = localStorage.getItem('user_id');
+            if (userId) {
+                const verificationStatus = localStorage.getItem(`verification_${userId}`);
+                if (verificationStatus) {
+                    updateVerificationStatus(verificationStatus);
+                }
+            }
+        }
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
@@ -733,14 +1559,20 @@
             // Load suppliers list
             loadSuppliers();
             
+            // Load settings
+            loadSettings();
+            
             // Set minimum date for delivery to today
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('delivery-date').min = today;
+            const deliveryDateInput = document.getElementById('delivery-date');
+            if (deliveryDateInput) {
+                deliveryDateInput.min = today;
+            }
             
             // Fallback: If suppliers don't load within 3 seconds, show sample suppliers
             setTimeout(() => {
                 const supplierSelect = document.getElementById('supplier');
-                if (supplierSelect.options.length <= 1) {
+                if (supplierSelect && supplierSelect.options.length <= 1) {
                     console.log('Loading fallback suppliers...');
                     supplierSelect.innerHTML = `
                         <option value="">Choose a supplier...</option>
