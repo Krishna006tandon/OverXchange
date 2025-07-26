@@ -1,0 +1,35 @@
+.chatbot-container {
+  width: 400px;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  background: #f9f9f9;
+}
+
+.chat-window {
+  height: 300px;
+  overflow-y: auto;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.bot {
+  text-align: left;
+  background: #e0e0e0;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin: 5px 0;
+}
+
+.user {
+  text-align: right;
+  background: #c8e6c9;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin: 5px 0;
+}
+
+.options button {
+  margin-right: 10px;
+}

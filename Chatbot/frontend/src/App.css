@@ -1,0 +1,25 @@
+.App {
+  text-align: center;
+  padding: 30px;
+  font-family: "Poppins", sans-serif;
+}
+
+.language-select button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+button {
+  background: #6200ea;
+  color: #fff;
+  border: none;
+  margin: 5px;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3700b3;
+}
