@@ -984,19 +984,7 @@
                         <h2>Ready to Order?</h2>
                         <p>Click on "Order from Supplier" in the sidebar to start placing orders for your raw materials.</p>
                         
-                        <!-- Test button for cart functionality -->
-                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; border: 1px solid #e9ecef;">
-                            <h3 style="margin-bottom: 10px; color: #6366f1;">🧪 Test Cart Functionality</h3>
-                            <p style="margin-bottom: 15px; color: #6b7280; font-size: 0.9em;">
-                                Click the button below to add sample items to your cart for testing purposes.
-                            </p>
-                            <button onclick="addSampleToCart()" style="background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-right: 10px;">
-                                Add Sample Items to Cart
-                            </button>
-                            <button onclick="checkCartStatus()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                Check Cart Status
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1781,75 +1769,7 @@
             }
         }
         
-        // Test function to add sample items to cart (for testing purposes)
-        function addSampleToCart() {
-            console.log('addSampleToCart function called');
-            
-            const sampleCart = [
-                {
-                    id: 'sample1',
-                    name: 'Fresh Milk',
-                    price: 56,
-                    supplierName: 'Fresh Foods Supplier',
-                    category: 'Dairy',
-                    unit: 'liter',
-                    quantity: 2,
-                    maxQuantity: 100
-                },
-                {
-                    id: 'sample2',
-                    name: 'Organic Tomatoes',
-                    price: 40,
-                    supplierName: 'Organic Foods Ltd.',
-                    category: 'Vegetables',
-                    unit: 'kg',
-                    quantity: 1,
-                    maxQuantity: 50
-                }
-            ];
-            
-            console.log('Setting cart in localStorage:', sampleCart);
-            localStorage.setItem('cart', JSON.stringify(sampleCart));
-            
-            console.log('Updating cart count');
-            updateCartCount();
-            
-            // Force refresh the cart count display
-            const cartCountSidebar = document.getElementById('cartCountSidebar');
-            console.log('Cart count element:', cartCountSidebar);
-            if (cartCountSidebar) {
-                console.log('Current cart count:', sampleCart.length);
-                cartCountSidebar.textContent = sampleCart.length;
-                cartCountSidebar.style.display = 'flex';
-                console.log('Cart count updated to:', cartCountSidebar.textContent);
-            }
-            
-            alert('Sample items added to cart! Check the cart now. Cart count should be: ' + sampleCart.length);
-        }
-        
-        // Function to check current cart status
-        function checkCartStatus() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const cartCountSidebar = document.getElementById('cartCountSidebar');
-            
-            let status = 'Cart Status:\n';
-            status += '- Items in cart: ' + cart.length + '\n';
-            status += '- Cart count element found: ' + (cartCountSidebar ? 'Yes' : 'No') + '\n';
-            
-            if (cartCountSidebar) {
-                status += '- Current display: ' + cartCountSidebar.style.display + '\n';
-                status += '- Current text: ' + cartCountSidebar.textContent + '\n';
-            }
-            
-            if (cart.length > 0) {
-                status += '\nCart Items:\n';
-                cart.forEach((item, index) => {
-                    status += `${index + 1}. ${item.name} (${item.quantity}x) - ₹${item.price}\n`;
-                });
-            }
-            
-            alert(status);
-        }
+
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
