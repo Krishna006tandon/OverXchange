@@ -230,16 +230,23 @@
         })
         .then(res => res.json())
         .then(data => {
+            console.log('Login response:', data);
             if (data.success) {
                 // Assume backend returns user_type and user_id
                 localStorage.setItem('user_type', data.user_type);
                 localStorage.setItem('user_id', data.user_id);
+                console.log('Stored in localStorage - user_type:', data.user_type, 'user_id:', data.user_id);
                 updateNavbar(); // Update navbar after successful login
                 
                 // Redirect based on user type
                 if (data.user_type === 'vendor') {
+                    console.log('Redirecting to vendor dashboard...');
                     window.location.href = 'vendor-dashboard.html'; // Redirect vendors to dashboard
+                } else if (data.user_type === 'supplier') {
+                    console.log('Redirecting to supplier dashboard...');
+                    window.location.href = 'supply-dashboard.html'; // Redirect suppliers to supplier dashboard
                 } else {
+                    console.log('Redirecting to home page...');
                     window.location.href = 'index.html'; // Redirect others to home page
                 }
             } else {

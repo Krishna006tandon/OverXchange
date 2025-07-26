@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supplier Dashboard Access</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .info { background: #e8f5e8; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffe8e8; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Test Supplier Dashboard Access</h1>
+    
+    <div id="status"></div>
+    
+    <button onclick="checkAuth()">Check Authentication</button>
+    <button onclick="setSupplierAuth()">Set Supplier Auth</button>
+    <button onclick="clearAuth()">Clear Auth</button>
+    <button onclick="goToDashboard()">Go to Supplier Dashboard</button>
+
+    <script>
+        function log(message, type = 'info') {
+            const status = document.getElementById('status');
+            const className = type === 'error' ? 'error' : 'info';
+            status.innerHTML += '<div class="' + className + '">' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+            console.log(message);
+        }
+
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            const userId = localStorage.getItem('user_id');
+            
+            log('Current localStorage:');
+            log('user_type: ' + userType);
+            log('user_id: ' + userId);
+            
+            if (!userType || !userId) {
+                log('No authentication found', 'error');
+            } else if (userType !== 'supplier') {
+                log('User is not a supplier (user_type: ' + userType + ')', 'error');
+            } else {
+                log('Supplier authentication found!', 'info');
+            }
+        }
+
+        function setSupplierAuth() {
+            localStorage.setItem('user_type', 'supplier');
+            localStorage.setItem('user_id', 'test-supplier-id');
+            log('Set supplier authentication in localStorage');
+            checkAuth();
+        }
+
+        function clearAuth() {
+            localStorage.removeItem('user_type');
+            localStorage.removeItem('user_id');
+            log('Cleared authentication');
+            checkAuth();
+        }
+
+        function goToDashboard() {
+            log('Attempting to go to supplier dashboard...');
+            window.location.href = 'supply-dashboard.html';
+        }
+
+        // Check on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded');
+            checkAuth();
+        });
+    </script>
+</body>
+</html> 
