@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VendorNet - V2V Collaboration Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendornet.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-network-wired"></i>
+                Vendor<span>Net</span>
+            </div>
+            <ul>
+                <li><a href="#" class="active">Dashboard</a></li>
+                <li><a href="#">My Requests</a></li>
+                <li><a href="#">Marketplace</a></li>
+                <li><a href="#">Analytics</a></li>
+            </ul>
+            <div class="user-menu">
+                <span class="user-name">Guest</span>
+                <button class="login-btn" onclick="showLoginModal()"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <button class="logout-btn" onclick="logout()" style="display:none;"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-handshake"></i> V2V Collaboration</h1>
+                <p>Connect with other vendors to share resources, fulfill needs, and grow together</p>
+            </div>
+
+            <div class="collaboration-flow">
+                <div class="flow-step active">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Post Request or Offer</h3>
+                        <p>Share your surplus or request what you need</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Match & Connect</h3>
+                        <p>Find compatible vendors</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Collaborate</h3>
+                        <p>Execute the partnership</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <div class="form-header">
+                    <h2><i class="fas fa-plus-circle"></i> Create New Post</h2>
+                    <p>Choose your collaboration type and provide details</p>
+                </div>
+
+                <form class="collaboration-form" id="collaborationForm">
+                    <div class="form-section">
+                        <h3><i class="fas fa-tag"></i> Post Type</h3>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="postType" value="offer" checked>
+                                <div class="radio-custom">
+                                    <i class="fas fa-gift"></i>
+                                    <span>Offer Stock</span>
+                                    <small>Share or sell your surplus inventory</small>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="postType" value="need">
+                                <div class="radio-custom">
+                                    <i class="fas fa-hand-holding-heart"></i>
+                                    <span>Need Stock</span>
+                                    <small>Request urgent items or joint orders</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Product Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productName">Product Name *</label>
+                                <input type="text" id="productName" name="productName" required placeholder="Enter product name">
+                            </div>
+                            <div class="form-group">
+                                <label for="quantity">Quantity *</label>
+                                <input type="number" id="quantity" name="quantity" required placeholder="Enter quantity">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> Location & Type</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="location">Location *</label>
+                                <input type="text" id="location" name="location" required placeholder="Enter your location">
+                            </div>
+                            <div class="form-group">
+                                <label for="collaborationType">Collaboration Type *</label>
+                                <select id="collaborationType" name="collaborationType" required>
+                                    <option value="">Select type</option>
+                                    <option value="share">Share</option>
+                                    <option value="sell">Sell</option>
+                                    <option value="pool">Pool Order</option>
+                                    <option value="lend">Lend</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-clock"></i> Validity & Additional Info</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="validityTime">Validity Time *</label>
+                                <input type="datetime-local" id="validityTime" name="validityTime" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="urgency">Urgency Level</label>
+                                <select id="urgency" name="urgency">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="4" placeholder="Provide additional details about your request or offer..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i> Post Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="recent-posts">
+                <h3><i class="fas fa-history"></i> Exchange Board</h3>
+                <div class="exchange-filters">
+                    <input type="text" id="filterProduct" placeholder="Filter by product...">
+                    <input type="text" id="filterCity" placeholder="Filter by city...">
+                    <input type="text" id="filterPincode" placeholder="Filter by pincode...">
+                    <button class="btn-small" onclick="applyFilters()"><i class="fas fa-filter"></i> Apply Filters</button>
+                </div>
+                <div class="posts-grid" id="exchangeBoard">
+                    <!-- Listings will be dynamically rendered here -->
+                </div>
+            </div>
+
+            <!-- In-App Alert Popup -->
+            <div id="alertPopup" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeAlert()">&times;</span>
+                    <h3><i class="fas fa-bell"></i> New Listing Alert!</h3>
+                    <p id="alertText">A new offer/need matches your filters.</p>
+                    <button class="btn-primary" onclick="viewDetailsFromAlert()">View Details</button>
+                </div>
+            </div>
+
+            <!-- Listing Details Modal -->
+            <div id="detailsModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeDetails()">&times;</span>
+                    <h3><i class="fas fa-info-circle"></i> Listing Details</h3>
+                    <div id="listingDetails"></div>
+                    <div class="respond-actions">
+                        <button class="btn-primary" onclick="openChat()"><i class="fas fa-comments"></i> Chat Now</button>
+                        <button class="btn-primary" onclick="claimStock()"><i class="fas fa-check-circle"></i> Claim Stock / Join Pool</button>
+                        <button class="btn-secondary" onclick="negotiateOffer()"><i class="fas fa-handshake"></i> Negotiate</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Execution Modal -->
+            <div id="actionModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeActionModal()">&times;</span>
+                    <div id="actionContent"></div>
+                </div>
+            </div>
+
+            <!-- Feedback Modal -->
+            <div id="feedbackModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeFeedbackModal()">&times;</span>
+                    <h3><i class="fas fa-star"></i> Rate Your Experience</h3>
+                    <div class="stars">
+                        <span onclick="rate(1)">&#9733;</span>
+                        <span onclick="rate(2)">&#9733;</span>
+                        <span onclick="rate(3)">&#9733;</span>
+                        <span onclick="rate(4)">&#9733;</span>
+                        <span onclick="rate(5)">&#9733;</span>
+                    </div>
+                    <textarea id="feedbackText" placeholder="Leave feedback..."></textarea>
+                    <button class="btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+                </div>
+            </div>
+
+            <!-- Analytics & Benefits Section -->
+            <div class="analytics-section">
+                <h3><i class="fas fa-chart-line"></i> System Benefits & Analytics</h3>
+                <ul class="benefits-list">
+                    <li><b>Faster stock movement:</b> Reduces waste & dead stock</li>
+                    <li><b>Strong vendor community:</b> Trust network builds over time</li>
+                    <li><b>Better purchasing power:</b> Joint orders unlock wholesale discounts</li>
+                    <li><b>Real-time fulfillment:</b> Urgent needs fulfilled without waiting for wholesalers</li>
+                </ul>
+                <div class="analytics-data">
+                    <div><b>Top Traders:</b> Vendor A, Vendor B, Vendor C</div>
+                    <div><b>Avg. Fulfillment Speed:</b> 1.2 hours</div>
+                    <div><b>Quality Score:</b> 4.8/5</div>
+                </div>
+                <div class="real-example">
+                    <h4>🧠 Real Example:</h4>
+                    <p><b>Vendor A (Nagpur):</b> “20 power banks at ₹300/unit – in-stock, pick-up ready.”<br>
+                    <b>Vendor B (Nagpur):</b> “Needs 10 urgently.”<br>
+                    <b>✅ Claim stock → Pay → Pickup in 1 hour.</b><br>
+                    <i>💡 No wholesaler, no delay.</i></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeAuthModal()">&times;</span>
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('register')">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <h3><i class="fas fa-sign-in-alt"></i> Login</h3>
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" style="display:none;">
+                <h3><i class="fas fa-user-plus"></i> Register</h3>
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerCompany">Company</label>
+                    <input type="text" id="registerCompany">
+                </div>
+                <div class="form-group">
+                    <label for="registerLocation">Location</label>
+                    <input type="text" id="registerLocation" placeholder="City, Country">
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">Phone</label>
+                    <input type="tel" id="registerPhone">
+                </div>
+                <button type="submit" class="btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let authToken = null;
+
+        // API Base URL
+        const API_BASE = 'http://localhost:5000/api';
+
+        // Authentication functions
+        async function login(email, password) {
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    currentUser = data.user;
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    return data;
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                throw error;
+            }
+        }
+
+        async function register(userData) {
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    return data;
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                throw error;
+            }
+        }
+
+        // Check if user is logged in
+        function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('currentUser');
+            
+            if (token && user) {
+                authToken = token;
+                currentUser = JSON.parse(user);
+                updateUIForLoggedInUser();
+                return true;
+            }
+            return false;
+        }
+
+        function updateUIForLoggedInUser() {
+            if (currentUser) {
+                document.querySelector('.user-name').textContent = currentUser.name;
+                document.querySelector('.logout-btn').style.display = 'inline-block';
+                document.querySelector('.login-btn').style.display = 'none';
+                // Show user-specific content
+                document.querySelector('.form-container').style.display = 'block';
+            }
+        }
+
+        // API Helper function
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+
+            if (authToken) {
+                config.headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'API request failed');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API call error:', error);
+                throw error;
+            }
+        }
+
+        // Listings functions
+        async function getListings(filters = {}) {
+            try {
+                const queryParams = new URLSearchParams(filters).toString();
+                const data = await apiCall(`/listings?${queryParams}`);
+                return data.listings;
+            } catch (error) {
+                console.error('Error fetching listings:', error);
+                return [];
+            }
+        }
+
+        async function createListing(listingData) {
+            try {
+                const data = await apiCall('/listings', {
+                    method: 'POST',
+                    body: JSON.stringify(listingData)
+                });
+                return data;
+            } catch (error) {
+                console.error('Error creating listing:', error);
+                throw error;
+            }
+        }
+
+        async function getListing(id) {
+            try {
+                const data = await apiCall(`/listings/${id}`);
+                return data.listing;
+            } catch (error) {
+                console.error('Error fetching listing:', error);
+                throw error;
+            }
+        }
+
+        // Transactions functions
+        async function createTransaction(transactionData) {
+            try {
+                const data = await apiCall('/transactions', {
+                    method: 'POST',
+                    body: JSON.stringify(transactionData)
+                });
+                return data;
+            } catch (error) {
+                console.error('Error creating transaction:', error);
+                throw error;
+            }
+        }
+
+        async function completeTransaction(transactionId) {
+            try {
+                const data = await apiCall(`/transactions/${transactionId}/complete`, {
+                    method: 'PUT'
+                });
+                return data;
+            } catch (error) {
+                console.error('Error completing transaction:', error);
+                throw error;
+            }
+        }
+
+        // Chat functions
+        async function sendMessage(messageData) {
+            try {
+                const data = await apiCall('/chat', {
+                    method: 'POST',
+                    body: JSON.stringify(messageData)
+                });
+                return data;
+            } catch (error) {
+                console.error('Error sending message:', error);
+                throw error;
+            }
+        }
+
+        async function getChatHistory(userId) {
+            try {
+                const data = await apiCall(`/chat/${userId}`);
+                return data.messages;
+            } catch (error) {
+                console.error('Error fetching chat history:', error);
+                return [];
+            }
+        }
+
+        // Feedback functions
+        async function submitFeedback(feedbackData) {
+            try {
+                const data = await apiCall('/feedback', {
+                    method: 'POST',
+                    body: JSON.stringify(feedbackData)
+                });
+                return data;
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                throw error;
+            }
+        }
+
+        // Analytics functions
+        async function getAnalytics() {
+            try {
+                const data = await apiCall('/analytics');
+                return data;
+            } catch (error) {
+                console.error('Error fetching analytics:', error);
+                return null;
+            }
+        }
+
+        // Updated form submission handling
+        document.getElementById('collaborationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showNotification('Please log in to create a listing', 'error');
+                return;
+            }
+            
+            try {
+                const formData = new FormData(this);
+                const listingData = {
+                    type: formData.get('postType') === 'offer' ? 'Offer' : 'Need',
+                    product: formData.get('productName'),
+                    quantity: parseInt(formData.get('quantity')),
+                    location: formData.get('location'),
+                    city: formData.get('location').split(',')[0].trim(),
+                    pincode: formData.get('location').split(',').pop().trim(),
+                    collaboration_type: formData.get('collaborationType'),
+                    validity_time: formData.get('validityTime'),
+                    urgency: formData.get('urgency'),
+                    description: formData.get('description')
+                };
+                
+                const result = await createListing(listingData);
+                showNotification('Listing created successfully!', 'success');
+                this.reset();
+                
+                // Refresh listings
+                await loadListings();
+                
+            } catch (error) {
+                showNotification('Error creating listing: ' + error.message, 'error');
+            }
+        });
+
+        // Update button text based on post type
+        document.querySelectorAll('input[name="postType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const submitBtn = document.querySelector('.btn-primary');
+                if (this.value === 'offer') {
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Offer';
+                } else {
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Request';
+                }
+            });
+        });
+
+        // Reset form function
+        function resetForm() {
+            document.getElementById('collaborationForm').reset();
+            showNotification('Form reset successfully!', 'info');
+        }
+
+        // Notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // --- Exchange Board Data & Logic ---
+        let selectedListingId = null;
+        function renderListings(listingsData) {
+            const board = document.getElementById('exchangeBoard');
+            board.innerHTML = listingsData.map(listing => `
+                <div class="post-card ${listing.type.toLowerCase()}">
+                    <div class="post-header">
+                        <span class="post-type">${listing.type}</span>
+                        <span class="post-time">${formatTime(listing.created_at)}</span>
+                    </div>
+                    <h4>${listing.product}</h4>
+                    <p><strong>Quantity:</strong> ${listing.quantity}</p>
+                    <p><strong>Location:</strong> ${listing.location}</p>
+                    <p><strong>Type:</strong> ${listing.collaboration_type}</p>
+                    <p><strong>Vendor:</strong> ${listing.vendor_name || 'Unknown'}</p>
+                    <div class="post-actions">
+                        <button class="btn-small" onclick="showDetails('${listing._id}')">View Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 60) return `${minutes} minutes ago`;
+            if (hours < 24) return `${hours} hours ago`;
+            return `${days} days ago`;
+        }
+
+        async function applyFilters() {
+            const product = document.getElementById('filterProduct').value;
+            const city = document.getElementById('filterCity').value;
+            const pincode = document.getElementById('filterPincode').value;
+            
+            const filters = {};
+            if (product) filters.product = product;
+            if (city) filters.city = city;
+            if (pincode) filters.pincode = pincode;
+            
+            try {
+                const listings = await getListings(filters);
+                renderListings(listings);
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                showNotification('Error applying filters', 'error');
+            }
+        }
+
+        // --- In-App Alert Simulation ---
+        function showAlert(id) {
+            selectedListingId = id;
+            document.getElementById('alertPopup').style.display = 'block';
+            document.getElementById('alertText').innerText = 'A new ' + (listings.find(l => l.id === id).type) + ' matches your filters.';
+        }
+        function closeAlert() {
+            document.getElementById('alertPopup').style.display = 'none';
+        }
+        function viewDetailsFromAlert() {
+            closeAlert();
+            showDetails(selectedListingId);
+        }
+
+        // --- Listing Details Modal ---
+        async function showDetails(listingId) {
+            try {
+                const listing = await getListing(listingId);
+                document.getElementById('listingDetails').innerHTML = `
+                    <p><b>Product:</b> ${listing.product}</p>
+                    <p><b>Quantity:</b> ${listing.quantity}</p>
+                    <p><b>Location:</b> ${listing.location}</p>
+                    <p><b>Type:</b> ${listing.collaboration_type}</p>
+                    <p><b>Vendor:</b> ${listing.vendor_name || 'Unknown'}</p>
+                    <p><b>Trust Score:</b> ${listing.vendor_trust_score || 'N/A'}</p>
+                    <p><b>Details:</b> ${listing.description}</p>
+                `;
+                document.getElementById('detailsModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching listing details:', error);
+                showNotification('Error loading listing details', 'error');
+            }
+        }
+        function closeDetails() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        // --- Respond/Action Panel ---
+        async function openChat() {
+            closeDetails();
+            document.getElementById('actionContent').innerHTML = `
+                <h3><i class='fas fa-comments'></i> In-App Chat</h3>
+                <div class='chat-box'>
+                    <div class='chat-message'><b>You:</b> Hi, I am interested!</div>
+                    <div class='chat-message'><b>Vendor:</b> Hello! How can I help?</div>
+                </div>
+                <input type='text' class='chat-input' placeholder='Type a message...'>
+                <button class='btn-primary' onclick='closeActionModal()'>Close Chat</button>
+            `;
+            document.getElementById('actionModal').style.display = 'block';
+        }
+        async function claimStock() {
+            closeDetails();
+            document.getElementById('actionContent').innerHTML = `
+                <h3><i class='fas fa-check-circle'></i> Claim Stock / Join Pool</h3>
+                <p>Proceed to claim stock or join a group buy room.</p>
+                <button class='btn-primary' onclick='executeAction("buy")'>Buy Now</button>
+                <button class='btn-primary' onclick='executeAction("group")'>Join Group Buy</button>
+                <button class='btn-secondary' onclick='closeActionModal()'>Cancel</button>
+            `;
+            document.getElementById('actionModal').style.display = 'block';
+        }
+        async function negotiateOffer() {
+            closeDetails();
+            document.getElementById('actionContent').innerHTML = `
+                <h3><i class='fas fa-handshake'></i> Negotiate Offer</h3>
+                <p>Send a counter-offer or negotiate terms via chat.</p>
+                <input type='text' class='chat-input' placeholder='Enter your offer...'>
+                <button class='btn-primary' onclick='closeActionModal()'>Send Offer</button>
+            `;
+            document.getElementById('actionModal').style.display = 'block';
+        }
+        function closeActionModal() {
+            document.getElementById('actionModal').style.display = 'none';
+        }
+
+        // --- Action Execution ---
+        async function executeAction(type) {
+            try {
+                if (type === 'buy') {
+                    const transactionData = {
+                        seller_id: selectedListingId,
+                        listing_id: selectedListingId,
+                        type: 'buy',
+                        quantity: 1,
+                        amount: 0,
+                        payment_method: 'in_app'
+                    };
+                    
+                    const result = await createTransaction(transactionData);
+                    document.getElementById('actionContent').innerHTML = `
+                        <h3><i class='fas fa-credit-card'></i> Payment Successful</h3>
+                        <p>Transaction ID: ${result.transaction._id}</p>
+                        <button class='btn-primary' onclick='showLogistics()'>Continue to Logistics</button>
+                    `;
+                } else if (type === 'group') {
+                    document.getElementById('actionContent').innerHTML = `
+                        <h3><i class='fas fa-users'></i> Group Buy Room</h3>
+                        <p>Vendors joined: Vendor B, Vendor C</p>
+                        <p>Quantities + rates + invoice split auto-calculated.</p>
+                        <button class='btn-primary' onclick='showLogistics()'>Proceed to Payment</button>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error executing action:', error);
+                showNotification('Error processing transaction', 'error');
+            }
+        }
+        function showLogistics() {
+            document.getElementById('actionContent').innerHTML = `
+                <h3><i class='fas fa-truck'></i> Logistics</h3>
+                <p>Pickup/delivery arranged. Logistics details shared.</p>
+                <button class='btn-primary' onclick='showFeedbackModal()'>Complete Transaction</button>
+            `;
+        }
+
+        // --- Feedback & Trust ---
+        async function showFeedbackModal() {
+            closeActionModal();
+            document.getElementById('feedbackModal').style.display = 'block';
+        }
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').style.display = 'none';
+        }
+        function rate(stars) {
+            document.querySelectorAll('#feedbackModal .stars span').forEach((el, idx) => {
+                el.style.color = idx < stars ? '#ffd700' : '#ccc';
+            });
+            document.getElementById('feedbackModal').setAttribute('data-rating', stars);
+        }
+        async function submitFeedback() {
+            try {
+                const rating = document.getElementById('feedbackModal').getAttribute('data-rating') || 0;
+                const feedback = document.getElementById('feedbackText').value;
+                
+                const feedbackData = {
+                    rated_user_id: selectedListingId, // This should be the actual user ID
+                    rating: parseInt(rating),
+                    comment: feedback
+                };
+                
+                await submitFeedback(feedbackData);
+                showNotification('Thank you for your feedback! Trust score updated.', 'success');
+                closeFeedbackModal();
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                showNotification('Error submitting feedback', 'error');
+            }
+        }
+
+        // Load analytics
+        async function loadAnalytics() {
+            try {
+                const analytics = await getAnalytics();
+                if (analytics) {
+                    updateAnalyticsUI(analytics);
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function updateAnalyticsUI(analytics) {
+            const analyticsSection = document.querySelector('.analytics-data');
+            if (analyticsSection) {
+                analyticsSection.innerHTML = `
+                    <div><b>Top Traders:</b> ${analytics.top_traders.map(t => t.name).join(', ')}</div>
+                    <div><b>Avg. Fulfillment Speed:</b> ${analytics.avg_fulfillment_speed} hours</div>
+                    <div><b>Quality Score:</b> ${analytics.quality_score}/5</div>
+                    <div><b>Total Listings:</b> ${analytics.total_listings}</div>
+                    <div><b>Total Transactions:</b> ${analytics.total_transactions}</div>
+                `;
+            }
+        }
+
+        // Authentication Modal Functions
+        function showLoginModal() {
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').style.display = 'none';
+            document.querySelector('.auth-tabs .active').classList.remove('active');
+            document.querySelector('.auth-tabs button:first-of-type').classList.add('active');
+        }
+
+        function showRegisterModal() {
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('registerForm').reset();
+            document.getElementById('loginForm').style.display = 'none';
+            document.querySelector('.auth-tabs .active').classList.remove('active');
+            document.querySelector('.auth-tabs button:last-of-type').classList.add('active');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function switchTab(tab) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById(tab + 'Form').style.display = 'block';
+            document.querySelector('.auth-tabs .active').classList.remove('active');
+            document.querySelector(`.auth-tabs button[onclick="switchTab('${tab}')"]`).classList.add('active');
+        }
+
+        // Login/Register Form Submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const data = await login(email, password);
+                showNotification('Login successful!', 'success');
+                closeAuthModal();
+                updateUIForLoggedInUser();
+                loadListings(); // Refresh listings after login
+            } catch (error) {
+                showNotification('Login failed: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const userData = {
+                name: document.getElementById('registerName').value,
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value,
+                company: document.getElementById('registerCompany').value,
+                location: document.getElementById('registerLocation').value,
+                phone: document.getElementById('registerPhone').value
+            };
+
+            try {
+                const data = await register(userData);
+                showNotification('Registration successful!', 'success');
+                closeAuthModal();
+                updateUIForLoggedInUser();
+                loadListings(); // Refresh listings after registration
+            } catch (error) {
+                showNotification('Registration failed: ' + error.message, 'error');
+            }
+        });
+
+        // Logout function
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            updateUIForLoggedInUser();
+            showNotification('Logged out successfully!', 'info');
+            // Optionally redirect to login page
+            // window.location.href = 'login.html'; 
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadListings();
+            loadAnalytics();
+        });
+    </script>
+</body>
+</html> 
