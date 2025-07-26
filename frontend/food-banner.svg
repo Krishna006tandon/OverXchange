@@ -1,0 +1,73 @@
+<svg width="1200" height="200" viewBox="0 0 1200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="100" fill="#1a375a"/>
+  <rect y="100" width="1200" height="100" fill="#ffd700"/>
+  
+  <!-- Wavy separator -->
+  <path d="M0 100L1200 100L1200 120L0 120Z" fill="#ffd700"/>
+  
+  <!-- FastFood Text -->
+  <text x="600" y="60" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">FastFood?</text>
+  
+  <!-- Food Icons -->
+  <!-- Pizza -->
+  <circle cx="200" cy="50" r="25" fill="#ff6b35"/>
+  <circle cx="190" cy="40" r="3" fill="#8b4513"/>
+  <circle cx="210" cy="45" r="3" fill="#8b4513"/>
+  <circle cx="195" cy="60" r="3" fill="#8b4513"/>
+  
+  <!-- Burger -->
+  <rect x="300" y="35" width="40" height="8" fill="#8b4513"/>
+  <rect x="300" y="43" width="40" height="6" fill="#228b22"/>
+  <rect x="300" y="49" width="40" height="8" fill="#8b4513"/>
+  <rect x="300" y="57" width="40" height="6" fill="#ffd700"/>
+  <rect x="300" y="63" width="40" height="8" fill="#8b4513"/>
+  
+  <!-- Salad Bowl -->
+  <ellipse cx="450" cy="50" rx="30" ry="15" fill="#228b22"/>
+  <ellipse cx="450" cy="45" rx="25" ry="10" fill="#90ee90"/>
+  <circle cx="440" cy="40" r="2" fill="#ff6347"/>
+  <circle cx="460" cy="50" r="2" fill="#ff6347"/>
+  
+  <!-- Samosa -->
+  <path d="M550 35L570 35L580 50L570 65L550 65L540 50Z" fill="#ffd700"/>
+  <path d="M545 40L565 40L570 50L565 60L545 60L540 50Z" fill="#8b4513"/>
+  
+  <!-- Fries -->
+  <rect x="650" y="30" width="3" height="20" fill="#ffd700"/>
+  <rect x="655" y="35" width="3" height="15" fill="#ffd700"/>
+  <rect x="660" y="40" width="3" height="10" fill="#ffd700"/>
+  <rect x="665" y="45" width="3" height="5" fill="#ffd700"/>
+  
+  <!-- Bottom section text -->
+  <text x="600" y="150" font-family="Arial, sans-serif" font-size="18" fill="#1a375a" text-anchor="middle">Order from Trusted Suppliers</text>
+  
+  <!-- Bottom food items -->
+  <!-- Ice Cream -->
+  <circle cx="150" cy="130" r="15" fill="#ff69b4"/>
+  <circle cx="150" cy="115" r="12" fill="#87ceeb"/>
+  <circle cx="150" cy="100" r="8" fill="#98fb98"/>
+  
+  <!-- Coffee Cup -->
+  <rect x="250" y="120" width="20" height="25" fill="#8b4513"/>
+  <rect x="245" y="115" width="30" height="5" fill="#8b4513"/>
+  <rect x="255" y="125" width="10" height="15" fill="#ffd700"/>
+  
+  <!-- Donut -->
+  <circle cx="350" cy="130" r="20" fill="#ff69b4"/>
+  <circle cx="350" cy="130" r="12" fill="white"/>
+  <circle cx="345" cy="125" r="3" fill="#ff6347"/>
+  
+  <!-- Smoothie -->
+  <rect x="450" y="110" width="15" height="30" fill="#32cd32"/>
+  <rect x="445" y="105" width="25" height="5" fill="#228b22"/>
+  <circle cx="457" cy="120" r="2" fill="white"/>
+  <circle cx="453" cy="130" r="2" fill="white"/>
+  
+  <!-- Cake -->
+  <rect x="550" y="125" width="30" height="20" fill="#ff69b4"/>
+  <rect x="555" y="120" width="20" height="5" fill="#ffd700"/>
+  <circle cx="560" cy="135" r="2" fill="white"/>
+  <circle cx="570" cy="135" r="2" fill="white"/>
+  <circle cx="565" cy="145" r="2" fill="white"/>
+</svg> 
