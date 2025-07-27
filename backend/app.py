@@ -1597,8 +1597,18 @@ def get_orders():
         user_type = request.args.get('user_type')
         user_id = request.args.get('user_id')
         
+        # Debug: List all orders if no user_type/user_id provided
         if not user_type or not user_id:
-            return jsonify({'success': False, 'message': 'User type and ID required'}), 400
+            print("Debug: Listing all orders")
+            all_orders = list(db['orders'].find({}, {'order_id': 1, 'status': 1, 'order_date': 1}))
+            print(f"Total orders in database: {len(all_orders)}")
+            for order in all_orders:
+                print(f"Order: {order.get('order_id')} - Status: {order.get('status')}")
+            return jsonify({
+                'success': True, 
+                'message': 'All orders listed for debugging',
+                'orders': all_orders
+            })
         
         if user_type == 'vendor':
             # Get orders for vendor
