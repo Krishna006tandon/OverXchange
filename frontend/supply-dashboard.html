@@ -5486,7 +5486,11 @@
                 submitBtn.disabled = false;
                 
                 if (data.success) {
-                    alert('Order accepted successfully!');
+                    let message = 'Order accepted successfully!';
+                    if (data.stock_updated) {
+                        message += '\n\n📦 Stock Updated: ' + data.stock_message;
+                    }
+                    alert(message);
                     closeQuickAcceptModal();
                     closeOrderDetailsModal();
                     loadSupplierOrders(); // Refresh the orders list

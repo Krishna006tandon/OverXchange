@@ -182,18 +182,62 @@ def add_stock():
     data = request.json
     data['created_at'] = datetime.now()
     data['updated_at'] = datetime.now()
+    data['last_updated'] = datetime.now()
+    data['stock_history'] = [{
+        'action': 'stock_added',
+        'quantity_change': data.get('quantity', 0),
+        'previous_stock': 0,
+        'new_stock': data.get('quantity', 0),
+        'timestamp': datetime.now()
+    }]
     result = db['stocks'].insert_one(data)
     return jsonify({'success': True, 'message': 'Stock added successfully!', 'id': str(result.inserted_id)})
 
 @app.route('/api/stocks/<stock_id>', methods=['PUT'])
 def update_stock(stock_id):
     """Update a stock item"""
-    data = request.json
-    data['updated_at'] = datetime.now()
-    result = db['stocks'].update_one({'_id': ObjectId(stock_id)}, {'$set': data})
-    if result.matched_count == 0:
-        return jsonify({'success': False, 'message': 'Stock not found'}), 404
-    return jsonify({'success': True, 'message': 'Stock updated successfully!'})
+    try:
+        data = request.json
+        
+        # Get current stock to calculate quantity change
+        current_stock = db['stocks'].find_one({'_id': ObjectId(stock_id)})
+        if not current_stock:
+            return jsonify({'success': False, 'message': 'Stock not found'}), 404
+        
+        current_quantity = current_stock.get('quantity', 0)
+        new_quantity = data.get('quantity', current_quantity)
+        quantity_change = new_quantity - current_quantity
+        
+        # Prepare update data
+        update_data = data.copy()
+        update_data['updated_at'] = datetime.now()
+        update_data['last_updated'] = datetime.now()
+        
+        # Add stock history entry
+        stock_history_entry = {
+            'action': 'stock_updated',
+            'quantity_change': quantity_change,
+            'previous_stock': current_quantity,
+            'new_stock': new_quantity,
+            'timestamp': datetime.now()
+        }
+        
+        # Update stock with history
+        result = db['stocks'].update_one(
+            {'_id': ObjectId(stock_id)}, 
+            {
+                '$set': update_data,
+                '$push': {'stock_history': stock_history_entry}
+            }
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({'success': False, 'message': 'Stock not found'}), 404
+            
+        return jsonify({'success': True, 'message': 'Stock updated successfully!'})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/stocks/<stock_id>', methods=['DELETE'])
 def delete_stock(stock_id):
@@ -1823,16 +1867,125 @@ def accept_order(order_id):
         if result.modified_count == 0:
             return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
         
+        # Update stock quantities after order acceptance
+        stock_update_result = update_supplier_stock_on_order_accept(order_id, supplier_name)
+        
         print(f"Order accepted successfully: {order_id}")
+        print(f"Stock update result: {stock_update_result}")
         
         return jsonify({
             'success': True,
-            'message': 'Order accepted successfully'
+            'message': 'Order accepted successfully',
+            'stock_updated': stock_update_result['success'],
+            'stock_message': stock_update_result['message']
         })
         
     except Exception as e:
         print(f"Error accepting order: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
+
+def update_supplier_stock_on_order_accept(order_id, supplier_name):
+    """Update supplier stock quantities when order is accepted"""
+    try:
+        print(f"Updating stock for order {order_id}, supplier {supplier_name}")
+        
+        # Get the order details
+        order = db['orders'].find_one({'order_id': order_id})
+        if not order:
+            return {'success': False, 'message': 'Order not found'}
+        
+        # Find supplier-specific items in the order
+        supplier_order = None
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_name') == supplier_name:
+                supplier_order = so
+                break
+        
+        if not supplier_order:
+            return {'success': False, 'message': f'No items found for supplier {supplier_name}'}
+        
+        # Update stock for each item
+        updated_items = []
+        failed_items = []
+        
+        for item in supplier_order.get('items', []):
+            product_name = item.get('name')
+            ordered_quantity = item.get('quantity', 0)
+            
+            print(f"Processing item: {product_name}, quantity: {ordered_quantity}")
+            
+            # Find the stock item for this supplier and product
+            stock_query = {
+                'supplier_name': supplier_name,
+                'name': product_name
+            }
+            
+            stock_item = db['stocks'].find_one(stock_query)
+            
+            if stock_item:
+                current_stock = stock_item.get('quantity', 0)
+                new_stock = current_stock - ordered_quantity
+                
+                if new_stock >= 0:
+                    # Update stock quantity
+                    result = db['stocks'].update_one(
+                        {'_id': stock_item['_id']},
+                        {
+                            '$set': {
+                                'quantity': new_stock,
+                                'last_updated': datetime.now()
+                            },
+                            '$push': {
+                                'stock_history': {
+                                    'action': 'order_accepted',
+                                    'quantity_change': -ordered_quantity,
+                                    'previous_stock': current_stock,
+                                    'new_stock': new_stock,
+                                    'order_id': order_id,
+                                    'timestamp': datetime.now()
+                                }
+                            }
+                        }
+                    )
+                    
+                    if result.modified_count > 0:
+                        updated_items.append({
+                            'product': product_name,
+                            'previous_stock': current_stock,
+                            'new_stock': new_stock,
+                            'ordered_quantity': ordered_quantity
+                        })
+                        print(f"Stock updated for {product_name}: {current_stock} -> {new_stock}")
+                    else:
+                        failed_items.append(f"Failed to update stock for {product_name}")
+                else:
+                    failed_items.append(f"Insufficient stock for {product_name} (current: {current_stock}, ordered: {ordered_quantity})")
+            else:
+                failed_items.append(f"Stock item not found for {product_name}")
+        
+        # Prepare response
+        if updated_items and not failed_items:
+            return {
+                'success': True,
+                'message': f'Stock updated successfully for {len(updated_items)} items',
+                'updated_items': updated_items
+            }
+        elif updated_items and failed_items:
+            return {
+                'success': True,
+                'message': f'Stock updated for {len(updated_items)} items, {len(failed_items)} failed',
+                'updated_items': updated_items,
+                'failed_items': failed_items
+            }
+        else:
+            return {
+                'success': False,
+                'message': f'Failed to update stock: {", ".join(failed_items)}'
+            }
+            
+    except Exception as e:
+        print(f"Error updating stock: {str(e)}")
+        return {'success': False, 'message': f'Error updating stock: {str(e)}'}
 
 @app.route('/api/orders/<order_id>/reject', methods=['POST'])
 def reject_order(order_id):
