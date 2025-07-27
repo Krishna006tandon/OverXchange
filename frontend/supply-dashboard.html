@@ -2753,7 +2753,7 @@
                 
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="3" placeholder="Describe the coupon offer..."></textarea>
+                                            <textarea id="couponDescription" name="description" rows="3" placeholder="Describe the coupon offer..."></textarea>
                 </div>
                 
                 <div class="form-row">
@@ -2906,7 +2906,7 @@
                     } else if (targetPage === 'coupons') {
                         loadCoupons();
                     } else if (targetPage === 'analytics') {
-                        loadAnalytics();
+                        loadAnalyticsData();
                     }
                 }
             });
