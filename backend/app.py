@@ -1477,5 +1477,567 @@ def admin_verify_license(license_id):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+# Order Management APIs
+@app.route('/api/orders', methods=['POST'])
+def create_order():
+    try:
+        data = request.json
+        
+        # Generate unique order ID
+        order_id = f"ORD-{datetime.now().strftime('%Y%m%d')}-{str(ObjectId())[-6:].upper()}"
+        
+        order_data = {
+            'order_id': order_id,
+            'customer_info': data['customerInfo'],
+            'shipping_address': data['shippingAddress'],
+            'shipping_method': data['shippingMethod'],
+            'delivery_instructions': data.get('deliveryInstructions', ''),
+            'payment_method': data['paymentMethod'],
+            'items': data['items'],
+            'subtotal': data['subtotal'],
+            'shipping_cost': data['shippingCost'],
+            'tax_amount': data['taxAmount'],
+            'total_amount': data['totalAmount'],
+            'order_date': datetime.now(),
+            'status': 'pending',
+            'vendor_id': data.get('vendor_id'),  # Will be set from session
+            'supplier_orders': []  # Will contain individual supplier orders
+        }
+        
+        # Group items by supplier and create supplier orders
+        supplier_items = {}
+        for item in data['items']:
+            supplier_name = item['supplierName']
+            if supplier_name not in supplier_items:
+                supplier_items[supplier_name] = []
+            supplier_items[supplier_name].append(item)
+        
+        # Get supplier IDs for each supplier name
+        supplier_orders = []
+        for supplier_name, items in supplier_items.items():
+            # Find supplier by name
+            supplier = db['suppliers'].find_one({'business_name': supplier_name})
+            if not supplier:
+                supplier = db['suppliers'].find_one({'name': supplier_name})
+            
+            supplier_order = {
+                'supplier_name': supplier_name,
+                'supplier_id': str(supplier['_id']) if supplier else None,
+                'items': items,
+                'subtotal': sum(item['price'] * item['quantity'] for item in items),
+                'status': 'pending',
+                'order_date': datetime.now()
+            }
+            supplier_orders.append(supplier_order)
+        
+        order_data['supplier_orders'] = supplier_orders
+        
+        # Insert order into database
+        result = db['orders'].insert_one(order_data)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Order created successfully',
+            'order_id': order_id,
+            'order_mongo_id': str(result.inserted_id)
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/orders', methods=['GET'])
+def get_orders():
+    try:
+        user_type = request.args.get('user_type')
+        user_id = request.args.get('user_id')
+        
+        if not user_type or not user_id:
+            return jsonify({'success': False, 'message': 'User type and ID required'}), 400
+        
+        if user_type == 'vendor':
+            # Get orders for vendor
+            orders = list(db['orders'].find({'vendor_id': user_id}).sort('order_date', -1))
+        elif user_type == 'supplier':
+            # Get orders for supplier (filter by supplier ID or name)
+            supplier = db['suppliers'].find_one({'_id': ObjectId(user_id)})
+            if not supplier:
+                return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+            
+            supplier_name = supplier.get('business_name', supplier.get('name', ''))
+            supplier_id = str(supplier['_id'])
+            
+            # Find orders where this supplier is involved
+            orders = list(db['orders'].find({
+                '$or': [
+                    {'supplier_orders.supplier_name': supplier_name},
+                    {'supplier_orders.supplier_id': supplier_id}
+                ]
+            }).sort('order_date', -1))
+        else:
+            return jsonify({'success': False, 'message': 'Invalid user type'}), 400
+        
+        # Convert ObjectId to string for JSON serialization
+        for order in orders:
+            order['_id'] = str(order['_id'])
+            order['order_date'] = order['order_date'].isoformat()
+        
+        return jsonify({
+            'success': True,
+            'orders': orders
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/orders/<order_id>', methods=['GET'])
+def get_order(order_id):
+    try:
+        order = db['orders'].find_one({'order_id': order_id})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+        
+        order['_id'] = str(order['_id'])
+        order['order_date'] = order['order_date'].isoformat()
+        
+        return jsonify({
+            'success': True,
+            'order': order
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/orders/<order_id>/status', methods=['PUT'])
+def update_order_status(order_id):
+    try:
+        data = request.json
+        new_status = data.get('status')
+        supplier_name = data.get('supplier_name')  # For supplier-specific updates
+        
+        if not new_status:
+            return jsonify({'success': False, 'message': 'Status required'}), 400
+        
+        update_data = {}
+        
+        if supplier_name:
+            # Update specific supplier order status
+            update_data['supplier_orders.$.status'] = new_status
+            result = db['orders'].update_one(
+                {
+                    'order_id': order_id,
+                    'supplier_orders.supplier_name': supplier_name
+                },
+                {'$set': update_data}
+            )
+        else:
+            # Update main order status
+            update_data['status'] = new_status
+            result = db['orders'].update_one(
+                {'order_id': order_id},
+                {'$set': update_data}
+            )
+        
+        if result.modified_count == 0:
+            return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
+        
+        return jsonify({
+            'success': True,
+            'message': 'Order status updated successfully'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/orders/<order_id>/bill', methods=['GET'])
+def download_bill(order_id):
+    try:
+        order = db['orders'].find_one({'order_id': order_id})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+        
+        # Generate bill HTML
+        bill_html = generate_bill_html(order)
+        
+        return jsonify({
+            'success': True,
+            'bill_html': bill_html
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+def generate_bill_html(order):
+    """Generate HTML for the bill/invoice with modern design and supplier details"""
+    
+    # Get supplier details from the first supplier order
+    supplier_name = "OverXchange"
+    supplier_address = "Digital Marketplace"
+    supplier_email = "support@overxchange.com"
+    
+    if 'supplier_orders' in order and order['supplier_orders']:
+        # Get the first supplier's details
+        first_supplier = order['supplier_orders'][0]
+        supplier_name = first_supplier.get('supplier_name', 'OverXchange')
+        
+        # Try to get supplier details from database
+        try:
+            supplier = db['suppliers'].find_one({'_id': ObjectId(first_supplier.get('supplier_id'))})
+            if supplier:
+                supplier_name = supplier.get('business_name', supplier.get('name', supplier_name))
+                supplier_address = supplier.get('address', 'Digital Marketplace')
+                supplier_email = supplier.get('email', 'support@overxchange.com')
+        except:
+            pass
+    
+    items_html = ''
+    for item in order['items']:
+        # Try to get product details from database
+        product_details = ""
+        try:
+            product = db['products'].find_one({'name': item['name']})
+            if product:
+                category = product.get('category', '')
+                description = product.get('description', '')
+                brand = product.get('brand', '')
+                if category or description or brand:
+                    product_details = f"<br><small style='color: #666; font-size: 12px;'>"
+                    if category:
+                        product_details += f"<i class='fas fa-tag'></i> {category} "
+                    if brand:
+                        product_details += f"<i class='fas fa-copyright'></i> {brand} "
+                    if description:
+                        product_details += f"<i class='fas fa-info-circle'></i> {description[:50]}..."
+                    product_details += "</small>"
+        except:
+            pass
+        
+        items_html += f'''
+        <tr>
+            <td>
+                <i class="fas fa-box"></i> {item['name']}
+                {product_details}
+            </td>
+            <td>{item['quantity']} {item['unit']}</td>
+            <td>₹{item['price']}</td>
+            <td>₹{(item['price'] * item['quantity']):.2f}</td>
+        </tr>
+        '''
+    
+    bill_html = f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Invoice - {order['order_id']}</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 40px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+                min-height: 100vh;
+            }}
+            
+            .container {{
+                max-width: 900px;
+                margin: 0 auto;
+                background: white;
+                padding: 40px;
+                border-radius: 15px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                position: relative;
+                overflow: hidden;
+            }}
+            
+            .container::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+            }}
+            
+            .header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 3px solid #f0f0f0;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }}
+            
+            .logo {{
+                font-size: 28px;
+                font-weight: bold;
+                color: #667eea;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                position: relative;
+            }}
+            
+            .logo::after {{
+                content: '';
+                position: absolute;
+                bottom: -5px;
+                left: 0;
+                width: 50px;
+                height: 3px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                border-radius: 2px;
+            }}
+            
+            .invoice-number {{
+                font-size: 18px;
+                font-weight: bold;
+                color: #333;
+                background: #f8f9fa;
+                padding: 15px 20px;
+                border-radius: 10px;
+                border-left: 4px solid #667eea;
+            }}
+            
+            .invoice-title {{
+                font-size: 48px;
+                font-weight: bold;
+                text-align: center;
+                margin: 30px 0 20px 0;
+                color: #667eea;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+            }}
+            
+            .invoice-date {{
+                text-align: center;
+                font-size: 16px;
+                color: #666;
+                margin-bottom: 40px;
+            }}
+            
+            .parties {{
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 40px;
+                gap: 50px;
+            }}
+            
+            .billed-to, .from {{
+                flex: 1;
+                background: #f8f9fa;
+                padding: 25px;
+                border-radius: 12px;
+                border: 1px solid #e9ecef;
+            }}
+            
+            .section-title {{
+                font-weight: bold;
+                font-size: 18px;
+                margin-bottom: 15px;
+                color: #667eea;
+                border-bottom: 2px solid #667eea;
+                padding-bottom: 8px;
+                font-weight: 600;
+            }}
+            
+            .customer-name {{
+                font-weight: bold;
+                font-size: 16px;
+                margin-bottom: 10px;
+                color: #333;
+            }}
+            
+            .address {{
+                color: #555;
+                line-height: 1.6;
+                font-size: 15px;
+            }}
+            
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin: 30px 0;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            }}
+            
+            th {{
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 18px 15px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 15px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }}
+            
+            td {{
+                padding: 18px 15px;
+                border-bottom: 1px solid #f0f0f0;
+                color: #333;
+                font-size: 14px;
+            }}
+            
+            tr:hover {{
+                background: #f8f9fa;
+            }}
+            
+            .total-row {{
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                font-weight: bold;
+            }}
+            
+            .total-row td {{
+                padding: 18px 15px;
+                font-size: 18px;
+                color: #667eea;
+            }}
+            
+            .payment {{
+                margin-top: 30px;
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                padding: 25px;
+                border-radius: 12px;
+                border-top: 3px solid #667eea;
+            }}
+            
+            .payment-method {{
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 10px;
+                font-size: 16px;
+            }}
+            
+            .thank-you {{
+                text-align: center;
+                margin-top: 20px;
+                font-size: 16px;
+                color: #666;
+            }}
+            
+            .waves {{
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 120px;
+                overflow: hidden;
+                z-index: -1;
+            }}
+            
+            .wave1 {{
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 80px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                border-radius: 50% 50% 0 0;
+                transform: scaleX(2.5);
+                opacity: 0.1;
+            }}
+            
+            .wave2 {{
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background: linear-gradient(135deg, #764ba2, #667eea);
+                border-radius: 50% 50% 0 0;
+                transform: scaleX(2);
+                opacity: 0.15;
+            }}
+            
+            @media print {{
+                body {{
+                    background: white;
+                    padding: 20px;
+                }}
+                .container {{
+                    box-shadow: none;
+                    border-radius: 0;
+                }}
+                .waves {{
+                    display: none;
+                }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-building"></i> {supplier_name.upper()}
+                </div>
+                <div class="invoice-number">
+                    <i class="fas fa-file-invoice"></i> NO. {order['order_id']}
+                </div>
+            </div>
+            
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-date">{order['order_date'].strftime('%d %B, %Y')}</div>
+            
+            <div class="parties">
+                <div class="billed-to">
+                    <div class="section-title"><i class="fas fa-user-tie"></i> Billed to:</div>
+                    <div class="customer-name">{order['customer_info']['firstName']} {order['customer_info']['lastName']}</div>
+                    <div class="address">
+                        <i class="fas fa-map-marker-alt"></i> {order['shipping_address']['addressLine1']}<br>
+                        {order['shipping_address']['addressLine2'] if order['shipping_address']['addressLine2'] else ''}
+                        <i class="fas fa-city"></i> {order['shipping_address']['city']}, {order['shipping_address']['state']}<br>
+                        <i class="fas fa-envelope"></i> {order['customer_info']['email']}
+                    </div>
+                </div>
+                
+                <div class="from">
+                    <div class="section-title"><i class="fas fa-user"></i> From:</div>
+                    <div class="customer-name">{supplier_name}</div>
+                    <div class="address">
+                        <i class="fas fa-store"></i> {supplier_address}<br>
+                        <i class="fas fa-map-marker-alt"></i> {order['shipping_address']['city']}, {order['shipping_address']['state']}<br>
+                        <i class="fas fa-envelope"></i> {supplier_email}
+                    </div>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-box"></i> Item</th>
+                        <th><i class="fas fa-sort-numeric-up"></i> Quantity</th>
+                        <th><i class="fas fa-dollar-sign"></i> Price</th>
+                        <th><i class="fas fa-calculator"></i> Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items_html}
+                    <tr class="total-row">
+                        <td colspan="3"><i class="fas fa-receipt"></i> Total</td>
+                        <td>₹{order['total_amount']:.2f}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="payment">
+                <div class="payment-method"><i class="fas fa-credit-card"></i> Payment method: {order['payment_method'].title()}</div>
+                <div class="thank-you"><i class="fas fa-heart"></i> Thank you for choosing {supplier_name}!</div>
+            </div>
+            
+            <div class="waves">
+                <div class="wave1"></div>
+                <div class="wave2"></div>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+    
+    return bill_html
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000) 

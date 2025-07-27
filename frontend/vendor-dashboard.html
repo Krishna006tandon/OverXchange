@@ -913,6 +913,241 @@
                 flex-direction: column;
             }
         }
+
+        /* Orders Styles */
+        .orders-container {
+            padding: 20px 0;
+        }
+
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .orders-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3730a3;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .order-info h3 {
+            margin: 0 0 5px 0;
+            color: #3730a3;
+            font-size: 1.2rem;
+        }
+
+        .order-date {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-processing {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-shipped {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-delivered {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .order-items h4 {
+            margin: 0 0 15px 0;
+            color: #374151;
+            font-size: 1rem;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .item-name {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .item-quantity {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: #3730a3;
+        }
+
+        .order-summary {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #3730a3;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-orders i {
+            font-size: 4rem;
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
+
+        .empty-orders h3 {
+            margin: 0 0 10px 0;
+            color: #374151;
+        }
+
+        .empty-orders p {
+            margin: 0 0 30px 0;
+            color: #6b7280;
+        }
+
+        .loading-orders {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #dc2626;
+            text-align: center;
+            padding: 20px;
+            background: #fee2e2;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -1012,7 +1247,34 @@
                     <p>Track your order history and status</p>
                 </div>
                 <div class="content-card">
-                    <p>Your order history will appear here.</p>
+                    <div class="orders-container">
+                        <div class="orders-header">
+                            <div class="orders-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number" id="totalOrders">0</span>
+                                    <span class="stat-label">Total Orders</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="pendingOrders">0</span>
+                                    <span class="stat-label">Pending</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="completedOrders">0</span>
+                                    <span class="stat-label">Completed</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" onclick="refreshOrders()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                        
+                        <div class="orders-list" id="ordersList">
+                            <div class="loading-orders">
+                                <div class="loading-spinner"></div>
+                                <p>Loading orders...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -1399,6 +1661,13 @@
                     const contentSection = document.getElementById(contentId);
                     if (contentSection) {
                         contentSection.style.display = 'block';
+                        
+                        // Load specific content based on section
+                        if (contentId === 'orders') {
+                            loadOrders();
+                        } else if (contentId === 'order-supplier') {
+                            loadSuppliers();
+                        }
                     }
                 }
             });
@@ -1768,6 +2037,352 @@
                 console.log('Cart count sidebar element not found!');
             }
         }
+
+        // Orders functionality
+        function loadOrders() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                console.error('User ID not found');
+                return;
+            }
+
+            fetch(`/api/orders?user_type=vendor&user_id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayOrders(data.orders);
+                        updateOrderStats(data.orders);
+                    } else {
+                        console.error('Failed to load orders:', data.message);
+                        document.getElementById('ordersList').innerHTML = '<p class="error-message">Failed to load orders. Please try again.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading orders:', error);
+                    document.getElementById('ordersList').innerHTML = '<p class="error-message">Error loading orders. Please try again.</p>';
+                });
+        }
+
+        function displayOrders(orders) {
+            const ordersList = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="empty-orders">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>No orders yet</h3>
+                        <p>Start shopping to see your orders here!</p>
+                        <a href="#suppliers" class="btn btn-primary" onclick="showContent('suppliers')">
+                            <i class="fas fa-shopping-cart"></i> Start Shopping
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            let ordersHTML = '';
+            orders.forEach(order => {
+                const orderDate = new Date(order.order_date).toLocaleDateString('en-IN');
+                const statusClass = getStatusClass(order.status);
+                
+                ordersHTML += `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h3>Order #${order.order_id}</h3>
+                                <p class="order-date">${orderDate}</p>
+                            </div>
+                            <div class="order-status">
+                                <span class="status-badge ${statusClass}">${order.status.toUpperCase()}</span>
+                            </div>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-items">
+                                <h4>Items (${order.items.length})</h4>
+                                <div class="items-list">
+                                    ${order.items.map(item => `
+                                        <div class="item">
+                                            <span class="item-name">${item.name}</span>
+                                            <span class="item-quantity">${item.quantity} ${item.unit}</span>
+                                            <span class="item-price">₹${item.price}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="order-summary">
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span>₹${order.subtotal.toFixed(2)}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping:</span>
+                                    <span>₹${order.shipping_cost.toFixed(2)}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Tax:</span>
+                                    <span>₹${order.tax_amount.toFixed(2)}</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total:</span>
+                                    <span>₹${order.total_amount.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-secondary" onclick="downloadBill('${order.order_id}')">
+                                <i class="fas fa-download"></i> Download Bill
+                            </button>
+                            <button class="btn btn-primary" onclick="viewOrderDetails('${order.order_id}')">
+                                <i class="fas fa-eye"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            ordersList.innerHTML = ordersHTML;
+        }
+
+        function updateOrderStats(orders) {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(order => order.status === 'pending').length;
+            const completedOrders = orders.filter(order => order.status === 'completed').length;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('completedOrders').textContent = completedOrders;
+        }
+
+        function getStatusClass(status) {
+            switch (status.toLowerCase()) {
+                case 'pending': return 'status-pending';
+                case 'processing': return 'status-processing';
+                case 'shipped': return 'status-shipped';
+                case 'delivered': return 'status-delivered';
+                case 'completed': return 'status-completed';
+                case 'cancelled': return 'status-cancelled';
+                default: return 'status-pending';
+            }
+        }
+
+        function refreshOrders() {
+            loadOrders();
+        }
+
+        function downloadBill(orderId) {
+            fetch(`/api/orders/${orderId}/bill`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Create a new window with the bill HTML
+                        const billWindow = window.open('', '_blank');
+                        billWindow.document.write(data.bill_html);
+                        billWindow.document.close();
+                        
+                        // Trigger print dialog
+                        setTimeout(() => {
+                            billWindow.print();
+                        }, 500);
+                    } else {
+                        alert('Failed to download bill: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error downloading bill:', error);
+                    alert('Error downloading bill. Please try again.');
+                });
+        }
+
+        function viewOrderDetails(orderId) {
+            // Fetch order details from API
+            fetch(`/api/orders/${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showOrderDetailsModal(data.order);
+                    } else {
+                        alert('Failed to load order details: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading order details:', error);
+                    alert('Error loading order details. Please try again.');
+                });
+        }
+
+        function showOrderDetailsModal(order) {
+            // Create modal HTML with comprehensive order details
+            const modalHTML = `
+                <div id="orderDetailsModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;">
+                    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto; background: white; border-radius: 10px; padding: 20px; position: relative; margin: 20px;">
+                        <span class="close" onclick="closeOrderDetailsModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; z-index: 1001;">&times;</span>
+                        <h2><i class="fas fa-shopping-cart"></i> Order Details</h2>
+                        
+                        <!-- Order Header -->
+                        <div class="order-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 24px;">Order #${order.order_id}</h3>
+                                    <p style="margin: 5px 0; opacity: 0.9;">Placed on ${new Date(order.order_date).toLocaleDateString()}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="status-badge ${getStatusClass(order.status)}" style="font-size: 16px; padding: 8px 16px;">
+                                        ${order.status.toUpperCase()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Information -->
+                        <div class="detail-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h3><i class="fas fa-user"></i> Customer Information</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <strong>Name:</strong> ${order.customer_info.firstName} ${order.customer_info.lastName}<br>
+                                    <strong>Email:</strong> ${order.customer_info.email}<br>
+                                    <strong>Phone:</strong> ${order.customer_info.phone}
+                                </div>
+                                <div>
+                                    <strong>Shipping Address:</strong><br>
+                                    ${order.shipping_address.addressLine1}<br>
+                                    ${order.shipping_address.addressLine2 || ''}<br>
+                                    ${order.shipping_address.city}, ${order.shipping_address.state}<br>
+                                    ${order.shipping_address.pincode}, ${order.shipping_address.country}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="detail-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h3><i class="fas fa-box"></i> Order Items</h3>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                                <thead>
+                                    <tr style="background: #667eea; color: white;">
+                                        <th style="padding: 12px; text-align: left;">Product</th>
+                                        <th style="padding: 12px; text-align: center;">Quantity</th>
+                                        <th style="padding: 12px; text-align: right;">Price</th>
+                                        <th style="padding: 12px; text-align: right;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${order.items.map(item => `
+                                        <tr style="border-bottom: 1px solid #dee2e6;">
+                                            <td style="padding: 12px;">
+                                                <strong>${item.name}</strong><br>
+                                                <small style="color: #666;">${item.unit}</small>
+                                            </td>
+                                            <td style="padding: 12px; text-align: center;">${item.quantity}</td>
+                                            <td style="padding: 12px; text-align: right;">₹${item.price}</td>
+                                            <td style="padding: 12px; text-align: right;">₹${(item.price * item.quantity).toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Supplier Information -->
+                        ${order.supplier_orders ? `
+                        <div class="detail-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h3><i class="fas fa-truck"></i> Supplier Information</h3>
+                            ${order.supplier_orders.map(supplierOrder => `
+                                <div style="border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #667eea;">${supplierOrder.supplier_name}</h4>
+                                    <p style="margin: 5px 0;"><strong>Status:</strong> 
+                                        <span class="status-badge ${getStatusClass(supplierOrder.status)}">${supplierOrder.status}</span>
+                                    </p>
+                                    <p style="margin: 5px 0;"><strong>Items:</strong> ${supplierOrder.items.length} items</p>
+                                    <p style="margin: 5px 0;"><strong>Subtotal:</strong> ₹${supplierOrder.subtotal.toFixed(2)}</p>
+                                    <p style="margin: 5px 0;"><strong>Order Date:</strong> ${new Date(supplierOrder.order_date).toLocaleDateString()}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+
+                        <!-- Payment & Shipping -->
+                        <div class="detail-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h3><i class="fas fa-credit-card"></i> Payment & Shipping</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div>
+                                    <h4>Payment Details</h4>
+                                    <p><strong>Method:</strong> ${order.payment_method}</p>
+                                    <p><strong>Subtotal:</strong> ₹${order.subtotal.toFixed(2)}</p>
+                                    <p><strong>Shipping:</strong> ₹${order.shipping_cost.toFixed(2)}</p>
+                                    <p><strong>Tax:</strong> ₹${order.tax_amount.toFixed(2)}</p>
+                                    <p><strong>Total:</strong> ₹${order.total_amount.toFixed(2)}</p>
+                                </div>
+                                <div>
+                                    <h4>Shipping Details</h4>
+                                    <p><strong>Method:</strong> ${order.shipping_method}</p>
+                                    <p><strong>Estimated Delivery:</strong> ${order.estimated_delivery || 'Not specified'}</p>
+                                    <p><strong>Tracking Number:</strong> ${order.tracking_number || 'Not available'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Timeline -->
+                        <div class="detail-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h3><i class="fas fa-clock"></i> Order Timeline</h3>
+                            <div style="position: relative; padding-left: 30px;">
+                                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #667eea;"></div>
+                                <div style="position: relative; margin-bottom: 20px;">
+                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #667eea; border-radius: 50%;"></div>
+                                    <div>
+                                        <strong>Order Placed</strong><br>
+                                        <small style="color: #666;">${new Date(order.order_date).toLocaleString()}</small>
+                                    </div>
+                                </div>
+                                ${order.status !== 'pending' ? `
+                                <div style="position: relative; margin-bottom: 20px;">
+                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
+                                    <div>
+                                        <strong>Order Confirmed</strong><br>
+                                        <small style="color: #666;">Processing started</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${order.status === 'completed' ? `
+                                <div style="position: relative; margin-bottom: 20px;">
+                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
+                                    <div>
+                                        <strong>Order Completed</strong><br>
+                                        <small style="color: #666;">Successfully delivered</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button class="btn btn-primary" onclick="downloadBill('${order.order_id}')" style="margin-right: 10px;">
+                                <i class="fas fa-download"></i> Download Bill
+                            </button>
+                            <button class="btn btn-secondary" onclick="closeOrderDetailsModal()">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeOrderDetailsModal() {
+            const modal = document.getElementById('orderDetailsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('orderDetailsModal');
+            if (modal && event.target === modal) {
+                closeOrderDetailsModal();
+            }
+        });
         
 
 
