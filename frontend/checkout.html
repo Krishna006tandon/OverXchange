@@ -451,6 +451,15 @@
                     <span>GST (18%)</span>
                     <span id="taxAmount">₹0.00</span>
                 </div>
+                <div class="summary-row">
+                    <span>Coupon Code</span>
+                    <input type="text" id="couponCode" placeholder="Enter coupon code" style="width: 120px; margin-right: 8px;">
+                    <button type="button" class="btn" style="padding: 4px 10px; font-size: 0.9em;" onclick="applyCoupon()">Apply</button>
+                </div>
+                <div class="summary-row" id="discountRow" style="display:none; color: #28a745;">
+                    <span>Discount</span>
+                    <span id="discountAmount">-₹0.00</span>
+                </div>
                 <div class="summary-row total">
                     <span>Total</span>
                     <span id="totalAmount">₹0.00</span>
@@ -466,6 +475,8 @@
     <script>
         let cart = [];
         let currentUser = null;
+        let appliedCoupon = null;
+        let discountAmount = 0;
 
         // Load cart and user data on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -501,6 +512,46 @@
             shippingMethod.addEventListener('change', updateOrderSummary);
         }
 
+        function applyCoupon() {
+            const code = document.getElementById('couponCode').value.trim();
+            if (!code) {
+                showError('Please enter a coupon code.');
+                return;
+            }
+            // For demo, use the first supplier in cart
+            const supplierId = cart.length > 0 && cart[0].supplierId ? cart[0].supplierId : null;
+            if (!supplierId) {
+                showError('No supplier found for coupon validation.');
+                return;
+            }
+            const orderAmount = parseFloat(document.getElementById('subtotal').textContent.replace('₹', ''));
+            fetch(`/api/coupons/validate/${code}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ supplier_id: supplierId, order_amount: orderAmount })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    appliedCoupon = data.coupon;
+                    discountAmount = data.coupon.discount_amount;
+                    document.getElementById('discountAmount').textContent = `-₹${discountAmount.toFixed(2)}`;
+                    document.getElementById('discountRow').style.display = '';
+                    updateOrderSummary();
+                } else {
+                    appliedCoupon = null;
+                    discountAmount = 0;
+                    document.getElementById('discountRow').style.display = 'none';
+                    showError(data.message || 'Invalid coupon code.');
+                    updateOrderSummary();
+                }
+            })
+            .catch(() => {
+                showError('Failed to validate coupon.');
+            });
+        }
+
+        // Update updateOrderSummary to subtract discountAmount from total
         function updateOrderSummary() {
             const orderItemsContainer = document.getElementById('orderItems');
             const shippingMethod = document.getElementById('shippingMethod');
@@ -542,7 +593,14 @@
             }
 
             const tax = subtotal * 0.18; // 18% GST
-            const total = subtotal + shippingCost + tax;
+            let total = subtotal + shippingCost + tax;
+            if (discountAmount > 0) {
+                total -= discountAmount;
+                document.getElementById('discountRow').style.display = '';
+                document.getElementById('discountAmount').textContent = `-₹${discountAmount.toFixed(2)}`;
+            } else {
+                document.getElementById('discountRow').style.display = 'none';
+            }
 
             document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
             document.getElementById('shippingCost').textContent = `₹${shippingCost.toFixed(2)}`;
@@ -594,6 +652,11 @@
             const vendorId = localStorage.getItem('user_id');
             if (vendorId) {
                 orderData.vendor_id = vendorId;
+            }
+            // Add coupon info if applied
+            if (appliedCoupon) {
+                orderData.coupon = appliedCoupon;
+                orderData.discountAmount = discountAmount;
             }
 
             // Send order to backend
