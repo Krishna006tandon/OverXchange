@@ -4288,6 +4288,9 @@
             uploadArea.addEventListener('dragover', handleDragOver);
             uploadArea.addEventListener('dragleave', handleDragLeave);
             uploadArea.addEventListener('drop', handleDrop);
+
+            // Add supplier selector for testing
+            addSupplierSelector();
         });
 
         function handleFileSelect(event) {
@@ -4559,8 +4562,35 @@
                 return supplierName;
             }
             
-            // For testing, return a default supplier name
-            return 'Fresh Foods Ltd';
+            // For testing, return a default supplier name that exists in orders
+            return 'ND Hotel';
+        }
+
+        // Add supplier selector for testing
+        function addSupplierSelector() {
+            const supplierNames = ['ND Hotel', 'Tun Tun Sweets', 'dosa wala', 'Deserty Sweet '];
+            
+            // Check if selector already exists
+            if (document.getElementById('supplierSelector')) {
+                return;
+            }
+            
+            const selectorHTML = `
+                <div id="supplierSelector" style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 2px solid #667eea;">
+                    <h4 style="margin: 0 0 10px 0; color: #667eea; font-size: 14px;">🧪 Test Supplier:</h4>
+                    <select id="supplierSelect" onchange="changeSupplier(this.value)" style="padding: 8px; border: 2px solid #667eea; border-radius: 5px; font-size: 14px;">
+                        ${supplierNames.map(name => `<option value="${name}" ${name === getCurrentSupplierName() ? 'selected' : ''}>${name}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', selectorHTML);
+        }
+
+        function changeSupplier(supplierName) {
+            localStorage.setItem('supplier_name', supplierName);
+            loadSupplierOrders(); // Refresh orders
+            updateCurrentSupplierDisplay(); // Update display
         }
 
         function getCurrentSupplierId() {
