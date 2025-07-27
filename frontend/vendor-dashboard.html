@@ -2463,28 +2463,28 @@
                                         <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
                                     </div>
                                     <div style="text-align: center; flex: 1;">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'pending' ? '#ffc107' : '#28a745'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">2</div>
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.supplier_orders && order.supplier_orders.some(so => so.status === 'accepted' || so.status === 'processing' || so.status === 'shipped' || so.status === 'delivered') ? '#28a745' : order.supplier_orders && order.supplier_orders.some(so => so.status === 'pending') ? '#ffc107' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">2</div>
                                         <div style="font-size: 12px; color: #666;">Supplier Acceptance</div>
                                     </div>
                                     <div style="flex: 1; height: 2px; background: #dee2e6; position: relative;">
                                         <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
                                     </div>
                                     <div style="text-align: center; flex: 1;">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'confirmed' || order.status === 'processing' || order.status === 'shipped' || order.status === 'completed' ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">3</div>
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.supplier_orders && order.supplier_orders.some(so => so.status === 'processing' || so.status === 'shipped' || so.status === 'delivered') ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">3</div>
                                         <div style="font-size: 12px; color: #666;">Processing</div>
                                     </div>
                                     <div style="flex: 1; height: 2px; background: #dee2e6; position: relative;">
                                         <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
                                     </div>
                                     <div style="text-align: center; flex: 1;">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'shipped' || order.status === 'completed' ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">4</div>
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.supplier_orders && order.supplier_orders.some(so => so.status === 'shipped' || so.status === 'delivered') ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">4</div>
                                         <div style="font-size: 12px; color: #666;">Shipped</div>
                                     </div>
                                     <div style="flex: 1; height: 2px; background: #dee2e6; position: relative;">
                                         <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
                                     </div>
                                     <div style="text-align: center; flex: 1;">
-                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'completed' ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">5</div>
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.supplier_orders && order.supplier_orders.some(so => so.status === 'delivered') ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">5</div>
                                         <div style="font-size: 12px; color: #666;">Delivered</div>
                                     </div>
                                 </div>
@@ -2493,6 +2493,8 @@
                             <!-- Detailed Timeline -->
                             <div style="position: relative; padding-left: 30px;">
                                 <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #667eea;"></div>
+                                
+                                <!-- Order Placed -->
                                 <div style="position: relative; margin-bottom: 20px;">
                                     <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #667eea; border-radius: 50%;"></div>
                                     <div>
@@ -2500,42 +2502,86 @@
                                         <small style="color: #666;">${new Date(order.order_date).toLocaleString()}</small>
                                     </div>
                                 </div>
+                                
+                                <!-- Supplier Status Updates -->
+                                ${order.supplier_orders ? order.supplier_orders.map(supplierOrder => {
+                                    let timelineItems = '';
+                                    
+                                    // Supplier accepted
+                                    if (supplierOrder.status === 'accepted' || supplierOrder.status === 'processing' || supplierOrder.status === 'shipped' || supplierOrder.status === 'delivered') {
+                                        timelineItems += `
+                                        <div style="position: relative; margin-bottom: 15px;">
+                                            <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
+                                            <div>
+                                                <strong>${supplierOrder.supplier_name} - Accepted</strong><br>
+                                                <small style="color: #666;">${supplierOrder.accepted_at ? new Date(supplierOrder.accepted_at).toLocaleString() : 'Accepted'}</small>
+                                                ${supplierOrder.estimated_delivery ? `<br><small style="color: #28a745;">Est. Delivery: ${supplierOrder.estimated_delivery}</small>` : ''}
+                                            </div>
+                                        </div>`;
+                                    }
+                                    
+                                    // Supplier processing
+                                    if (supplierOrder.status === 'processing' || supplierOrder.status === 'shipped' || supplierOrder.status === 'delivered') {
+                                        timelineItems += `
+                                        <div style="position: relative; margin-bottom: 15px;">
+                                            <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #ffc107; border-radius: 50%;"></div>
+                                            <div>
+                                                <strong>${supplierOrder.supplier_name} - Processing</strong><br>
+                                                <small style="color: #666;">Items being prepared</small>
+                                            </div>
+                                        </div>`;
+                                    }
+                                    
+                                    // Supplier shipped
+                                    if (supplierOrder.status === 'shipped' || supplierOrder.status === 'delivered') {
+                                        timelineItems += `
+                                        <div style="position: relative; margin-bottom: 15px;">
+                                            <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #17a2b8; border-radius: 50%;"></div>
+                                            <div>
+                                                <strong>${supplierOrder.supplier_name} - Shipped</strong><br>
+                                                <small style="color: #666;">Items dispatched</small>
+                                            </div>
+                                        </div>`;
+                                    }
+                                    
+                                    // Supplier delivered
+                                    if (supplierOrder.status === 'delivered') {
+                                        timelineItems += `
+                                        <div style="position: relative; margin-bottom: 15px;">
+                                            <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
+                                            <div>
+                                                <strong>${supplierOrder.supplier_name} - Delivered</strong><br>
+                                                <small style="color: #666;">Successfully delivered</small>
+                                            </div>
+                                        </div>`;
+                                    }
+                                    
+                                    // Supplier rejected
+                                    if (supplierOrder.status === 'rejected') {
+                                        timelineItems += `
+                                        <div style="position: relative; margin-bottom: 15px;">
+                                            <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #dc3545; border-radius: 50%;"></div>
+                                            <div>
+                                                <strong>${supplierOrder.supplier_name} - Rejected</strong><br>
+                                                <small style="color: #666;">${supplierOrder.rejection_reason || 'Order rejected'}</small>
+                                            </div>
+                                        </div>`;
+                                    }
+                                    
+                                    return timelineItems;
+                                }).join('') : ''}
+                                
+                                <!-- Order Status Updates -->
                                 ${order.status === 'confirmed' ? `
                                 <div style="position: relative; margin-bottom: 20px;">
                                     <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
                                     <div>
-                                        <strong>All Suppliers Accepted</strong><br>
-                                        <small style="color: #666;">${order.confirmed_at ? new Date(order.confirmed_at).toLocaleString() : 'Order confirmed'}</small>
+                                        <strong>Order Confirmed</strong><br>
+                                        <small style="color: #666;">All suppliers accepted the order</small>
                                     </div>
                                 </div>
                                 ` : ''}
-                                ${order.status === 'processing' ? `
-                                <div style="position: relative; margin-bottom: 20px;">
-                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
-                                    <div>
-                                        <strong>Order Processing</strong><br>
-                                        <small style="color: #666;">Items being prepared</small>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                ${order.status === 'shipped' ? `
-                                <div style="position: relative; margin-bottom: 20px;">
-                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
-                                    <div>
-                                        <strong>Order Shipped</strong><br>
-                                        <small style="color: #666;">Items dispatched</small>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                ${order.status === 'completed' ? `
-                                <div style="position: relative; margin-bottom: 20px;">
-                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
-                                    <div>
-                                        <strong>Order Completed</strong><br>
-                                        <small style="color: #666;">Successfully delivered</small>
-                                    </div>
-                                </div>
-                                ` : ''}
+                                
                                 ${order.status === 'cancelled' ? `
                                 <div style="position: relative; margin-bottom: 20px;">
                                     <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #dc3545; border-radius: 50%;"></div>
