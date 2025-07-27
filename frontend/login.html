@@ -202,6 +202,14 @@
             <a href="signup_vendor.html">Vendor Signup</a> |
             <a href="signup_supplier.html">Supplier Signup</a>
         </div>
+        <div style="margin-top: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-radius: 10px; border-left: 4px solid #6366f1;">
+            <h4 style="margin: 0 0 10px 0; color: #6366f1; font-size: 14px;">👨‍💼 Admin Login</h4>
+            <p style="margin: 0; font-size: 12px; color: #6b7280;">
+                Admins can login with their email and password:<br>
+                • admin@overxchange.com / admin123<br>
+                • admin@gmail.com / admin
+            </p>
+        </div>
         <div id="login-message" style="color:red;margin-top:10px;"></div>
     </div>
     <script>
@@ -218,6 +226,10 @@
         localStorage.removeItem('supplier_name');
         localStorage.removeItem('business_name');
         localStorage.removeItem('name');
+        // Clear admin data
+        localStorage.removeItem('admin_name');
+        localStorage.removeItem('admin_role');
+        localStorage.removeItem('admin_email');
         updateNavbar();
         window.location.href = 'index.html';
     });
@@ -262,6 +274,13 @@
                 } else if (data.user_type === 'supplier') {
                     console.log('Redirecting to supplier dashboard...');
                     window.location.href = 'supply-dashboard.html'; // Redirect suppliers to supplier dashboard
+                } else if (data.user_type === 'admin') {
+                    console.log('Redirecting to admin dashboard...');
+                    // Store admin data
+                    localStorage.setItem('admin_name', data.name || '');
+                    localStorage.setItem('admin_role', data.role || 'admin');
+                    localStorage.setItem('admin_email', data.email || '');
+                    window.location.href = 'admin-license-verification.html'; // Redirect admins to admin dashboard
                 } else {
                     console.log('Redirecting to home page...');
                     window.location.href = 'index.html'; // Redirect others to home page

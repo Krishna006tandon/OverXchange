@@ -78,16 +78,27 @@ def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
+    
     # Try vendor first
     user = db['vendors'].find_one({'email': username})
     user_type = 'vendor'
+    
     if not user:
+        # Try supplier
         user = db['suppliers'].find_one({'email': username})
         user_type = 'supplier' if user else None
+    
+    if not user:
+        # Try admin
+        user = db['admins'].find_one({'email': username, 'is_active': True})
+        user_type = 'admin' if user else None
+    
     if not user:
         return jsonify({'success': False, 'message': 'User not found'}), 404
+    
     if not check_password_hash(user['password'], password):
         return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+    
     response_data = {
         'success': True,
         'message': 'Login successful',
@@ -99,6 +110,12 @@ def login():
     if user_type == 'supplier':
         response_data['business_name'] = user.get('business_name', user.get('name', ''))
         response_data['name'] = user.get('name', '')
+    
+    # Add admin-specific data for admins
+    if user_type == 'admin':
+        response_data['name'] = user.get('name', '')
+        response_data['role'] = user.get('role', 'admin')
+        response_data['email'] = user.get('email', '')
     
     return jsonify(response_data)
 

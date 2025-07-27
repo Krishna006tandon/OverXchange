@@ -573,28 +573,50 @@
 
         // Check authentication and load pending licenses on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if admin is logged in
-            if (localStorage.getItem('adminLoggedIn') !== 'true') {
-                window.location.href = 'admin-login.html';
+            // Check if admin is logged in (new unified login system)
+            const userType = localStorage.getItem('user_type');
+            const userId = localStorage.getItem('user_id');
+            
+            if (userType !== 'admin' || !userId) {
+                window.location.href = 'login.html';
                 return;
             }
             
-            // Set admin information
-            const adminName = localStorage.getItem('adminName') || 'Admin';
-            const adminEmail = localStorage.getItem('adminEmail') || '';
+            // Set admin information from new login system
+            const adminName = localStorage.getItem('admin_name') || localStorage.getItem('name') || 'Admin';
+            const adminEmail = localStorage.getItem('admin_email') || localStorage.getItem('user_id') || '';
+            const adminRole = localStorage.getItem('admin_role') || 'admin';
+            
             document.getElementById('adminName').textContent = adminName;
             document.getElementById('adminEmail').textContent = adminEmail;
+            
+            // Update page title to show admin role
+            const pageTitle = document.querySelector('h1');
+            if (pageTitle && adminRole === 'super_admin') {
+                pageTitle.innerHTML = 'License Verification Dashboard <span style="font-size: 0.6em; color: #6366f1;">(Super Admin)</span>';
+            }
             
             loadPendingLicenses();
         });
 
         function logout() {
+            // Clear all user data (unified logout)
+            localStorage.removeItem('user_type');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('supplier_name');
+            localStorage.removeItem('business_name');
+            localStorage.removeItem('name');
+            // Clear admin data
+            localStorage.removeItem('admin_name');
+            localStorage.removeItem('admin_role');
+            localStorage.removeItem('admin_email');
+            // Clear old admin data (for backward compatibility)
             localStorage.removeItem('adminLoggedIn');
             localStorage.removeItem('adminId');
             localStorage.removeItem('adminEmail');
             localStorage.removeItem('adminName');
             localStorage.removeItem('adminRole');
-            window.location.href = 'admin-login.html';
+            window.location.href = 'login.html';
         }
 
         async function loadPendingLicenses() {
