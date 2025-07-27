@@ -1936,6 +1936,14 @@
                         <div class="stat-value" id="totalValue">₹0</div>
                         <div class="stat-change positive">Current inventory</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-title">Left Stock Value</div>
+                        <div class="stat-value" id="leftStockValue">₹0</div>
+                        <div class="stat-change positive">Remaining inventory</div>
+                    </div>
                 </div>
 
                 <!-- Recent Stocks -->
@@ -2390,6 +2398,15 @@
                         <div class="card-content">
                             <h3 id="analyticsTotalValue">₹0</h3>
                             <p>Total Inventory Value</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="analyticsLeftStockValue">₹0</h3>
+                            <p>Left Stock Value</p>
                         </div>
                     </div>
                 </div>
@@ -2938,6 +2955,7 @@
                     document.getElementById('lowStockItems').textContent = data.analytics.low_stock_items;
                     document.getElementById('outOfStockItems').textContent = data.analytics.out_of_stock_items;
                     document.getElementById('totalValue').textContent = `₹${data.analytics.total_value.toLocaleString()}`;
+        document.getElementById('leftStockValue').textContent = `₹${data.analytics.left_stock_value.toLocaleString()}`;
                     
                     // Update recent stocks
                     displayDashboardStocks(data.recent_stocks);
@@ -3843,10 +3861,11 @@
         // Update analytics UI
         function updateAnalyticsUI(analytics, recentStocks) {
             // Update overview cards
-            document.getElementById('analyticsTotalProducts').textContent = analytics.total_products;
-            document.getElementById('analyticsLowStock').textContent = analytics.low_stock_items;
-            document.getElementById('analyticsOutOfStock').textContent = analytics.out_of_stock_items;
-            document.getElementById('analyticsTotalValue').textContent = `₹${analytics.total_value.toLocaleString()}`;
+                document.getElementById('analyticsTotalProducts').textContent = analytics.total_products;
+    document.getElementById('analyticsLowStock').textContent = analytics.low_stock_items;
+    document.getElementById('analyticsOutOfStock').textContent = analytics.out_of_stock_items;
+    document.getElementById('analyticsTotalValue').textContent = `₹${analytics.total_value.toLocaleString()}`;
+    document.getElementById('analyticsLeftStockValue').textContent = `₹${analytics.left_stock_value.toLocaleString()}`;
 
             // Update recent activity
             updateRecentActivity(recentStocks);

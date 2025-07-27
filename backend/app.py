@@ -263,9 +263,19 @@ def get_dashboard_data(supplier_id):
         
         # Calculate analytics
         total_products = len(stocks)
-        low_stock_items = len([s for s in stocks if s['quantity_available'] > 0 and s['quantity_available'] <= 10])
-        out_of_stock_items = len([s for s in stocks if s['quantity_available'] == 0])
-        total_value = sum(s['quantity_available'] * s['price_per_unit'] for s in stocks)
+        low_stock_items = len([s for s in stocks if s.get('quantity_available', 0) > 0 and s.get('quantity_available', 0) <= 10])
+        out_of_stock_items = len([s for s in stocks if s.get('quantity_available', 0) == 0])
+        
+        # Calculate total value (current stock value)
+        total_value = 0
+        for s in stocks:
+            quantity = s.get('quantity_available', 0)
+            price = s.get('price_per_unit', 0)
+            if quantity and price:
+                total_value += quantity * price
+        
+        # Calculate left stock value (remaining inventory value)
+        left_stock_value = total_value
         
         # Get recent stocks (last 5 updated)
         recent_stocks = sorted(stocks, key=lambda x: x['updated_at'], reverse=True)[:5]
@@ -288,6 +298,7 @@ def get_dashboard_data(supplier_id):
                 'low_stock_items': low_stock_items,
                 'out_of_stock_items': out_of_stock_items,
                 'total_value': total_value,
+                'left_stock_value': left_stock_value,
                 'category_distribution': category_counts
             },
             'recent_stocks': recent_stocks
