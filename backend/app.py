@@ -2321,5 +2321,7 @@ def generate_bill_html(order):
 if __name__ == '__main__':
     # Get port from environment variable for Railway deployment
     port = int(os.environ.get('PORT', 5000))
+    print(f"Starting OverXchange on port {port}")
+    print(f"Environment: {os.environ.get('RAILWAY_ENVIRONMENT', 'development')}")
     # For Railway deployment
     app.run(debug=False, host='0.0.0.0', port=port, threaded=True) 

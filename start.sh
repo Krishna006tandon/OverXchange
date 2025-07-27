@@ -5,5 +5,4 @@ echo "Python version: $(python --version)"
 echo "Installing dependencies..."
 pip install -r requirements.txt
 echo "Starting Flask application..."
-cd backend
-python app.py 
+python backend/app.py 
