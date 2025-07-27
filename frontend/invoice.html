@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Professional Invoice</title>
+  <link rel="stylesheet" href="invoice-style.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="invoice-box">
+    <header>
+      <div class="logo">
+        <i class="fas fa-building"></i> FRESH FOODS LTD
+      </div>
+      <div class="invoice-details">
+        <p><i class="fas fa-file-invoice"></i> <strong>Invoice No:</strong> <span id="invoice-number">000001</span></p>
+        <p><i class="fas fa-calendar"></i> <strong>Date:</strong> <span id="invoice-date">02 June, 2030</span></p>
+      </div>
+    </header>
+
+    <section class="address-section">
+      <div>
+        <h3><i class="fas fa-user"></i> From:</h3>
+        <p id="from-name">Fresh Foods Ltd</p>
+        <p id="from-address"><i class="fas fa-map-marker-alt"></i> 456 Food Street, Mumbai</p>
+        <p id="from-email"><i class="fas fa-envelope"></i> contact@freshfoods.com</p>
+        <p id="from-phone"><i class="fas fa-phone"></i> +91 98765 43210</p>
+      </div>
+      <div>
+        <h3><i class="fas fa-user-tie"></i> Billed to:</h3>
+        <p id="to-name">Studio Shodwe</p>
+        <p id="to-address"><i class="fas fa-map-marker-alt"></i> 123 Anywhere St., Any City</p>
+        <p id="to-email"><i class="fas fa-envelope"></i> hello@reallygreatsite.com</p>
+      </div>
+    </section>
+
+    <table>
+      <thead>
+        <tr>
+          <th><i class="fas fa-box"></i> Item</th>
+          <th><i class="fas fa-sort-numeric-up"></i> Qty</th>
+          <th><i class="fas fa-dollar-sign"></i> Price</th>
+          <th><i class="fas fa-calculator"></i> Amount</th>
+        </tr>
+      </thead>
+      <tbody id="invoice-items">
+        <tr>
+          <td>
+            <i class="fas fa-apple-alt"></i> Fresh Organic Apples
+            <br><small style="color: #666; font-size: 12px;">
+              <i class="fas fa-tag"></i> Fruits <i class="fas fa-copyright"></i> Organic Valley 
+              <i class="fas fa-info-circle"></i> Premium quality organic apples, sweet and juicy...
+            </small>
+          </td>
+          <td>2 kg</td>
+          <td>₹120</td>
+          <td>₹240</td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fas fa-bread-slice"></i> Whole Wheat Bread
+            <br><small style="color: #666; font-size: 12px;">
+              <i class="fas fa-tag"></i> Bakery <i class="fas fa-copyright"></i> Fresh Bakers 
+              <i class="fas fa-info-circle"></i> Freshly baked whole wheat bread, rich in fiber...
+            </small>
+          </td>
+          <td>3 packets</td>
+          <td>₹35</td>
+          <td>₹105</td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fas fa-egg"></i> Farm Fresh Eggs
+            <br><small style="color: #666; font-size: 12px;">
+              <i class="fas fa-tag"></i> Dairy <i class="fas fa-copyright"></i> Happy Farms 
+              <i class="fas fa-info-circle"></i> Organic farm eggs, rich in protein and nutrients...
+            </small>
+          </td>
+          <td>1 dozen</td>
+          <td>₹80</td>
+          <td>₹80</td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fas fa-carrot"></i> Organic Carrots
+            <br><small style="color: #666; font-size: 12px;">
+              <i class="fas fa-tag"></i> Vegetables <i class="fas fa-copyright"></i> Green Earth 
+              <i class="fas fa-info-circle"></i> Fresh organic carrots, perfect for salads and cooking...
+            </small>
+          </td>
+          <td>1 kg</td>
+          <td>₹60</td>
+          <td>₹60</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="summary">
+              <p><i class="fas fa-receipt"></i> <strong>Total:</strong> <span id="total-amount">₹485</span></p>
+      <p><i class="fas fa-credit-card"></i> <strong>Payment Method:</strong> <span id="payment-method">Cash</span></p>
+              <p><i class="fas fa-heart"></i> <em>Thank you for choosing Fresh Foods Ltd!</em></p>
+    </div>
+
+    <div class="buttons">
+      <button onclick="window.print()" class="print-btn">
+        <i class="fas fa-print"></i> Print Invoice
+      </button>
+      <button onclick="downloadPDF()" class="download-btn">
+        <i class="fas fa-download"></i> Download PDF
+      </button>
+      <button onclick="editInvoice()" class="edit-btn">
+        <i class="fas fa-edit"></i> Edit Invoice
+      </button>
+    </div>
+  </div>
+
+  <script src="invoice-script.js"></script>
+</body>
+</html> 
