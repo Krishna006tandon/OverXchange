@@ -206,9 +206,10 @@ def create_transaction(current_user):
         'status': 'pending',
         'payment_method': data.get('payment_method', 'in_app'),
         'logistics': data.get('logistics', {}),
+        'supplier_logistic_charges': float(data.get('supplier_logistic_charges', 0)),
         'created_at': datetime.utcnow()
     }
-    
+    #
     result = transactions.insert_one(transaction)
     transaction['_id'] = str(result.inserted_id)
     
