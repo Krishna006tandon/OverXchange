@@ -1674,6 +1674,8 @@
         // Open order form for specific supplier
         function openOrderForm(supplier) {
             // Navigate to products page
+            console.log('Opening supplier products for supplier:', supplier);
+            console.log('Supplier ID:', supplier._id);
             window.location.href = `supplier-products.html?supplier_id=${supplier._id}`;
         }
         
@@ -2072,6 +2074,13 @@
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             console.log('Current cart from localStorage:', cart);
             console.log('Cart length:', cart.length);
+            
+            // Check if cart items have supplier IDs
+            const itemsWithoutSupplierId = cart.filter(item => !item.supplierId);
+            if (itemsWithoutSupplierId.length > 0) {
+                console.warn('Found cart items without supplier ID:', itemsWithoutSupplierId);
+                console.warn('These items may not work properly with coupon functionality');
+            }
             
             const cartCountSidebar = document.getElementById('cartCountSidebar');
             console.log('Cart count sidebar element:', cartCountSidebar);
@@ -2628,6 +2637,44 @@
         
 
 
+        // Clean up old cart items that don't have supplier IDs
+        function cleanupOldCartItems() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const validCartItems = cart.filter(item => item.supplierId);
+            
+            if (validCartItems.length !== cart.length) {
+                console.log('Cleaning up old cart items without supplier IDs');
+                console.log('Removed', cart.length - validCartItems.length, 'items');
+                localStorage.setItem('cart', JSON.stringify(validCartItems));
+                
+                // Show a brief notification if items were removed
+                if (cart.length - validCartItems.length > 0) {
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #ffc107;
+                        color: #000;
+                        padding: 10px 15px;
+                        border-radius: 5px;
+                        z-index: 1000;
+                        font-size: 14px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    `;
+                    notification.textContent = `Cleaned up ${cart.length - validCartItems.length} old cart items`;
+                    document.body.appendChild(notification);
+                    
+                    // Remove notification after 3 seconds
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 3000);
+                }
+            }
+        }
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initialized');
@@ -2638,6 +2685,9 @@
             
             // Load settings
             loadSettings();
+            
+            // Clean up old cart items without supplier IDs
+            cleanupOldCartItems();
             
             // Update cart count
             console.log('Initializing cart count...');
