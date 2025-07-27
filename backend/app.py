@@ -1600,10 +1600,21 @@ def get_orders():
         # Debug: List all orders if no user_type/user_id provided
         if not user_type or not user_id:
             print("Debug: Listing all orders")
-            all_orders = list(db['orders'].find({}, {'order_id': 1, 'status': 1, 'order_date': 1}))
+            all_orders = list(db['orders'].find({}))
             print(f"Total orders in database: {len(all_orders)}")
+            
+            # Convert ObjectId to string for JSON serialization
+            for order in all_orders:
+                order['_id'] = str(order['_id'])
+                if 'order_date' in order:
+                    order['order_date'] = order['order_date'].isoformat()
+            
             for order in all_orders:
                 print(f"Order: {order.get('order_id')} - Status: {order.get('status')}")
+                if 'supplier_orders' in order:
+                    for so in order['supplier_orders']:
+                        print(f"  Supplier: {so.get('supplier_name')}")
+            
             return jsonify({
                 'success': True, 
                 'message': 'All orders listed for debugging',
