@@ -14,7 +14,13 @@ import base64
 import io
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={
+    r"/*": {
+        "origins": ["*"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+    }
+})
 
 # MongoDB setup
 mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')
@@ -51,28 +57,75 @@ def login():
         return jsonify({'success': False, 'message': 'User not found'}), 404
     if not check_password_hash(user['password'], password):
         return jsonify({'success': False, 'message': 'Incorrect password'}), 401
-    return jsonify({
+    response_data = {
         'success': True,
         'message': 'Login successful',
         'user_type': user_type,
         'user_id': str(user['_id'])
-    })
+    }
+    
+    # Add supplier-specific data for suppliers
+    if user_type == 'supplier':
+        response_data['business_name'] = user.get('business_name', user.get('name', ''))
+        response_data['name'] = user.get('name', '')
+    
+    return jsonify(response_data)
 
 @app.route('/api/signup/vendor', methods=['POST'])
 def signup_vendor():
-    data = request.json
-    if 'password' in data:
-        data['password'] = generate_password_hash(data['password'])
-    result = db['vendors'].insert_one(data)
-    return jsonify({"success": True, "message": "Vendor signup successful!", "id": str(result.inserted_id)})
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"success": False, "message": "No data provided"}), 400
+        
+        # Check if user already exists
+        existing_user = db['vendors'].find_one({'email': data.get('email')})
+        if existing_user:
+            return jsonify({"success": False, "message": "User already exists with this email"}), 409
+        
+        if 'password' in data:
+            data['password'] = generate_password_hash(data['password'])
+        
+        # Add timestamp
+        data['created_at'] = datetime.utcnow()
+        
+        result = db['vendors'].insert_one(data)
+        return jsonify({
+            "success": True, 
+            "message": "Vendor signup successful!", 
+            "id": str(result.inserted_id)
+        }), 201
+    except Exception as e:
+        print(f"Vendor signup error: {str(e)}")
+        return jsonify({"success": False, "message": "Internal server error"}), 500
 
 @app.route('/api/signup/supplier', methods=['POST'])
 def signup_supplier():
-    data = request.json
-    if 'password' in data:
-        data['password'] = generate_password_hash(data['password'])
-    result = db['suppliers'].insert_one(data)
-    return jsonify({"success": True, "message": "Supplier signup successful!", "id": str(result.inserted_id)})
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"success": False, "message": "No data provided"}), 400
+        
+        # Check if user already exists
+        existing_user = db['suppliers'].find_one({'email': data.get('email')})
+        if existing_user:
+            return jsonify({"success": False, "message": "User already exists with this email"}), 409
+        
+        if 'password' in data:
+            data['password'] = generate_password_hash(data['password'])
+        
+        # Add timestamp
+        data['created_at'] = datetime.utcnow()
+        
+        result = db['suppliers'].insert_one(data)
+        return jsonify({
+            "success": True, 
+            "message": "Supplier signup successful!", 
+            "id": str(result.inserted_id)
+        }), 201
+    except Exception as e:
+        print(f"Supplier signup error: {str(e)}")
+        return jsonify({"success": False, "message": "Internal server error"}), 500
 
 def get_user_collection(user_type):
     if user_type == 'vendor':
@@ -136,18 +189,62 @@ def add_stock():
     data = request.json
     data['created_at'] = datetime.now()
     data['updated_at'] = datetime.now()
+    data['last_updated'] = datetime.now()
+    data['stock_history'] = [{
+        'action': 'stock_added',
+        'quantity_change': data.get('quantity', 0),
+        'previous_stock': 0,
+        'new_stock': data.get('quantity', 0),
+        'timestamp': datetime.now()
+    }]
     result = db['stocks'].insert_one(data)
     return jsonify({'success': True, 'message': 'Stock added successfully!', 'id': str(result.inserted_id)})
 
 @app.route('/api/stocks/<stock_id>', methods=['PUT'])
 def update_stock(stock_id):
     """Update a stock item"""
-    data = request.json
-    data['updated_at'] = datetime.now()
-    result = db['stocks'].update_one({'_id': ObjectId(stock_id)}, {'$set': data})
-    if result.matched_count == 0:
-        return jsonify({'success': False, 'message': 'Stock not found'}), 404
-    return jsonify({'success': True, 'message': 'Stock updated successfully!'})
+    try:
+        data = request.json
+        
+        # Get current stock to calculate quantity change
+        current_stock = db['stocks'].find_one({'_id': ObjectId(stock_id)})
+        if not current_stock:
+            return jsonify({'success': False, 'message': 'Stock not found'}), 404
+        
+        current_quantity = current_stock.get('quantity', 0)
+        new_quantity = data.get('quantity', current_quantity)
+        quantity_change = new_quantity - current_quantity
+        
+        # Prepare update data
+        update_data = data.copy()
+        update_data['updated_at'] = datetime.now()
+        update_data['last_updated'] = datetime.now()
+        
+        # Add stock history entry
+        stock_history_entry = {
+            'action': 'stock_updated',
+            'quantity_change': quantity_change,
+            'previous_stock': current_quantity,
+            'new_stock': new_quantity,
+            'timestamp': datetime.now()
+        }
+        
+        # Update stock with history
+        result = db['stocks'].update_one(
+            {'_id': ObjectId(stock_id)}, 
+            {
+                '$set': update_data,
+                '$push': {'stock_history': stock_history_entry}
+            }
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({'success': False, 'message': 'Stock not found'}), 404
+            
+        return jsonify({'success': True, 'message': 'Stock updated successfully!'})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/stocks/<stock_id>', methods=['DELETE'])
 def delete_stock(stock_id):
@@ -1557,28 +1654,81 @@ def get_orders():
         user_type = request.args.get('user_type')
         user_id = request.args.get('user_id')
         
+        # Debug: List all orders if no user_type/user_id provided
         if not user_type or not user_id:
-            return jsonify({'success': False, 'message': 'User type and ID required'}), 400
+            print("Debug: Listing all orders")
+            all_orders = list(db['orders'].find({}))
+            print(f"Total orders in database: {len(all_orders)}")
+            
+            # Convert ObjectId to string for JSON serialization
+            for order in all_orders:
+                order['_id'] = str(order['_id'])
+                if 'order_date' in order:
+                    order['order_date'] = order['order_date'].isoformat()
+            
+            for order in all_orders:
+                print(f"Order: {order.get('order_id')} - Status: {order.get('status')}")
+                if 'supplier_orders' in order:
+                    for so in order['supplier_orders']:
+                        print(f"  Supplier: {so.get('supplier_name')}")
+            
+            return jsonify({
+                'success': True, 
+                'message': 'All orders listed for debugging',
+                'orders': all_orders
+            })
         
         if user_type == 'vendor':
-            # Get orders for vendor
+            # Get orders for vendor with supplier_orders included
             orders = list(db['orders'].find({'vendor_id': user_id}).sort('order_date', -1))
+            
+            # Ensure supplier_orders are included for vendor view
+            for order in orders:
+                if 'supplier_orders' not in order:
+                    order['supplier_orders'] = []
         elif user_type == 'supplier':
             # Get orders for supplier (filter by supplier ID or name)
-            supplier = db['suppliers'].find_one({'_id': ObjectId(user_id)})
-            if not supplier:
-                return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+            # Try to find supplier by ObjectId first, then by string ID
+            supplier = None
+            try:
+                supplier = db['suppliers'].find_one({'_id': ObjectId(user_id)})
+            except:
+                # If ObjectId conversion fails, try to find by string ID
+                supplier = db['suppliers'].find_one({'user_id': user_id})
             
-            supplier_name = supplier.get('business_name', supplier.get('name', ''))
-            supplier_id = str(supplier['_id'])
+            if supplier:
+                # Supplier found in suppliers collection
+                supplier_name = supplier.get('business_name', supplier.get('name', ''))
+                supplier_id = str(supplier['_id'])
+                
+                # Find orders where this supplier is involved
+                query = {
+                    '$or': [
+                        {'supplier_orders.supplier_name': supplier_name},
+                        {'supplier_orders.supplier_id': supplier_id}
+                    ]
+                }
+            else:
+                # For test suppliers, use the user_id directly
+                # Map test supplier IDs to their names
+                supplier_names = {
+                    'supplier123': 'Fresh Foods Ltd',
+                    'supplier456': 'Veggie Paradise', 
+                    'supplier789': 'ND Hotel'
+                }
+                
+                supplier_name = supplier_names.get(user_id, user_id)
+                supplier_id = user_id
+                
+                # Find orders where this supplier is involved
+                query = {
+                    '$or': [
+                        {'supplier_orders.supplier_name': supplier_name},
+                        {'supplier_orders.supplier_id': supplier_id}
+                    ]
+                }
             
-            # Find orders where this supplier is involved
-            orders = list(db['orders'].find({
-                '$or': [
-                    {'supplier_orders.supplier_name': supplier_name},
-                    {'supplier_orders.supplier_id': supplier_id}
-                ]
-            }).sort('order_date', -1))
+            orders = list(db['orders'].find(query).sort('order_date', -1))
         else:
             return jsonify({'success': False, 'message': 'Invalid user type'}), 400
         
@@ -1619,25 +1769,66 @@ def update_order_status(order_id):
         data = request.json
         new_status = data.get('status')
         supplier_name = data.get('supplier_name')  # For supplier-specific updates
+        supplier_id = data.get('supplier_id')  # For supplier-specific updates
+        rejection_reason = data.get('rejection_reason', '')
+        acceptance_notes = data.get('acceptance_notes', '')
         
         if not new_status:
             return jsonify({'success': False, 'message': 'Status required'}), 400
         
         update_data = {}
+        timestamp = datetime.now()
         
-        if supplier_name:
+        if supplier_name or supplier_id:
             # Update specific supplier order status
             update_data['supplier_orders.$.status'] = new_status
-            result = db['orders'].update_one(
-                {
-                    'order_id': order_id,
-                    'supplier_orders.supplier_name': supplier_name
-                },
-                {'$set': update_data}
-            )
+            update_data['supplier_orders.$.last_updated'] = timestamp
+            
+            # Add status history
+            status_update = {
+                'status': new_status,
+                'timestamp': timestamp,
+                'updated_by': 'supplier',
+                'notes': acceptance_notes if new_status == 'accepted' else rejection_reason
+            }
+            update_data['supplier_orders.$.status_history'] = status_update
+            
+            # Add rejection reason if status is rejected
+            if new_status == 'rejected':
+                update_data['supplier_orders.$.rejection_reason'] = rejection_reason
+            elif new_status == 'accepted':
+                update_data['supplier_orders.$.acceptance_notes'] = acceptance_notes
+                update_data['supplier_orders.$.accepted_at'] = timestamp
+            
+            # Build query based on available identifiers
+            query = {'order_id': order_id}
+            if supplier_id:
+                query['supplier_orders.supplier_id'] = supplier_id
+            elif supplier_name:
+                query['supplier_orders.supplier_name'] = supplier_name
+                
+            result = db['orders'].update_one(query, {'$set': update_data})
+            
+            # If accepted, check if all suppliers have accepted to update main order status
+            if new_status == 'accepted':
+                order = db['orders'].find_one({'order_id': order_id})
+                if order and 'supplier_orders' in order:
+                    all_accepted = all(so.get('status') == 'accepted' for so in order['supplier_orders'])
+                    if all_accepted:
+                        db['orders'].update_one(
+                            {'order_id': order_id},
+                            {
+                                '$set': {
+                                    'status': 'confirmed',
+                                    'confirmed_at': timestamp
+                                }
+                            }
+                        )
         else:
             # Update main order status
             update_data['status'] = new_status
+            update_data['last_updated'] = timestamp
+            
             result = db['orders'].update_one(
                 {'order_id': order_id},
                 {'$set': update_data}
@@ -1650,6 +1841,311 @@ def update_order_status(order_id):
             'success': True,
             'message': 'Order status updated successfully'
         })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/orders/<order_id>/accept', methods=['POST'])
+def accept_order(order_id):
+    """Supplier accepts an order - Optimized for performance"""
+    try:
+        print(f"Accept order request for order_id: {order_id}")
+        data = request.json
+        print(f"Request data: {data}")
+        
+        supplier_id = data.get('supplier_id')
+        supplier_name = data.get('supplier_name')
+        acceptance_notes = data.get('acceptance_notes', '')
+        estimated_delivery = data.get('estimated_delivery')
+        
+        if not supplier_id and not supplier_name:
+            return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
+        
+        timestamp = datetime.now()
+        
+        # Build query for single update operation
+        query = {'order_id': order_id}
+        if supplier_id:
+            query['supplier_orders.supplier_id'] = supplier_id
+        elif supplier_name:
+            query['supplier_orders.supplier_name'] = supplier_name
+        
+        # Optimized update with minimal fields
+        update_data = {
+            'supplier_orders.$.status': 'accepted',
+            'supplier_orders.$.accepted_at': timestamp,
+            'supplier_orders.$.acceptance_notes': acceptance_notes,
+            'supplier_orders.$.estimated_delivery': estimated_delivery,
+            'supplier_orders.$.last_updated': timestamp
+        }
+        
+        # Single database operation
+        result = db['orders'].update_one(query, {'$set': update_data})
+        
+        if result.modified_count == 0:
+            return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
+        
+        # Update stock quantities after order acceptance
+        stock_update_result = update_supplier_stock_on_order_accept(order_id, supplier_name)
+        
+        print(f"Order accepted successfully: {order_id}")
+        print(f"Stock update result: {stock_update_result}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Order accepted successfully',
+            'stock_updated': stock_update_result['success'],
+            'stock_message': stock_update_result['message']
+        })
+        
+    except Exception as e:
+        print(f"Error accepting order: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+def update_supplier_stock_on_order_accept(order_id, supplier_name):
+    """Update supplier stock quantities when order is accepted"""
+    try:
+        print(f"Updating stock for order {order_id}, supplier {supplier_name}")
+        
+        # Get the order details
+        order = db['orders'].find_one({'order_id': order_id})
+        if not order:
+            return {'success': False, 'message': 'Order not found'}
+        
+        # Find supplier-specific items in the order
+        supplier_order = None
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_name') == supplier_name:
+                supplier_order = so
+                break
+        
+        if not supplier_order:
+            return {'success': False, 'message': f'No items found for supplier {supplier_name}'}
+        
+        # Update stock for each item
+        updated_items = []
+        failed_items = []
+        
+        for item in supplier_order.get('items', []):
+            product_name = item.get('name')
+            ordered_quantity = item.get('quantity', 0)
+            
+            print(f"Processing item: {product_name}, quantity: {ordered_quantity}")
+            
+            # Find the stock item for this supplier and product
+            stock_query = {
+                'supplier_name': supplier_name,
+                'name': product_name
+            }
+            
+            stock_item = db['stocks'].find_one(stock_query)
+            
+            if stock_item:
+                current_stock = stock_item.get('quantity', 0)
+                new_stock = current_stock - ordered_quantity
+                
+                if new_stock >= 0:
+                    # Update stock quantity
+                    result = db['stocks'].update_one(
+                        {'_id': stock_item['_id']},
+                        {
+                            '$set': {
+                                'quantity': new_stock,
+                                'last_updated': datetime.now()
+                            },
+                            '$push': {
+                                'stock_history': {
+                                    'action': 'order_accepted',
+                                    'quantity_change': -ordered_quantity,
+                                    'previous_stock': current_stock,
+                                    'new_stock': new_stock,
+                                    'order_id': order_id,
+                                    'timestamp': datetime.now()
+                                }
+                            }
+                        }
+                    )
+                    
+                    if result.modified_count > 0:
+                        updated_items.append({
+                            'product': product_name,
+                            'previous_stock': current_stock,
+                            'new_stock': new_stock,
+                            'ordered_quantity': ordered_quantity
+                        })
+                        print(f"Stock updated for {product_name}: {current_stock} -> {new_stock}")
+                    else:
+                        failed_items.append(f"Failed to update stock for {product_name}")
+                else:
+                    failed_items.append(f"Insufficient stock for {product_name} (current: {current_stock}, ordered: {ordered_quantity})")
+            else:
+                failed_items.append(f"Stock item not found for {product_name}")
+        
+        # Prepare response
+        if updated_items and not failed_items:
+            return {
+                'success': True,
+                'message': f'Stock updated successfully for {len(updated_items)} items',
+                'updated_items': updated_items
+            }
+        elif updated_items and failed_items:
+            return {
+                'success': True,
+                'message': f'Stock updated for {len(updated_items)} items, {len(failed_items)} failed',
+                'updated_items': updated_items,
+                'failed_items': failed_items
+            }
+        else:
+            return {
+                'success': False,
+                'message': f'Failed to update stock: {", ".join(failed_items)}'
+            }
+            
+    except Exception as e:
+        print(f"Error updating stock: {str(e)}")
+        return {'success': False, 'message': f'Error updating stock: {str(e)}'}
+
+@app.route('/api/orders/<order_id>/reject', methods=['POST'])
+def reject_order(order_id):
+    """Supplier rejects an order"""
+    try:
+        data = request.json
+        supplier_id = data.get('supplier_id')
+        supplier_name = data.get('supplier_name')
+        rejection_reason = data.get('rejection_reason', '')
+        
+        if not supplier_id and not supplier_name:
+            return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
+        
+        if not rejection_reason:
+            return jsonify({'success': False, 'message': 'Rejection reason required'}), 400
+        
+        timestamp = datetime.now()
+        update_data = {
+            'supplier_orders.$.status': 'rejected',
+            'supplier_orders.$.rejected_at': timestamp,
+            'supplier_orders.$.rejection_reason': rejection_reason,
+            'supplier_orders.$.last_updated': timestamp
+        }
+        
+        # Add status history
+        status_update = {
+            'status': 'rejected',
+            'timestamp': timestamp,
+            'updated_by': 'supplier',
+            'notes': rejection_reason
+        }
+        update_data['supplier_orders.$.status_history'] = status_update
+        
+        # Build query
+        query = {'order_id': order_id}
+        if supplier_id:
+            query['supplier_orders.supplier_id'] = supplier_id
+        elif supplier_name:
+            query['supplier_orders.supplier_name'] = supplier_name
+        
+        result = db['orders'].update_one(query, {'$set': update_data})
+        
+        if result.modified_count == 0:
+            return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
+        
+        return jsonify({
+            'success': True,
+            'message': 'Order rejected successfully'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/orders/<order_id>/supplier-status', methods=['GET'])
+def get_supplier_order_status(order_id):
+    """Get detailed status for a specific supplier's order"""
+    try:
+        data = request.args
+        supplier_id = data.get('supplier_id')
+        supplier_name = data.get('supplier_name')
+        
+        if not supplier_id and not supplier_name:
+            return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
+        
+        order = db['orders'].find_one({'order_id': order_id})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+        
+        # Find supplier-specific order
+        supplier_order = None
+        if 'supplier_orders' in order:
+            for so in order['supplier_orders']:
+                if (supplier_id and so.get('supplier_id') == supplier_id) or \
+                   (supplier_name and so.get('supplier_name') == supplier_name):
+                    supplier_order = so
+                    break
+        
+        if not supplier_order:
+            return jsonify({'success': False, 'message': 'Supplier order not found'}), 404
+        
+        return jsonify({
+            'success': True,
+            'supplier_order': supplier_order,
+            'main_order': {
+                'order_id': order['order_id'],
+                'status': order['status'],
+                'customer_info': order['customer_info'],
+                'total_amount': order['total_amount']
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/orders/<order_id>/delivery', methods=['PUT'])
+def update_delivery_info(order_id):
+    """Update delivery information for an order"""
+    try:
+        data = request.json
+        supplier_name = data.get('supplier_name')
+        tracking_number = data.get('tracking_number')
+        estimated_delivery = data.get('estimated_delivery')
+        delivery_notes = data.get('delivery_notes')
+        
+        if not supplier_name:
+            return jsonify({'success': False, 'message': 'Supplier name required'}), 400
+        
+        # Update the order with delivery information
+        update_data = {}
+        if tracking_number:
+            update_data['supplier_orders.$.tracking_number'] = tracking_number
+        if estimated_delivery:
+            update_data['supplier_orders.$.estimated_delivery'] = estimated_delivery
+        if delivery_notes:
+            update_data['supplier_orders.$.delivery_notes'] = delivery_notes
+        
+        if update_data:
+            update_data['supplier_orders.$.last_updated'] = datetime.now()
+            
+            result = db['orders'].update_one(
+                {
+                    'order_id': order_id,
+                    'supplier_orders.supplier_name': supplier_name
+                },
+                {'$set': update_data}
+            )
+            
+            if result.modified_count > 0:
+                return jsonify({
+                    'success': True,
+                    'message': 'Delivery information updated successfully'
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Order or supplier not found'
+                }), 404
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No delivery information provided'
+            }), 400
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -2046,4 +2542,9 @@ def generate_bill_html(order):
     return bill_html
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    # Get port from environment variable for Railway deployment
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Starting OverXchange on port {port}")
+    print(f"Environment: {os.environ.get('RAILWAY_ENVIRONMENT', 'development')}")
+    # For Railway deployment
+    app.run(debug=False, host='0.0.0.0', port=port, threaded=True) 

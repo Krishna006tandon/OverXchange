@@ -215,6 +215,9 @@
     document.getElementById('logout-btn').addEventListener('click', function() {
         localStorage.removeItem('user_type');
         localStorage.removeItem('user_id');
+        localStorage.removeItem('supplier_name');
+        localStorage.removeItem('business_name');
+        localStorage.removeItem('name');
         updateNavbar();
         window.location.href = 'index.html';
     });
@@ -223,7 +226,9 @@
         e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
-        fetch('http://localhost:5000/api/login', {
+        // Get current domain for API calls
+        const currentDomain = window.location.origin;
+        fetch(`${currentDomain}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -232,10 +237,22 @@
         .then(data => {
             console.log('Login response:', data);
             if (data.success) {
-                // Assume backend returns user_type and user_id
+                // Store user data in localStorage
                 localStorage.setItem('user_type', data.user_type);
                 localStorage.setItem('user_id', data.user_id);
+                
+                // Store supplier-specific data
+                if (data.user_type === 'supplier') {
+                    localStorage.setItem('supplier_name', data.business_name || data.name || 'Unknown Supplier');
+                    localStorage.setItem('business_name', data.business_name || '');
+                    localStorage.setItem('name', data.name || '');
+                }
+                
                 console.log('Stored in localStorage - user_type:', data.user_type, 'user_id:', data.user_id);
+                if (data.user_type === 'supplier') {
+                    console.log('Supplier name stored:', localStorage.getItem('supplier_name'));
+                }
+                
                 updateNavbar(); // Update navbar after successful login
                 
                 // Redirect based on user type
