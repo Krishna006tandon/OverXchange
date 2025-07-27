@@ -57,12 +57,19 @@ def login():
         return jsonify({'success': False, 'message': 'User not found'}), 404
     if not check_password_hash(user['password'], password):
         return jsonify({'success': False, 'message': 'Incorrect password'}), 401
-    return jsonify({
+    response_data = {
         'success': True,
         'message': 'Login successful',
         'user_type': user_type,
         'user_id': str(user['_id'])
-    })
+    }
+    
+    # Add supplier-specific data for suppliers
+    if user_type == 'supplier':
+        response_data['business_name'] = user.get('business_name', user.get('name', ''))
+        response_data['name'] = user.get('name', '')
+    
+    return jsonify(response_data)
 
 @app.route('/api/signup/vendor', methods=['POST'])
 def signup_vendor():
