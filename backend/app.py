@@ -1766,11 +1766,23 @@ def update_order_status(order_id):
 def accept_order(order_id):
     """Supplier accepts an order"""
     try:
+        print(f"Accept order request for order_id: {order_id}")
         data = request.json
+        print(f"Request data: {data}")
+        
         supplier_id = data.get('supplier_id')
         supplier_name = data.get('supplier_name')
         acceptance_notes = data.get('acceptance_notes', '')
         estimated_delivery = data.get('estimated_delivery')
+        
+        # Check if order exists
+        order = db['orders'].find_one({'order_id': order_id})
+        if not order:
+            print(f"Order not found: {order_id}")
+            return jsonify({'success': False, 'message': f'Order {order_id} not found'}), 404
+        
+        print(f"Order found: {order.get('order_id')}")
+        print(f"Supplier orders: {order.get('supplier_orders', [])}")
         
         if not supplier_id and not supplier_name:
             return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
