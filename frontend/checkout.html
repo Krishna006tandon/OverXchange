@@ -452,8 +452,8 @@
                     <span id="taxAmount">₹0.00</span>
                 </div>
                 <div class="summary-row">
-                    <span>Coupon Code</span>
-                    <input type="text" id="couponCode" placeholder="Enter coupon code" style="width: 120px; margin-right: 8px;">
+                    <span>Available Coupons</span>
+                    <select id="couponSelect" style="width: 180px; margin-right: 8px;"></select>
                     <button type="button" class="btn" style="padding: 4px 10px; font-size: 0.9em;" onclick="applyCoupon()">Apply</button>
                 </div>
                 <div class="summary-row" id="discountRow" style="display:none; color: #28a745;">
@@ -477,12 +477,14 @@
         let currentUser = null;
         let appliedCoupon = null;
         let discountAmount = 0;
+        let availableCoupons = [];
 
         // Load cart and user data on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadCart();
             loadUserData();
             setupFormValidation();
+            fetchAvailableCoupons();
         });
 
         function loadCart() {
@@ -512,10 +514,31 @@
             shippingMethod.addEventListener('change', updateOrderSummary);
         }
 
+        function fetchAvailableCoupons() {
+            // For demo, use the first supplier in cart
+            const supplierId = cart.length > 0 && cart[0].supplierId ? cart[0].supplierId : null;
+            if (!supplierId) return;
+            fetch(`/api/coupons?supplier_id=${supplierId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.coupons && data.coupons.length > 0) {
+                        availableCoupons = data.coupons;
+                        const couponSelect = document.getElementById('couponSelect');
+                        couponSelect.innerHTML = '<option value="">Select a coupon</option>' +
+                            data.coupons.map(c => `<option value="${c.code}">${c.title} (${c.code}) - ${c.discount_type === 'percentage' ? c.discount_value + '% off' : '₹' + c.discount_value + ' off'}</option>`).join('');
+                    } else {
+                        document.getElementById('couponSelect').innerHTML = '<option value="">No coupons available</option>';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('couponSelect').innerHTML = '<option value="">No coupons available</option>';
+                });
+        }
+
         function applyCoupon() {
-            const code = document.getElementById('couponCode').value.trim();
+            const code = document.getElementById('couponSelect').value;
             if (!code) {
-                showError('Please enter a coupon code.');
+                showError('Please select a coupon.');
                 return;
             }
             // For demo, use the first supplier in cart
