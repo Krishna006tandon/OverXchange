@@ -3934,8 +3934,21 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    updateAnalyticsUI(data.analytics, data.recent_stocks);
-                    createCharts(data.analytics);
+                    try {
+                        updateAnalyticsUI(data.analytics, data.recent_stocks);
+                        createCharts(data.analytics);
+                    } catch (error) {
+                        console.error('Error updating analytics UI:', error);
+                        // Set default values if analytics data is missing
+                        updateAnalyticsUI({
+                            total_products: 0,
+                            low_stock_items: 0,
+                            out_of_stock_items: 0,
+                            total_value: 0,
+                            left_stock_value: 0,
+                            category_distribution: {}
+                        }, []);
+                    }
                 } else {
                     console.error('Failed to load analytics data:', data.message);
                 }
@@ -3997,7 +4010,7 @@
         // Update top categories
         function updateTopCategories(categoryDistribution) {
             const topCategories = document.getElementById('topCategories');
-            if (!categoryDistribution || Object.keys(categoryDistribution).length === 0) {
+            if (!categoryDistribution || !Array.isArray(categoryDistribution) && Object.keys(categoryDistribution).length === 0) {
                 topCategories.innerHTML = '<p style="color: var(--text-light); text-align: center;">No categories found</p>';
                 return;
             }
