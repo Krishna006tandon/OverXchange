@@ -1520,11 +1520,17 @@ def create_order():
             if not supplier:
                 supplier = db['suppliers'].find_one({'name': supplier_name})
             
+            # Get logistic charges for this supplier's items (if present)
+            logistic_charges = 0.0
+            for item in items:
+                logistic_charges += float(item.get('supplier_logistic_charges', 0))
+            
             supplier_order = {
                 'supplier_name': supplier_name,
                 'supplier_id': str(supplier['_id']) if supplier else None,
                 'items': items,
                 'subtotal': sum(item['price'] * item['quantity'] for item in items),
+                'supplier_logistic_charges': logistic_charges,
                 'status': 'pending',
                 'order_date': datetime.now()
             }
