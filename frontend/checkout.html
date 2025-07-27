@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - OverXchange</title>
+    <title>चेकआउट - OverXchange</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -458,12 +458,12 @@
     <main class="main-content">
         <h1 class="page-title">
             <i class="fas fa-credit-card"></i>
-            Checkout
+            चेकआउट
         </h1>
 
         <div class="success-message" id="successMessage">
             <i class="fas fa-check-circle"></i>
-            Order placed successfully! Redirecting to orders...
+            आदेश सफलतापूर्वक दिया गया! रीडायरेक्टिंग ऑर्डर्स...
         </div>
 
         <div class="error-message" id="errorMessage">
@@ -477,24 +477,24 @@
                     <div class="form-section">
                         <h2 class="section-title">
                             <i class="fas fa-user"></i>
-                            Customer Information
+                            ग्राहक जानकारी
                         </h2>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="firstName">First Name *</label>
+                                <label for="firstName">पहला नाम *</label>
                                 <input type="text" id="firstName" name="firstName" required>
                             </div>
                             <div class="form-group">
-                                <label for="lastName">Last Name *</label>
+                                <label for="lastName">अंतिम नाम *</label>
                                 <input type="text" id="lastName" name="lastName" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email Address *</label>
+                            <label for="email">ईमेल पता *</label>
                             <input type="email" id="email" name="email" required>
                         </div>
                         <div class="form-group">
-                            <label for="phone">Phone Number *</label>
+                            <label for="phone">फोन नंबर *</label>
                             <input type="tel" id="phone" name="phone" required>
                         </div>
                     </div>
@@ -502,33 +502,33 @@
                     <div class="form-section">
                         <h2 class="section-title">
                             <i class="fas fa-shipping-fast"></i>
-                            Shipping Address
+                            शिपिंग पता
                         </h2>
                         <div class="form-group">
-                            <label for="addressLine1">Address Line 1 *</label>
+                            <label for="addressLine1">पता लाइन 1 *</label>
                             <input type="text" id="addressLine1" name="addressLine1" required>
                         </div>
                         <div class="form-group">
-                            <label for="addressLine2">Address Line 2</label>
+                            <label for="addressLine2">पता लाइन 2</label>
                             <input type="text" id="addressLine2" name="addressLine2">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="city">City *</label>
+                                <label for="city">शहर *</label>
                                 <input type="text" id="city" name="city" required>
                             </div>
                             <div class="form-group">
-                                <label for="state">State *</label>
+                                <label for="state">राज्य *</label>
                                 <input type="text" id="state" name="state" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="pincode">Pincode *</label>
+                                <label for="pincode">पिनकोड *</label>
                                 <input type="text" id="pincode" name="pincode" required>
                             </div>
                             <div class="form-group">
-                                <label for="country">Country *</label>
+                                <label for="country">देश *</label>
                                 <input type="text" id="country" name="country" value="India" required>
                             </div>
                         </div>
@@ -537,34 +537,34 @@
                     <div class="form-section">
                         <h2 class="section-title">
                             <i class="fas fa-truck"></i>
-                            Shipping Options
+                            शिपिंग विकल्प
                         </h2>
                         <div class="form-group">
-                            <label for="shippingMethod">Shipping Method *</label>
+                            <label for="shippingMethod">शिपिंग विधि *</label>
                             <select id="shippingMethod" name="shippingMethod" required>
-                                <option value="">Select shipping method</option>
-                                <option value="standard">Standard Delivery (3-5 days) - ₹50</option>
-                                <option value="express">Express Delivery (1-2 days) - ₹150</option>
-                                <option value="overnight">Overnight Delivery - ₹300</option>
+                                <option value="">शिपिंग विधि चुनें</option>
+                                <option value="standard">मानक डिलीवरी (3-5 दिन) - ₹50</option>
+                                <option value="express">एक्सप्रेस डिलीवरी (1-2 दिन) - ₹150</option>
+                                <option value="overnight">ऑनेवरनाइट डिलीवरी - ₹300</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="deliveryInstructions">Delivery Instructions</label>
-                            <textarea id="deliveryInstructions" name="deliveryInstructions" rows="3" placeholder="Any special instructions for delivery..."></textarea>
+                            <label for="deliveryInstructions">डिलीवरी निर्देश</label>
+                            <textarea id="deliveryInstructions" name="deliveryInstructions" rows="3" placeholder="डिलीवरी के लिए कोई विशेष निर्देश..."></textarea>
                         </div>
                     </div>
 
                     <div class="form-section">
                         <h2 class="section-title">
                             <i class="fas fa-credit-card"></i>
-                            Payment Information
+                            भुगतान जानकारी
                         </h2>
                         <div class="form-group">
-                            <label for="paymentMethod">Payment Method *</label>
+                            <label for="paymentMethod">भुगतान विधि *</label>
                             <select id="paymentMethod" name="paymentMethod" required>
-                                <option value="">Select payment method</option>
-                                <option value="cod">Cash on Delivery</option>
-                                <option value="online">Online Payment</option>
+                                <option value="">भुगतान विधि चुनें</option>
+                                <option value="cod">कैश ऑन डिलीवरी</option>
+                                <option value="online">ऑनलाइन भुगतान</option>
                             </select>
                         </div>
                     </div>
@@ -574,26 +574,26 @@
             <div class="order-summary">
                 <h2 class="summary-title">
                     <i class="fas fa-receipt"></i>
-                    Order Summary
+                    आदेश सारांश
                 </h2>
                 <div class="order-items" id="orderItems">
                     <!-- Order items will be populated here -->
                 </div>
                 <div class="summary-row">
-                    <span>Subtotal</span>
+                    <span>कुल मूल्य</span>
                     <span id="subtotal">₹0.00</span>
                 </div>
                 <div class="summary-row">
-                    <span>Shipping</span>
+                    <span>शिपिंग</span>
                     <span id="shippingCost">₹0.00</span>
                 </div>
                 <div class="summary-row">
-                    <span>GST (18%)</span>
+                    <span>जीएसटी (18%)</span>
                     <span id="taxAmount">₹0.00</span>
                 </div>
                 <div class="summary-row coupon-section">
                     <div class="coupon-header">
-                        <span><i class="fas fa-tag"></i> Available Coupons</span>
+                        <span><i class="fas fa-tag"></i> उपलब्ध कूपन</span>
                         <button type="button" class="coupon-toggle-btn" onclick="toggleCouponSection()">
                             <i class="fas fa-chevron-down" id="couponToggleIcon"></i>
                         </button>
@@ -601,10 +601,10 @@
                     <div class="coupon-content" id="couponContent" style="display: none;">
                         <div class="coupon-selector">
                             <select id="couponSelect" class="coupon-dropdown">
-                                <option value="">Select a coupon...</option>
+                                <option value="">कूपन चुनें...</option>
                             </select>
                             <button type="button" class="apply-coupon-btn" onclick="applyCoupon()">
-                                <i class="fas fa-check"></i> Apply
+                                <i class="fas fa-check"></i> लागू करें
                             </button>
                         </div>
                         <div class="coupon-info" id="couponInfo" style="display: none;">
@@ -617,16 +617,16 @@
                     </div>
                 </div>
                 <div class="summary-row" id="discountRow" style="display:none; color: #28a745;">
-                    <span>Discount</span>
+                    <span>छूट</span>
                     <span id="discountAmount">-₹0.00</span>
                 </div>
                 <div class="summary-row total">
-                    <span>Total</span>
+                    <span>कुल मूल्य</span>
                     <span id="totalAmount">₹0.00</span>
                 </div>
                 <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">
                     <i class="fas fa-shopping-cart"></i>
-                    Place Order
+                    आदेश दें
                 </button>
             </div>
         </div>
@@ -692,7 +692,7 @@
             const supplierIds = [...new Set(cart.map(item => item.supplierId).filter(id => id))];
             
             if (supplierIds.length === 0) {
-                document.getElementById('couponSelect').innerHTML = '<option value="">No supplier information available</option>';
+                document.getElementById('couponSelect').innerHTML = '<option value="">कोई विक्रेता जानकारी उपलब्ध नहीं</option>';
                 return;
             }
             
@@ -706,18 +706,18 @@
                     if (data.success && data.coupons && data.coupons.length > 0) {
                         availableCoupons = data.coupons;
                         const couponSelect = document.getElementById('couponSelect');
-                        couponSelect.innerHTML = '<option value="">Select a coupon...</option>' +
-                            data.coupons.map(c => `<option value="${c.code}" data-coupon='${JSON.stringify(c)}'>${c.title} (${c.code}) - ${c.discount_type === 'percentage' ? c.discount_value + '% off' : '₹' + c.discount_value + ' off'}</option>`).join('');
+                        couponSelect.innerHTML = '<option value="">कूपन चुनें...</option>' +
+                            data.coupons.map(c => `<option value="${c.code}" data-coupon='${JSON.stringify(c)}'>${c.title} (${c.code}) - ${c.discount_type === 'percentage' ? c.discount_value + '% छूट' : '₹' + c.discount_value + ' छूट'}</option>`).join('');
                         
                         // Add change event listener to show coupon details
                         couponSelect.addEventListener('change', showCouponDetails);
                     } else {
-                        document.getElementById('couponSelect').innerHTML = '<option value="">No coupons available for this supplier</option>';
+                        document.getElementById('couponSelect').innerHTML = '<option value="">इस विक्रेता के लिए कोई कूपन उपलब्ध नहीं</option>';
                     }
                 })
                 .catch((error) => {
                     console.error('Error fetching coupons:', error);
-                    document.getElementById('couponSelect').innerHTML = '<option value="">Error loading coupons</option>';
+                    document.getElementById('couponSelect').innerHTML = '<option value="">कूपन लोड नहीं हो सकते</option>';
                 });
         }
 
@@ -731,9 +731,9 @@
                 
                 document.getElementById('couponTitle').textContent = coupon.title;
                 document.getElementById('couponDescription').textContent = 
-                    `${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '₹' + coupon.discount_value} off on orders above ₹${coupon.min_order_amount}`;
+                    `${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '₹' + coupon.discount_value} छूट ऑर्डर ऊपर ₹${coupon.min_order_amount} पर`;
                 document.getElementById('couponValidity').textContent = 
-                    `Valid until ${new Date(coupon.valid_until).toLocaleDateString()}`;
+                    `से वैध ${new Date(coupon.valid_until).toLocaleDateString()}`;
                 
                 couponInfo.style.display = 'block';
             } else {
@@ -744,13 +744,13 @@
         function applyCoupon() {
             const code = document.getElementById('couponSelect').value;
             if (!code) {
-                showError('Please select a coupon.');
+                showError('कृपया एक कूपन चुनें।');
                 return;
             }
             // For demo, use the first supplier in cart
             const supplierId = cart.length > 0 && cart[0].supplierId ? cart[0].supplierId : null;
             if (!supplierId) {
-                showError('No supplier found for coupon validation.');
+                showError('कूपन सत्यापन के लिए कोई विक्रेता नहीं मिला।');
                 return;
             }
             const orderAmount = parseFloat(document.getElementById('subtotal').textContent.replace('₹', ''));
@@ -770,9 +770,9 @@
                     // Update coupon info to show it's applied
                     const couponInfo = document.getElementById('couponInfo');
                     couponInfo.classList.add('coupon-applied');
-                    document.getElementById('couponTitle').innerHTML = `<i class="fas fa-check-circle"></i> ${data.coupon.title} - Applied!`;
+                    document.getElementById('couponTitle').innerHTML = `<i class="fas fa-check-circle"></i> ${data.coupon.title} - लागू!`;
                     
-                    showSuccess('Coupon applied successfully!');
+                    showSuccess('कूपन सफलतापूर्वक लागू हो गया!');
                     updateOrderSummary();
                 } else {
                     appliedCoupon = null;
@@ -783,12 +783,12 @@
                     const couponInfo = document.getElementById('couponInfo');
                     couponInfo.classList.remove('coupon-applied');
                     
-                    showError(data.message || 'Invalid coupon code.');
+                    showError(data.message || 'अमान्य कूपन कोड।');
                     updateOrderSummary();
                 }
             })
             .catch(() => {
-                showError('Failed to validate coupon.');
+                showError('कूपन सत्यापन में विफल।');
             });
         }
 
@@ -808,7 +808,7 @@
                     <div class="order-item">
                         <div class="item-info">
                             <div class="item-name">${item.name}</div>
-                            <div class="item-details">Qty: ${item.quantity} × ₹${item.price} (${item.unit})</div>
+                            <div class="item-details">भार: ${item.quantity} × ₹${item.price} (${item.unit})</div>
                         </div>
                         <div class="item-price">₹${itemTotal.toFixed(2)}</div>
                     </div>
@@ -858,7 +858,7 @@
 
             const placeOrderBtn = document.getElementById('placeOrderBtn');
             placeOrderBtn.disabled = true;
-            placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> प्रोसेसिंग...';
 
             // Collect form data
             const formData = new FormData(form);
@@ -911,7 +911,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showSuccess('Order placed successfully!');
+                    showSuccess('आदेश सफलतापूर्वक दिया गया!');
                     // Clear cart
                     localStorage.removeItem('cart');
                     // Redirect to orders page after 2 seconds
@@ -919,16 +919,16 @@
                         window.location.href = 'vendor-dashboard.html#orders';
                     }, 2000);
                 } else {
-                    showError(data.message || 'Failed to place order');
+                    showError(data.message || 'आदेश देने में विफल।');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showError('Network error. Please try again.');
+                showError('नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।');
             })
             .finally(() => {
                 placeOrderBtn.disabled = false;
-                placeOrderBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Place Order';
+                placeOrderBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> आदेश दें';
             });
         }
 
@@ -946,5 +946,6 @@
             errorMessage.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
+    <script src="language-switcher.js"></script>
 </body>
 </html> 

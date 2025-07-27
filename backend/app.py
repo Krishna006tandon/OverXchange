@@ -1654,10 +1654,19 @@ def upload_license():
         # Read file content
         file_content = file.read()
         
-        # Automatically verify the license
-        verification_result = verify_license_automatically(file_content, file.content_type)
+        # For manual admin verification workflow, always set status to pending
+        # Admin will manually verify the license
+        verification_result = {
+            'is_valid': 'manual_review',
+            'message': 'License uploaded successfully. Awaiting admin verification.',
+            'extracted_data': {
+                'business_name': 'To be verified by admin',
+                'address': 'To be verified by admin',
+                'license_number': 'To be verified by admin'
+            }
+        }
         
-        # Save license document to database
+        # Save license document to database with pending status
         license_data = {
             'supplier_id': supplier_id,
             'file_name': file.filename,
@@ -1665,7 +1674,9 @@ def upload_license():
             'file_size': file_size,
             'upload_date': datetime.now(),
             'verification_result': verification_result,
-            'status': 'verified' if verification_result['is_valid'] == True else ('pending' if verification_result['is_valid'] == 'manual_review' else 'rejected')
+            'status': 'pending',  # Always pending for admin verification
+            'file_content': base64.b64encode(file_content).decode('utf-8'),  # Store file content for admin review
+            'admin_verification_required': True
         }
         
         # Save to database
@@ -1686,9 +1697,10 @@ def upload_license():
         
         return jsonify({
             'success': True,
-            'message': 'License uploaded and verified successfully!',
+            'message': 'License uploaded successfully! Admin will review and verify your license shortly.',
             'verification_result': verification_result,
-            'license_data': license_data
+            'license_data': license_data,
+            'next_step': 'Admin verification required'
         })
         
     except Exception as e:
@@ -1747,11 +1759,48 @@ def get_pending_licenses():
             license_doc['_id'] = str(license_doc['_id'])
             if 'supplier_id' in license_doc:
                 license_doc['supplier_id'] = str(license_doc['supplier_id'])
+            
+            # Remove file content from list view (too large for JSON)
+            if 'file_content' in license_doc:
+                del license_doc['file_content']
         
         return jsonify({
             'success': True,
             'licenses': pending_licenses
         })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# Admin API to get license file content for review
+@app.route('/api/admin/license/file/<license_id>', methods=['GET'])
+def get_license_file(license_id):
+    """Get license file content for admin review"""
+    try:
+        license_doc = db['licenses'].find_one({'_id': ObjectId(license_id)})
+        
+        if not license_doc:
+            return jsonify({'success': False, 'message': 'License not found'}), 404
+        
+        # Get supplier information
+        supplier = None
+        if 'supplier_id' in license_doc:
+            supplier = db['suppliers'].find_one({'_id': ObjectId(license_doc['supplier_id'])})
+        
+        response_data = {
+            'success': True,
+            'license_id': str(license_doc['_id']),
+            'file_name': license_doc.get('file_name', 'Unknown'),
+            'file_type': license_doc.get('file_type', 'Unknown'),
+            'file_size': license_doc.get('file_size', 0),
+            'upload_date': license_doc.get('upload_date'),
+            'supplier_name': supplier.get('business_name', supplier.get('name', 'Unknown')) if supplier else 'Unknown',
+            'supplier_email': supplier.get('email', 'Unknown') if supplier else 'Unknown',
+            'file_content': license_doc.get('file_content'),  # Base64 encoded file content
+            'verification_result': license_doc.get('verification_result', {})
+        }
+        
+        return jsonify(response_data)
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -1824,34 +1873,63 @@ def admin_verify_license(license_id):
         data = request.json
         action = data.get('action')  # 'approve' or 'reject'
         admin_notes = data.get('notes', '')
+        license_number = data.get('license_number', '')
+        business_name = data.get('business_name', '')
+        address = data.get('address', '')
         
         if action not in ['approve', 'reject']:
             return jsonify({'success': False, 'message': 'Invalid action'}), 400
         
-        # Update license status
+        # Update license status and details
         new_status = 'verified' if action == 'approve' else 'rejected'
+        update_data = {
+            'status': new_status,
+            'admin_verification_date': datetime.now(),
+            'admin_notes': admin_notes
+        }
+        
+        # Add extracted details if provided
+        if license_number:
+            update_data['license_number'] = license_number
+        if business_name:
+            update_data['business_name'] = business_name
+        if address:
+            update_data['address'] = address
+        
+        # Update verification result
+        update_data['verification_result'] = {
+            'is_valid': action == 'approve',
+            'message': f'License {action}d by admin',
+            'extracted_data': {
+                'business_name': business_name or 'Verified by admin',
+                'address': address or 'Verified by admin',
+                'license_number': license_number or 'Verified by admin'
+            }
+        }
+        
         db['licenses'].update_one(
             {'_id': ObjectId(license_id)},
-            {
-                '$set': {
-                    'status': new_status,
-                    'admin_verification_date': datetime.now(),
-                    'admin_notes': admin_notes
-                }
-            }
+            {'$set': update_data}
         )
         
         # Get license to update supplier status
         license_doc = db['licenses'].find_one({'_id': ObjectId(license_id)})
         if license_doc:
+            supplier_update = {
+                'license_verification_status': new_status,
+                'license_verification_date': datetime.now()
+            }
+            
+            # Add license details to supplier if approved
+            if action == 'approve':
+                if license_number:
+                    supplier_update['license_number'] = license_number
+                if business_name:
+                    supplier_update['business_name'] = business_name
+            
             db['suppliers'].update_one(
                 {'_id': ObjectId(license_doc['supplier_id'])},
-                {
-                    '$set': {
-                        'license_verification_status': new_status,
-                        'license_verification_date': datetime.now()
-                    }
-                }
+                {'$set': supplier_update}
             )
         
         return jsonify({

@@ -1368,9 +1368,91 @@
         }
 
         .status-indicator.verified {
-            background: rgba(16, 185, 129, 0.1);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
             color: #10b981;
             border: 2px solid #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            animation: verifiedPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes verifiedPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .status-indicator.verified i {
+            color: #10b981;
+            font-size: 1.2em;
+            animation: checkmarkBounce 0.6s ease-in-out;
+        }
+
+        @keyframes checkmarkBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Verification Success Notification */
+        .verification-success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            z-index: 1000;
+            animation: slideInRight 0.5s ease-out;
+            max-width: 400px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .success-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .success-content i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .success-text h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .success-text p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-notification:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .status-indicator.not-verified {
@@ -2950,12 +3032,12 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Update stats
-                    document.getElementById('totalProducts').textContent = data.analytics.total_products;
-                    document.getElementById('lowStockItems').textContent = data.analytics.low_stock_items;
-                    document.getElementById('outOfStockItems').textContent = data.analytics.out_of_stock_items;
-                    document.getElementById('totalValue').textContent = `₹${data.analytics.total_value.toLocaleString()}`;
-        document.getElementById('leftStockValue').textContent = `₹${data.analytics.left_stock_value.toLocaleString()}`;
+                    // Update stats with null checks
+                    document.getElementById('totalProducts').textContent = data.analytics?.total_products || 0;
+                    document.getElementById('lowStockItems').textContent = data.analytics?.low_stock_items || 0;
+                    document.getElementById('outOfStockItems').textContent = data.analytics?.out_of_stock_items || 0;
+                    document.getElementById('totalValue').textContent = `₹${(data.analytics?.total_value || 0).toLocaleString()}`;
+                    document.getElementById('leftStockValue').textContent = `₹${(data.analytics?.left_stock_value || 0).toLocaleString()}`;
                     
                     // Update recent stocks
                     displayDashboardStocks(data.recent_stocks);
@@ -3019,7 +3101,11 @@
                 const data = await response.json();
                 
                 if (data.name) {
-                    document.getElementById('welcomeMessage').textContent = `Welcome back, ${data.name}!`;
+                    const userId = localStorage.getItem('user_id');
+                    const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+                    const verificationBadge = verificationStatus === 'verified' ? 
+                        '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+                    document.getElementById('welcomeMessage').innerHTML = `Welcome back, ${data.name}!${verificationBadge}`;
                 }
             } catch (error) {
                 console.error('Error loading supplier profile:', error);
@@ -3036,7 +3122,7 @@
             document.getElementById('totalProducts').textContent = totalProducts;
             document.getElementById('lowStockItems').textContent = lowStockItems;
             document.getElementById('outOfStockItems').textContent = outOfStockItems;
-            document.getElementById('totalValue').textContent = `₹${totalValue.toLocaleString()}`;
+            document.getElementById('totalValue').textContent = `₹${(totalValue || 0).toLocaleString()}`;
         }
 
         // Stock Management Functions
@@ -3860,12 +3946,12 @@
 
         // Update analytics UI
         function updateAnalyticsUI(analytics, recentStocks) {
-            // Update overview cards
-                document.getElementById('analyticsTotalProducts').textContent = analytics.total_products;
-    document.getElementById('analyticsLowStock').textContent = analytics.low_stock_items;
-    document.getElementById('analyticsOutOfStock').textContent = analytics.out_of_stock_items;
-    document.getElementById('analyticsTotalValue').textContent = `₹${analytics.total_value.toLocaleString()}`;
-    document.getElementById('analyticsLeftStockValue').textContent = `₹${analytics.left_stock_value.toLocaleString()}`;
+            // Update overview cards with null checks
+            document.getElementById('analyticsTotalProducts').textContent = analytics?.total_products || 0;
+            document.getElementById('analyticsLowStock').textContent = analytics?.low_stock_items || 0;
+            document.getElementById('analyticsOutOfStock').textContent = analytics?.out_of_stock_items || 0;
+            document.getElementById('analyticsTotalValue').textContent = `₹${(analytics?.total_value || 0).toLocaleString()}`;
+            document.getElementById('analyticsLeftStockValue').textContent = `₹${(analytics?.left_stock_value || 0).toLocaleString()}`;
 
             // Update recent activity
             updateRecentActivity(recentStocks);
@@ -3935,14 +4021,14 @@
             const stockAlerts = document.getElementById('stockAlerts');
             const alerts = [];
 
-            if (analytics.out_of_stock_items > 0) {
+            if (analytics?.out_of_stock_items > 0) {
                 alerts.push({
                     message: `${analytics.out_of_stock_items} items out of stock`,
                     type: 'critical'
                 });
             }
 
-            if (analytics.low_stock_items > 0) {
+            if (analytics?.low_stock_items > 0) {
                 alerts.push({
                     message: `${analytics.low_stock_items} items running low`,
                     type: 'warning'
@@ -4185,16 +4271,19 @@
                 if (result.success) {
                     updateVerificationStatus(result.status);
                     localStorage.setItem(`verification_${userId}`, result.status);
+                    updateVerificationBadges(); // Update badges
                 } else {
                     // Fallback to localStorage
                     const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
                     updateVerificationStatus(verificationStatus);
+                    updateVerificationBadges(); // Update badges
                 }
             } catch (error) {
                 console.error('Error loading verification status:', error);
                 // Fallback to localStorage
                 const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
                 updateVerificationStatus(verificationStatus);
+                updateVerificationBadges(); // Update badges
             }
         }
 
@@ -4282,19 +4371,85 @@
             switch(status) {
                 case 'verified':
                     icon.className = 'fas fa-check-circle';
-                    text.textContent = 'Verified';
+                    text.textContent = '✅ Verified Successfully!';
+                    showVerificationSuccess();
                     break;
                 case 'pending':
                     icon.className = 'fas fa-clock';
-                    text.textContent = 'Pending Verification';
+                    text.textContent = '⏳ Pending Verification';
                     break;
                 case 'rejected':
                     icon.className = 'fas fa-times-circle';
-                    text.textContent = 'Verification Rejected';
+                    text.textContent = '❌ Verification Rejected';
                     break;
                 default:
                     icon.className = 'fas fa-times-circle';
-                    text.textContent = 'Not Verified';
+                    text.textContent = '❌ Not Verified';
+            }
+        }
+
+        // Show verification success notification
+        function showVerificationSuccess() {
+            // Create success notification
+            const notification = document.createElement('div');
+            notification.className = 'verification-success-notification';
+            notification.innerHTML = `
+                <div class="success-content">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="success-text">
+                        <h4>🎉 License Verified Successfully!</h4>
+                        <p>Your account is now verified. You can access all premium features.</p>
+                    </div>
+                    <button class="close-notification" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Update verification badges
+            updateVerificationBadges();
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Update verification badges throughout the page
+        function updateVerificationBadges() {
+            const userId = localStorage.getItem('user_id');
+            const supplierName = getCurrentSupplierName();
+            const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+            
+            const verificationBadge = verificationStatus === 'verified' ? 
+                '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+            
+            // Update header supplier name
+            const supplierNameElement = document.getElementById('currentSupplierName');
+            if (supplierNameElement) {
+                supplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+            }
+            
+            // Update page title supplier name
+            const pageSupplierNameElement = document.getElementById('pageSupplierName');
+            if (pageSupplierNameElement) {
+                pageSupplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+            }
+            
+            // Update welcome message
+            const welcomeMessageElement = document.getElementById('welcomeMessage');
+            if (welcomeMessageElement) {
+                const currentText = welcomeMessageElement.textContent || welcomeMessageElement.innerText;
+                const nameMatch = currentText.match(/Welcome back, (.+)!/);
+                if (nameMatch) {
+                    const name = nameMatch[1];
+                    welcomeMessageElement.innerHTML = `Welcome back, ${name}!${verificationBadge}`;
+                }
             }
         }
 
@@ -4610,17 +4765,23 @@
         function updateCurrentSupplierDisplay() {
             const supplierName = getCurrentSupplierName();
             
-            // Update header supplier name
-            const supplierNameElement = document.getElementById('currentSupplierName');
-            if (supplierNameElement) {
-                supplierNameElement.textContent = supplierName;
-            }
-            
-            // Update page title supplier name
-            const pageSupplierNameElement = document.getElementById('pageSupplierName');
-            if (pageSupplierNameElement) {
-                pageSupplierNameElement.textContent = supplierName;
-            }
+                    // Update header supplier name with verification badge
+        const supplierNameElement = document.getElementById('currentSupplierName');
+        if (supplierNameElement) {
+            const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+            const verificationBadge = verificationStatus === 'verified' ? 
+                '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+            supplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+        }
+
+        // Update page title supplier name with verification badge
+        const pageSupplierNameElement = document.getElementById('pageSupplierName');
+        if (pageSupplierNameElement) {
+            const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+            const verificationBadge = verificationStatus === 'verified' ? 
+                '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+            pageSupplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+        }
         }
 
         function refreshSupplierOrders() {

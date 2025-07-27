@@ -321,6 +321,94 @@
             background: #718096;
         }
 
+        .license-preview {
+            padding: 20px 0;
+        }
+
+        .license-preview h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .license-info {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .license-info p {
+            margin: 5px 0;
+            color: #4a5568;
+        }
+
+        .file-preview {
+            margin-bottom: 20px;
+        }
+
+        .file-preview h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .pdf-placeholder {
+            text-align: center;
+            padding: 40px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .pdf-placeholder i {
+            font-size: 3rem;
+            color: #e53e3e;
+            margin-bottom: 10px;
+        }
+
+        .pdf-placeholder p {
+            color: #718096;
+            margin-bottom: 15px;
+        }
+
+        .verification-form {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .verification-form h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .verification-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .verification-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .verification-form input,
+        .verification-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .verification-form textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -465,6 +553,16 @@
                 <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
                 <button class="btn btn-approve" onclick="verifyLicense('approve')">Approve</button>
                 <button class="btn btn-reject" onclick="verifyLicense('reject')">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- License Review Modal -->
+    <div id="licenseModal" class="modal">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeLicenseModal()">&times;</span>
+            <div id="licenseModalContent">
+                <!-- Content will be loaded dynamically -->
             </div>
         </div>
     </div>
@@ -642,17 +740,119 @@
             }
         }
 
-        function viewLicenseDetails(licenseId) {
-            const license = pendingLicenses.find(l => l._id === licenseId);
-            if (!license) return;
+        async function viewLicenseDetails(licenseId) {
+            try {
+                const response = await fetch(`/api/admin/license/file/${licenseId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    showLicenseModal(data);
+                } else {
+                    showError('Failed to load license details: ' + data.message);
+                }
+            } catch (error) {
+                showError('Error loading license details: ' + error.message);
+            }
+        }
+
+        function showLicenseModal(licenseData) {
+            const modal = document.getElementById('licenseModal');
+            const modalContent = document.getElementById('licenseModalContent');
             
-            // For now, just show an alert with basic info
-            // In a real implementation, you'd show a detailed modal with all license information
-            alert(`License Details for ${license.supplier_name}:\n\n` +
-                  `License Number: ${license.license_number || 'Not provided'}\n` +
-                  `Business Name: ${license.business_name || 'Not extracted'}\n` +
-                  `Address: ${license.address || 'Not extracted'}\n` +
-                  `Upload Date: ${new Date(license.upload_date).toLocaleString()}`);
+            // Create modal content
+            modalContent.innerHTML = `
+                <div class="license-preview">
+                    <h3>License Review - ${licenseData.supplier_name}</h3>
+                    <div class="license-info">
+                        <p><strong>File:</strong> ${licenseData.file_name}</p>
+                        <p><strong>Type:</strong> ${licenseData.file_type}</p>
+                        <p><strong>Size:</strong> ${(licenseData.file_size / 1024).toFixed(2)} KB</p>
+                        <p><strong>Upload Date:</strong> ${new Date(licenseData.upload_date).toLocaleString()}</p>
+                        <p><strong>Supplier Email:</strong> ${licenseData.supplier_email}</p>
+                    </div>
+                    
+                    <div class="file-preview">
+                        <h4>File Preview</h4>
+                        ${licenseData.file_type.startsWith('image/') ? 
+                            `<img src="data:${licenseData.file_type};base64,${licenseData.file_content}" alt="License Document" style="max-width: 100%; height: auto;">` :
+                            `<div class="pdf-placeholder">
+                                <i class="fas fa-file-pdf"></i>
+                                <p>PDF Document</p>
+                                <a href="data:${licenseData.file_type};base64,${licenseData.file_content}" download="${licenseData.file_name}" class="btn btn-view">
+                                    <i class="fas fa-download"></i> Download PDF
+                                </a>
+                            </div>`
+                        }
+                    </div>
+                    
+                    <div class="verification-form">
+                        <h4>Verification Details</h4>
+                        <div class="form-group">
+                            <label for="licenseNumber">License Number:</label>
+                            <input type="text" id="licenseNumber" placeholder="Enter license number">
+                        </div>
+                        <div class="form-group">
+                            <label for="businessName">Business Name:</label>
+                            <input type="text" id="businessName" placeholder="Enter business name">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address:</label>
+                            <textarea id="address" placeholder="Enter business address"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminNotes">Admin Notes:</label>
+                            <textarea id="adminNotes" placeholder="Add verification notes..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button class="btn btn-cancel" onclick="closeLicenseModal()">Cancel</button>
+                        <button class="btn btn-reject" onclick="verifyLicenseWithDetails('${licenseData.license_id}', 'reject')">Reject</button>
+                        <button class="btn btn-approve" onclick="verifyLicenseWithDetails('${licenseData.license_id}', 'approve')">Approve</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeLicenseModal() {
+            document.getElementById('licenseModal').style.display = 'none';
+        }
+
+        async function verifyLicenseWithDetails(licenseId, action) {
+            const licenseNumber = document.getElementById('licenseNumber').value;
+            const businessName = document.getElementById('businessName').value;
+            const address = document.getElementById('address').value;
+            const notes = document.getElementById('adminNotes').value;
+            
+            try {
+                const response = await fetch(`/api/admin/license/verify/${licenseId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: action,
+                        notes: notes,
+                        license_number: licenseNumber,
+                        business_name: businessName,
+                        address: address
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess(`License ${action}d successfully!`);
+                    closeLicenseModal();
+                    loadPendingLicenses(); // Refresh the list
+                } else {
+                    showError('Failed to verify license: ' + data.message);
+                }
+            } catch (error) {
+                showError('Error verifying license: ' + error.message);
+            }
         }
 
         function showSuccess(message) {

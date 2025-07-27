@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - OverXchange</title>
+    <title>प्रोफाइल - OverXchange</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <style>
         body {
@@ -158,13 +158,13 @@
         <div class="profile-avatar">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="6.5"/><path d="M4 22c0-4.5 4.5-8 8-8s8 3.5 8 8"/></svg>
         </div>
-        <div class="profile-title">Your Profile</div>
+        <div class="profile-title">आपकी प्रोफाइल</div>
         <div class="profile-role" id="profile-role"></div>
         <form id="profile-form" class="profile-form">
             <div id="profile-fields"></div>
             <div class="profile-btns">
-                <button type="button" id="edit-btn" class="btn">Edit</button>
-                <button type="submit" id="save-btn" class="btn" style="display:none;">Save</button>
+                <button type="button" id="edit-btn" class="btn">संपादित करें</button>
+                <button type="submit" id="save-btn" class="btn" style="display:none;">सहेजें</button>
             </div>
         </form>
         <div id="profile-message"></div>
@@ -174,34 +174,34 @@
     const user_type = localStorage.getItem('user_type');
     const user_id = localStorage.getItem('user_id');
     if (!user_type || !user_id) {
-        document.body.innerHTML = '<div class="profile-container"><h2>Not logged in</h2><p>Please log in to view your profile.</p></div>';
+        document.body.innerHTML = '<div class="profile-container"><h2>लॉगिन नहीं किया गया</h2><p>अपनी प्रोफाइल देखने के लिए कृपया लॉगिन करें।</p></div>';
         throw new Error('Not logged in');
     }
     const apiUrl = `${window.location.origin}/api/profile/${user_type}/${user_id}`;
     const editableFields = ['name', 'email', 'bio', 'shop_name', 'company_name', 'business_name', 'food_beverage_details', 'business_address', 'pincode', 'phone', 'gstin', 'preferred_categories', 'product_categories', 'warehouse_address', 'business_proof', 'moq', 'logistics_options'];
     const fieldLabels = {
-        name: 'Name',
-        email: 'Email',
-        bio: 'Bio',
-        shop_name: 'Shop Name',
-        company_name: 'Company Name',
-        business_name: 'Business Name',
-        food_beverage_details: 'Food & Beverage Details',
-        business_address: 'Business Address',
-        pincode: 'Pincode',
-        phone: 'Phone',
+        name: 'नाम',
+        email: 'ईमेल',
+        bio: 'जीवनी',
+        shop_name: 'दुकान का नाम',
+        company_name: 'कंपनी का नाम',
+        business_name: 'व्यवसाय का नाम',
+        food_beverage_details: 'भोजन और पेय विवरण',
+        business_address: 'व्यवसाय का पता',
+        pincode: 'पिनकोड',
+        phone: 'फोन',
         gstin: 'GSTIN',
-        preferred_categories: 'Preferred Product Categories',
-        product_categories: 'Product Categories Supplied',
-        warehouse_address: 'Warehouse Address',
-        business_proof: 'Business Proof',
-        moq: 'Minimum Order Quantity (MOQ)',
-        logistics_options: 'Available Logistics Options',
-        invite_code: 'Invite Code',
-        business_logo: 'Business Logo',
-        user_type: 'Account Type',
-        user_id: 'User ID',
-        _id: 'User ID',
+        preferred_categories: 'पसंदीदा उत्पाद श्रेणियां',
+        product_categories: 'आपूर्ति की जाने वाली उत्पाद श्रेणियां',
+        warehouse_address: 'गोदाम का पता',
+        business_proof: 'व्यवसाय प्रमाण',
+        moq: 'न्यूनतम आदेश मात्रा (MOQ)',
+        logistics_options: 'उपलब्ध लॉजिस्टिक्स विकल्प',
+        invite_code: 'आमंत्रण कोड',
+        business_logo: 'व्यवसाय लोगो',
+        user_type: 'खाता प्रकार',
+        user_id: 'उपयोगकर्ता ID',
+        _id: 'उपयोगकर्ता ID',
     };
     let profileData = {};
     let isEditable = false;
@@ -289,5 +289,6 @@
     // On page load
     loadProfile();
     </script>
+    <script src="language-switcher.js"></script>
 </body>
 </html> 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - OverXchange</title>
+    <title>शॉपिंग कार्ट - OverXchange</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -372,11 +372,11 @@
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-shopping-cart"></i>
-                OverXchange Cart
+                ओवरएक्सचेंज कार्ट
             </div>
             <a href="vendor-dashboard.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                Back to Dashboard
+                डैशबोर्ड पर वापस जाएं
             </a>
         </div>
     </header>
@@ -385,7 +385,7 @@
     <main class="main-content">
         <h1 class="page-title">
             <i class="fas fa-shopping-cart"></i>
-            Shopping Cart
+            खरीदारी कार्ट
         </h1>
 
         <div class="cart-container">
@@ -421,11 +421,11 @@
                         <div class="empty-cart-icon">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
-                        <h2>Your cart is empty</h2>
-                        <p>Add some products to your cart to get started!</p>
+                        <h2>आपकी कार्ट खाली है</h2>
+                        <p>शुरू करने के लिए अपनी कार्ट में कुछ उत्पाद जोड़ें!</p>
                         <a href="vendor-dashboard.html" class="continue-shopping-btn">
                             <i class="fas fa-arrow-left"></i>
-                            Continue Shopping
+                            खरीदारी जारी रखें
                         </a>
                     </div>
                 `;
@@ -444,7 +444,7 @@
             let itemsHTML = `
                 <div class="cart-header">
                     <i class="fas fa-shopping-cart"></i>
-                    Cart Items (${cart.length})
+                    कार्ट आइटम (${cart.length})
                 </div>
             `;
 
@@ -458,9 +458,9 @@
                         </div>
                         <div class="item-details">
                             <h3>${item.name}</h3>
-                            <p><strong>Category:</strong> ${item.category}</p>
-                            <p><strong>Supplier:</strong> ${item.supplierName}</p>
-                            <p><strong>Unit:</strong> ${item.unit}</p>
+                            <p><strong>श्रेणी:</strong> ${item.category}</p>
+                            <p><strong>आपूर्तिकर्ता:</strong> ${item.supplierName}</p>
+                            <p><strong>इकाई:</strong> ${item.unit}</p>
                         </div>
                         <div class="item-price">₹${item.price}</div>
                         <div class="quantity-controls">
@@ -492,10 +492,10 @@
             cartSummaryContainer.innerHTML = `
                 <div class="summary-title">
                     <i class="fas fa-receipt"></i>
-                    Order Summary
+                    आदेश सारांश
                 </div>
                 <div class="summary-item">
-                    <span>Subtotal (${cart.length} items)</span>
+                    <span>उप-कुल (${cart.length} आइटम)</span>
                     <span>₹${subtotal.toFixed(2)}</span>
                 </div>
                 <div class="summary-item">
@@ -503,12 +503,12 @@
                     <span>₹${tax.toFixed(2)}</span>
                 </div>
                 <div class="summary-item total">
-                    <span>Total</span>
+                    <span>कुल</span>
                     <span>₹${total.toFixed(2)}</span>
                 </div>
                 <button class="checkout-btn" onclick="proceedToCheckout()" ${cart.length === 0 ? 'disabled' : ''}>
                     <i class="fas fa-credit-card"></i>
-                    Proceed to Checkout
+                    चेकआउट करें
                 </button>
             `;
         }
@@ -548,7 +548,7 @@
 
         function proceedToCheckout() {
             if (cart.length === 0) {
-                alert('Your cart is empty!');
+                alert('आपकी कार्ट खाली है!');
                 return;
             }
             
@@ -566,7 +566,7 @@
                 if (existingItem.quantity < maxQuantity) {
                     existingItem.quantity += 1;
                 } else {
-                    alert('Maximum available quantity reached for this item!');
+                    alert('इस आइटम के लिए अधिकतम उपलब्ध मात्रा तक पहुंच गई है!');
                     return;
                 }
             } else {
@@ -584,8 +584,9 @@
             }
             
             saveCart();
-            alert(`${productName} added to cart!`);
+            alert(`${productName} कार्ट में जोड़ा गया!`);
         }
     </script>
+    <script src="language-switcher.js"></script>
 </body>
 </html>
