@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>शॉपिंग कार्ट - OverXchange</title>
+    <title>Shopping Cart - OverXchange</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -376,7 +376,7 @@
             </div>
             <a href="vendor-dashboard.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                डैशबोर्ड पर वापस जाएं
+                Dashboard पर वापस जाएं
             </a>
         </div>
     </header>
@@ -421,11 +421,11 @@
                         <div class="empty-cart-icon">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
-                        <h2>आपकी कार्ट खाली है</h2>
-                        <p>शुरू करने के लिए अपनी कार्ट में कुछ उत्पाद जोड़ें!</p>
+                        <h2>Your cart is empty</h2>
+                        <p>Add some products to your cart to get started!</p>
                         <a href="vendor-dashboard.html" class="continue-shopping-btn">
                             <i class="fas fa-arrow-left"></i>
-                            खरीदारी जारी रखें
+                            Continue Shopping
                         </a>
                     </div>
                 `;
@@ -444,7 +444,7 @@
             let itemsHTML = `
                 <div class="cart-header">
                     <i class="fas fa-shopping-cart"></i>
-                    कार्ट आइटम (${cart.length})
+                    Cart Items (${cart.length})
                 </div>
             `;
 
@@ -458,9 +458,9 @@
                         </div>
                         <div class="item-details">
                             <h3>${item.name}</h3>
-                            <p><strong>श्रेणी:</strong> ${item.category}</p>
-                            <p><strong>आपूर्तिकर्ता:</strong> ${item.supplierName}</p>
-                            <p><strong>इकाई:</strong> ${item.unit}</p>
+                            <p><strong>Category:</strong> ${item.category}</p>
+                            <p><strong>Supplier:</strong> ${item.supplierName}</p>
+                            <p><strong>Unit:</strong> ${item.unit}</p>
                         </div>
                         <div class="item-price">₹${item.price}</div>
                         <div class="quantity-controls">
@@ -492,10 +492,10 @@
             cartSummaryContainer.innerHTML = `
                 <div class="summary-title">
                     <i class="fas fa-receipt"></i>
-                    आदेश सारांश
+                    Order Summary
                 </div>
                 <div class="summary-item">
-                    <span>उप-कुल (${cart.length} आइटम)</span>
+                    <span>उप-Total (${cart.length} आइटम)</span>
                     <span>₹${subtotal.toFixed(2)}</span>
                 </div>
                 <div class="summary-item">
@@ -503,12 +503,12 @@
                     <span>₹${tax.toFixed(2)}</span>
                 </div>
                 <div class="summary-item total">
-                    <span>कुल</span>
+                    <span>Total</span>
                     <span>₹${total.toFixed(2)}</span>
                 </div>
                 <button class="checkout-btn" onclick="proceedToCheckout()" ${cart.length === 0 ? 'disabled' : ''}>
                     <i class="fas fa-credit-card"></i>
-                    चेकआउट करें
+                    Checkout करें
                 </button>
             `;
         }
@@ -548,7 +548,7 @@
 
         function proceedToCheckout() {
             if (cart.length === 0) {
-                alert('आपकी कार्ट खाली है!');
+                alert('Your cart is empty!');
                 return;
             }
             
@@ -584,7 +584,7 @@
             }
             
             saveCart();
-            alert(`${productName} कार्ट में जोड़ा गया!`);
+            alert(`${productName} added to cart!`);
         }
     </script>
 </body>

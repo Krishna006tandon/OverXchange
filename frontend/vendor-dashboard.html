@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>वेंडर डैशबोर्ड - OverXchange</title>
+    <title>Vendor Dashboard - OverXchange</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -1420,14 +1420,14 @@
                 OverXchange
             </a>
             <div class="navbar-links">
-                <a href="index.html">होम</a>
-                <a href="profile.html">प्रोफाइल</a>
-                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="थीम बदलें">
+                <a href="index.html">Home</a>
+                <a href="profile.html">Profile</a>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Theme बदलें">
                     <svg id="themeIcon" viewBox="0 0 24 24" width="20" height="20">
                         <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
                     </svg>
                 </button>
-                <button class="logout-btn" id="logout-btn">लॉगआउट</button>
+                <button class="logout-btn" id="logout-btn">Logout</button>
             </div>
         </div>
     </nav>
@@ -1440,31 +1440,31 @@
     <div class="dashboard-container">
         <div class="sidebar">
             <div class="sidebar-header">
-                <h3>वेंडर डैशबोर्ड</h3>
-                <p>वापसी पर स्वागत है, <span id="vendor-name">वेंडर</span>!</p>
+                <h3>Vendor Dashboard</h3>
+                <p>वापसी पर स्वागत है, <span id="vendor-name">Vendor</span>!</p>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="#" class="menu-item active" data-content="welcome">
                     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                    डैशबोर्ड
+                    Dashboard
                 </a></li>
                 <li><a href="#" class="menu-item" data-content="order-supplier">
                     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                    आपूर्तिकर्ता से आदेश
+                    Supplier से आCountry
                 </a></li>
                 <li><a href="#" class="menu-item" data-content="orders">
                     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                    मेरे आदेश
+                    मेरे आCountry
                 </a></li>
                 <li><a href="cart.html" class="menu-item cart-menu-item" id="cartMenuItem">
                     <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    शॉपिंग कार्ट
+                    Shopping Cart
                     <span class="cart-count-sidebar" id="cartCountSidebar">0</span>
                 </a></li>
 
                 <li><a href="#" class="menu-item" data-content="settings">
                     <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-                    खाता सेटिंग्स
+                    Account Settings
                 </a></li>
             </ul>
         </div>
@@ -1473,13 +1473,13 @@
             <!-- Welcome Content -->
             <div id="welcome" class="content-section">
                 <div class="content-header">
-                    <h1>आपके डैशबोर्ड में स्वागत है</h1>
-                    <p>अपने आदेशों का प्रबंधन करें और आपूर्तिकर्ताओं से जुड़ें</p>
+                    <h1>आपके Dashboard में स्वागत है</h1>
+                    <p>अपने आCountryों का प्रबंधन करें और Supplierओं से जुड़ें</p>
                 </div>
                 <div class="content-card">
                     <div class="welcome-message">
-                        <h2>आदेश देने के लिए तैयार हैं?</h2>
-                        <p>अपने कच्चे माल के लिए आदेश देने शुरू करने के लिए साइडबार में "आपूर्तिकर्ता से आदेश" पर क्लिक करें।</p>
+                        <h2>आCountry देने के लिए तैorर हैं?</h2>
+                        <p>अपने कच्चे माल के लिए आCountry देने शुरू करने के लिए साइडबार में "Supplier से आCountry" पर क्लिक करें।</p>
                         
 
                     </div>
@@ -1489,14 +1489,14 @@
             <!-- Order from Supplier Content -->
             <div id="order-supplier" class="content-section" style="display: none;">
                 <div class="content-header">
-                    <h1>आपूर्तिकर्ता से आदेश</h1>
-                    <p>अपने आदेश देने के लिए हमारे विश्वसनीय आपूर्तिकर्ताओं में से चुनें</p>
+                    <h1>Supplier से आCountry</h1>
+                    <p>अपने आCountry देने के लिए हमारे विश्वसनीय Supplierओं में से चुनें</p>
                 </div>
                 <div class="content-card">
                     <div class="suppliers-grid" id="suppliers-grid">
                         <div class="loading-suppliers">
                             <div class="loading-spinner"></div>
-                            <p>आपूर्तिकर्ता लोड हो रहे हैं...</p>
+                            <p>Supplier लोड हो रहे हैं...</p>
                         </div>
                     </div>
                 </div>
@@ -1505,8 +1505,8 @@
             <!-- My Orders Content -->
             <div id="orders" class="content-section" style="display: none;">
                 <div class="content-header">
-                    <h1>मेरे आदेश</h1>
-                    <p>अपने आदेश इतिहास और स्थिति को ट्रैक करें</p>
+                    <h1>मेरे आCountry</h1>
+                    <p>अपने आCountry इतिहास और स्थिति को ट्रैक करें</p>
                 </div>
                 <div class="content-card">
                     <div class="orders-container">
@@ -1514,23 +1514,23 @@
                             <div class="orders-stats">
                                 <div class="stat-item">
                                     <span class="stat-number" id="totalOrders">0</span>
-                                    <span class="stat-label">कुल आदेश</span>
+                                    <span class="stat-label">Total आCountry</span>
                                 </div>
                                 <div class="stat-item">
                                     <span class="stat-number" id="pendingOrders">0</span>
-                                    <span class="stat-label">लंबित</span>
+                                    <span class="stat-label">Pending</span>
                                 </div>
                                 <div class="stat-item">
                                     <span class="stat-number" id="completedOrders">0</span>
-                                    <span class="stat-label">पूर्ण</span>
+                                    <span class="stat-label">Completed</span>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px;">
                                 <button class="btn btn-secondary" onclick="refreshOrders()">
-                                    <i class="fas fa-sync-alt"></i> रिफ्रेश
+                                    <i class="fas fa-sync-alt"></i> Refresh
                                 </button>
                                 <button class="btn btn-primary" onclick="loadOrders()">
-                                    <i class="fas fa-download"></i> आदेश लोड करें
+                                    <i class="fas fa-download"></i> आCountry लोड करें
                                 </button>
                             </div>
                         </div>
@@ -1538,7 +1538,7 @@
                         <div class="orders-list" id="ordersList">
                             <div class="loading-orders">
                                 <div class="loading-spinner"></div>
-                                <p>आदेश लोड हो रहे हैं...</p>
+                                <p>आCountry लोड हो रहे हैं...</p>
                             </div>
                         </div>
                     </div>
@@ -1550,125 +1550,125 @@
             <!-- Settings Content -->
             <div id="settings" class="content-section" style="display: none;">
                 <div class="content-header">
-                    <h1>खाता सेटिंग्स</h1>
-                    <p>अपनी प्रोफाइल, व्यवसाय, सुरक्षा और लाइसेंस सत्यापन सेटिंग्स का प्रबंधन करें</p>
+                    <h1>Account Settings</h1>
+                    <p>अपनी Profile, व्यवसाय, सुरक्षा और License Verification सेटिंग्स का प्रबंधन करें</p>
                 </div>
                 
                 <div class="settings-container">
                     <!-- Profile Settings Section -->
                     <div class="settings-section">
-                        <h3 class="section-title">प्रोफाइल सेटिंग्स</h3>
+                        <h3 class="section-title">Profile सेटिंग्स</h3>
                         <div class="settings-form">
                             <div class="form-group">
-                                <label for="vendorName">व्यवसाय का नाम</label>
-                                <input type="text" id="vendorName" class="form-control" placeholder="अपने व्यवसाय का नाम दर्ज करें">
+                                <label for="vendorName">Business Name</label>
+                                <input type="text" id="vendorName" class="form-control" placeholder="अपने Business Name दर्ज करें">
                             </div>
                             <div class="form-group">
-                                <label for="vendorEmail">ईमेल पता</label>
-                                <input type="email" id="vendorEmail" class="form-control" placeholder="अपना ईमेल दर्ज करें">
+                                <label for="vendorEmail">Email पता</label>
+                                <input type="email" id="vendorEmail" class="form-control" placeholder="अपना Email दर्ज करें">
                             </div>
                             <div class="form-group">
-                                <label for="vendorPhone">फोन नंबर</label>
-                                <input type="tel" id="vendorPhone" class="form-control" placeholder="अपना फोन नंबर दर्ज करें">
+                                <label for="vendorPhone">Phone नंबर</label>
+                                <input type="tel" id="vendorPhone" class="form-control" placeholder="अपना Phone नंबर दर्ज करें">
                             </div>
                             <div class="form-group">
-                                <label for="vendorAddress">व्यवसाय का पता</label>
+                                <label for="vendorAddress">Business Address</label>
                                 <textarea id="vendorAddress" class="form-control" rows="3" placeholder="अपना व्यवसाय पता दर्ज करें"></textarea>
                             </div>
-                            <button class="btn btn-primary" onclick="saveProfileSettings()">प्रोफाइल सेटिंग्स सहेजें</button>
+                            <button class="btn btn-primary" onclick="saveProfileSettings()">Profile सेटिंग्स Save</button>
                         </div>
                     </div>
 
                     <!-- Business Settings Section -->
                     <div class="settings-section">
-                        <h3 class="section-title">व्यवसाय सेटिंग्स</h3>
+                        <h3 class="section-title">Business Settings</h3>
                         <div class="settings-form">
                             <div class="form-group">
-                                <label for="businessType">व्यवसाय प्रकार</label>
+                                <label for="businessType">Business Type</label>
                                 <select id="businessType" class="form-control">
-                                    <option value="">व्यवसाय प्रकार चुनें</option>
-                                    <option value="restaurant">रेस्तरां</option>
-                                    <option value="cafe">कैफे</option>
-                                    <option value="bakery">बेकरी</option>
+                                    <option value="">Business Type चुनें</option>
+                                    <option value="restaurant">Restaurant</option>
+                                    <option value="cafe">Cafe</option>
+                                    <option value="bakery">Bakery</option>
                                     <option value="catering">केटरिंग</option>
-                                    <option value="food-truck">फूड ट्रक</option>
-                                    <option value="other">अन्य</option>
+                                    <option value="food-truck">Food Truck</option>
+                                    <option value="other">Other</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="cuisineType">खानपान प्रकार</label>
+                                <label for="cuisineType">Catering प्रकार</label>
                                 <select id="cuisineType" class="form-control">
-                                    <option value="">खानपान प्रकार चुनें</option>
-                                    <option value="indian">भारतीय</option>
-                                    <option value="chinese">चीनी</option>
-                                    <option value="italian">इतालवी</option>
-                                    <option value="mexican">मैक्सिकन</option>
-                                    <option value="continental">कॉन्टिनेंटल</option>
-                                    <option value="fast-food">फास्ट फूड</option>
-                                    <option value="other">अन्य</option>
+                                    <option value="">Catering प्रकार चुनें</option>
+                                    <option value="indian">Indian</option>
+                                    <option value="chinese">Chinese</option>
+                                    <option value="italian">Italian</option>
+                                    <option value="mexican">Mexican</option>
+                                    <option value="continental">Continental</option>
+                                    <option value="fast-food">Fast Food</option>
+                                    <option value="other">Other</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="operatingHours">कार्य समय</label>
+                                <label for="operatingHours">Operating Hours</label>
                                 <input type="text" id="operatingHours" class="form-control" placeholder="उदाहरण: सुबह 9:00 - रात 10:00">
                             </div>
-                            <button class="btn btn-primary" onclick="saveBusinessSettings()">व्यवसाय सेटिंग्स सहेजें</button>
+                            <button class="btn btn-primary" onclick="saveBusinessSettings()">Business Settings Save</button>
                         </div>
                     </div>
 
                     <!-- Security Settings Section -->
                     <div class="settings-section">
-                        <h3 class="section-title">सुरक्षा सेटिंग्स</h3>
+                        <h3 class="section-title">Security Settings</h3>
                         <div class="settings-form">
                             <div class="form-group">
-                                <label for="currentPassword">वर्तमान पासवर्ड</label>
-                                <input type="password" id="currentPassword" class="form-control" placeholder="वर्तमान पासवर्ड दर्ज करें">
+                                <label for="currentPassword">वर्तमान Password</label>
+                                <input type="password" id="currentPassword" class="form-control" placeholder="वर्तमान Password दर्ज करें">
                             </div>
                             <div class="form-group">
-                                <label for="newPassword">नया पासवर्ड</label>
-                                <input type="password" id="newPassword" class="form-control" placeholder="नया पासवर्ड दर्ज करें">
+                                <label for="newPassword">नor Password</label>
+                                <input type="password" id="newPassword" class="form-control" placeholder="नor Password दर्ज करें">
                             </div>
                             <div class="form-group">
-                                <label for="confirmPassword">नया पासवर्ड पुष्टि करें</label>
-                                <input type="password" id="confirmPassword" class="form-control" placeholder="नया पासवर्ड पुष्टि करें">
+                                <label for="confirmPassword">नor Password पुष्टि करें</label>
+                                <input type="password" id="confirmPassword" class="form-control" placeholder="नor Password पुष्टि करें">
                             </div>
-                            <button class="btn btn-primary" onclick="changePassword()">पासवर्ड बदलें</button>
+                            <button class="btn btn-primary" onclick="changePassword()">Password बदलें</button>
                         </div>
                     </div>
 
                     <!-- License Verification Section -->
                     <div class="settings-section">
-                        <h3 class="section-title">लाइसेंस सत्यापन</h3>
-                        <p class="section-description">बेहतर विश्वसनीयता के लिए अपने खाद्य व्यवसाय लाइसेंस को सत्यापित करें</p>
+                        <h3 class="section-title">License Verification</h3>
+                        <p class="section-description">Verify your food business license for enhanced credibility</p>
                         
                         <!-- License Number Verification -->
                         <div class="license-number-section">
-                            <h3 class="subsection-title">लाइसेंस नंबर से सत्यापित करें</h3>
-                            <p class="subsection-description">तत्काल सत्यापन के लिए अपना 14-अंकीय FSSAI लाइसेंस नंबर दर्ज करें</p>
+                            <h3 class="subsection-title">Verify by License Number</h3>
+                            <p class="subsection-description">Enter your 14-digit FSSAI license number for instant verification</p>
                             <div class="license-number-form">
                                 <div class="form-group">
-                                    <label for="licenseNumber">FSSAI लाइसेंस नंबर</label>
-                                    <input type="text" id="licenseNumber" placeholder="14-अंकीय लाइसेंस नंबर दर्ज करें" maxlength="14" class="form-control">
-                                    <small class="form-text">उदाहरण: 22119005000732</small>
+                                    <label for="licenseNumber">FSSAI License Number</label>
+                                    <input type="text" id="licenseNumber" placeholder="Enter 14-digit license number" maxlength="14" class="form-control">
+                                    <small class="form-text">Example: 22119005000732</small>
                                 </div>
                                 <button class="btn btn-primary" onclick="verifyLicenseNumber()">
-                                    <i class="fas fa-search"></i> लाइसेंस सत्यापित करें
+                                    <i class="fas fa-search"></i> Verify License
                                 </button>
                             </div>
                         </div>
                         
-                        <div class="divider"><span>या</span></div>
+                        <div class="divider"><span>or</span></div>
                         
                         <!-- File Upload Verification -->
                         <div class="license-upload-section">
-                            <h3 class="subsection-title">लाइसेंस दस्तावेज़ अपलोड करें</h3>
-                            <p class="subsection-description">अपना FSSAI लाइसेंस दस्तावेज़ अपलोड करें (PDF, JPG, PNG)</p>
+                            <h3 class="subsection-title">Upload License Document</h3>
+                            <p class="subsection-description">अपना FSSAI Upload License Document (PDF, JPG, PNG)</p>
                             
                             <!-- License Status Display -->
                             <div class="license-status">
                                 <div class="status-indicator" id="verificationStatus">
                                     <i class="fas fa-times-circle"></i>
-                                    <span>सत्यापित नहीं</span>
+                                    <span>सत्orपित नहीं</span>
                                 </div>
                             </div>
                             
@@ -1677,7 +1677,7 @@
                                 <div class="upload-content">
                                     <i class="fas fa-cloud-upload-alt"></i>
                                     <p>अपनी लाइसेंस फ़ाइल यहाँ खींचें और छोड़ें</p>
-                                    <p>या</p>
+                                    <p>or</p>
                                     <input type="file" id="licenseFile" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
                                     <button class="btn btn-secondary" onclick="document.getElementById('licenseFile').click()">
                                         फ़ाइल चुनें
@@ -1698,48 +1698,41 @@
                             
                             <!-- Submit Button -->
                             <button class="btn btn-primary" id="submitLicenseBtn" onclick="submitLicense()" style="display: none;">
-                                <i class="fas fa-upload"></i> सत्यापन के लिए लाइसेंस जमा करें
+                                <i class="fas fa-upload"></i> सत्orपन के लिए लाइसेंस जमा करें
                             </button>
                         </div>
                     </div>
 
                     <!-- Theme Settings Section -->
                     <div class="settings-section">
-                        <h3 class="section-title">थीम सेटिंग्स</h3>
+                        <h3 class="section-title">Theme Settings</h3>
                         <div class="settings-form">
                             <div class="form-group">
-                                <label for="themeSelect">थीम</label>
+                                <label for="themeSelect">Theme</label>
                                 <select id="themeSelect" class="form-control" onchange="changeTheme()">
-                                    <option value="light">हल्की थीम</option>
-                                    <option value="dark">गहरी थीम</option>
-                                    <option value="auto">स्वचालित (सिस्टम)</option>
+                                    <option value="light">हल्की Theme</option>
+                                    <option value="dark">गहरी Theme</option>
+                                    <option value="auto">Auto (System)</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="languageSelect">भाषा</label>
-                                <select id="languageSelect" class="form-control" onchange="changeLanguage()">
-                                    <option value="en">अंग्रेज़ी</option>
-                                    <option value="hi">हिंदी</option>
-                                    <option value="gu">गुजराती</option>
-                                </select>
-                            </div>
+
                         </div>
                     </div>
 
                     <!-- Data Export Section -->
                     <div class="settings-section">
-                        <h3 class="section-title">डेटा निर्यात</h3>
+                        <h3 class="section-title">डेटा निर्orत</h3>
                         <div class="settings-form">
-                            <p class="section-description">बैकअप या विश्लेषण के लिए अपना डेटा निर्यात करें</p>
+                            <p class="section-description">बैकअप or विश्लेषण के लिए अपना डेटा निर्orत करें</p>
                             <div class="export-buttons">
                                 <button class="btn btn-secondary" onclick="exportData('orders')">
-                                    <i class="fas fa-download"></i> आदेश निर्यात करें
+                                    <i class="fas fa-download"></i> आCountry निर्orत करें
                                 </button>
                                 <button class="btn btn-secondary" onclick="exportData('profile')">
-                                    <i class="fas fa-download"></i> प्रोफाइल निर्यात करें
+                                    <i class="fas fa-download"></i> Profile निर्orत करें
                                 </button>
                                 <button class="btn btn-secondary" onclick="exportData('all')">
-                                    <i class="fas fa-download"></i> सभी डेटा निर्यात करें
+                                    <i class="fas fa-download"></i> सभी डेटा निर्orत करें
                                 </button>
                             </div>
                         </div>
@@ -2300,11 +2293,9 @@
             if (businessSettings.cuisineType) document.getElementById('cuisineType').value = businessSettings.cuisineType;
             if (businessSettings.operatingHours) document.getElementById('operatingHours').value = businessSettings.operatingHours;
 
-            // Load theme and language
+            // Load theme
             const theme = localStorage.getItem('vendor_theme') || 'light';
-            const language = localStorage.getItem('vendor_language') || 'en';
             document.getElementById('themeSelect').value = theme;
-            document.getElementById('languageSelect').value = language;
             
             // Apply the saved theme
             applyTheme(theme);
