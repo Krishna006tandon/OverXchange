@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivered Orders Demo - OverXchange</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .demo-section {
+            margin-bottom: 30px;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .stat-card.delivered {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+
+        .stat-card.remaining {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        }
+
+        .stat-card.total {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+
+        .stat-card.value {
+            border-color: #17a2b8;
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .progress-section {
+            margin: 30px 0;
+        }
+
+        .progress-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-percentage {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .code-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .code-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .highlight {
+            color: #fbb6ce;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            text-align: center;
+            padding: 30px 20px;
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .success {
+            text-align: center;
+            padding: 30px 20px;
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Delivered Orders Demo</h1>
+            <p>Backend se total delivered orders fetch karo aur remaining orders calculate karo</p>
+        </div>
+
+        <div class="content">
+            <div class="demo-section">
+                <div class="demo-title">🎯 Live Demo</div>
+                <p>Click the button below to fetch delivered orders statistics for ND Hotel supplier:</p>
+                
+                <button class="btn" onclick="fetchDeliveredStats()">📈 Fetch Delivered Orders Stats</button>
+                <button class="btn btn-secondary" onclick="showCodeExample()">💻 Show Code Example</button>
+                
+                <div id="demoResults"></div>
+            </div>
+
+            <div class="demo-section">
+                <div class="demo-title">📋 API Endpoint</div>
+                <div class="code-section">
+                    <div class="code-title">GET /api/orders/delivered-stats/{supplier_id}</div>
+                    <div class="code-block">
+<span class="highlight">Endpoint:</span> GET /api/orders/delivered-stats/688537c9b69abf0009982a2d
+
+<span class="highlight">Response:</span>
+{
+  "success": true,
+  "stats": {
+    "total_orders": 9,
+    "delivered_orders": 2,
+    "remaining_orders": 7,
+    "pending_orders": 0,
+    "rejected_orders": 0,
+    "total_delivered_value": 12.00,
+    "delivery_rate": 22.22
+  },
+  "supplier_name": "ND Hotel"
+}</div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <div class="demo-title">🔧 Implementation</div>
+                <div class="code-section">
+                    <div class="code-title">Backend API Implementation (Python/Flask)</div>
+                    <div class="code-block">
+@app.route('/api/orders/delivered-stats/&lt;supplier_id&gt;', methods=['GET'])
+def get_delivered_orders_stats(supplier_id):
+    """Get total delivered orders and remaining orders for a supplier"""
+    try:
+        # Find supplier info
+        supplier_info = db['suppliers'].find_one({'_id': ObjectId(supplier_id)})
+        if not supplier_info:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+        
+        supplier_name = supplier_info.get('business_name', supplier_info.get('name', ''))
+        
+        # Get all orders for this supplier
+        all_orders_query = {
+            '$or': [
+                {'supplier_orders.supplier_name': supplier_name},
+                {'supplier_orders.supplier_id': supplier_id}
+            ]
+        }
+        
+        all_orders = list(db['orders'].find(all_orders_query))
+        total_orders = 0
+        delivered_orders = 0
+        pending_orders = 0
+        rejected_orders = 0
+        total_delivered_value = 0
+        
+        for order in all_orders:
+            for supplier_order in order.get('supplier_orders', []):
+                if (supplier_order.get('supplier_name') == supplier_name or 
+                    supplier_order.get('supplier_id') == supplier_id):
+                    total_orders += 1
+                    
+                    status = supplier_order.get('status', 'pending')
+                    if status == 'delivered':
+                        delivered_orders += 1
+                        # Calculate delivered order value
+                        for item in supplier_order.get('items', []):
+                            item_quantity = item.get('quantity', 0)
+                            item_price = item.get('price', 0)
+                            total_delivered_value += item_quantity * item_price
+                    elif status == 'pending':
+                        pending_orders += 1
+                    elif status == 'rejected':
+                        rejected_orders += 1
+        
+        # Calculate remaining orders (non-delivered)
+        remaining_orders = total_orders - delivered_orders
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_orders': total_orders,
+                'delivered_orders': delivered_orders,
+                'remaining_orders': remaining_orders,
+                'pending_orders': pending_orders,
+                'rejected_orders': rejected_orders,
+                'total_delivered_value': total_delivered_value,
+                'delivery_rate': round((delivered_orders / max(total_orders, 1)) * 100, 2)
+            },
+            'supplier_name': supplier_name
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500</div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <div class="demo-title">📊 Key Calculations</div>
+                <div class="code-section">
+                    <div class="code-title">Formulas Used</div>
+                    <div class="code-block">
+<span class="highlight">Remaining Orders:</span> Total Orders - Delivered Orders
+<span class="highlight">Example:</span> 9 - 2 = 7 remaining orders
+
+<span class="highlight">Delivery Rate:</span> (Delivered Orders / Total Orders) × 100
+<span class="highlight">Example:</span> (2 / 9) × 100 = 22.22%
+
+<span class="highlight">Total Delivered Value:</span> Sum of (quantity × price) for all delivered items
+<span class="highlight">Example:</span> ₹12.00 from delivered orders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchDeliveredStats() {
+            const resultsDiv = document.getElementById('demoResults');
+            
+            // Show loading
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Fetching delivered orders statistics...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/orders/delivered-stats/688537c9b69abf0009982a2d');
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.stats;
+                    const supplierName = data.supplier_name;
+
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Successfully fetched statistics for ${supplierName}</h3>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card total">
+                                <div class="stat-icon">📦</div>
+                                <div class="stat-number">${stats.total_orders}</div>
+                                <div class="stat-label">Total Orders</div>
+                            </div>
+                            
+                            <div class="stat-card delivered">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-number">${stats.delivered_orders}</div>
+                                <div class="stat-label">Delivered Orders</div>
+                            </div>
+                            
+                            <div class="stat-card remaining">
+                                <div class="stat-icon">⏳</div>
+                                <div class="stat-number">${stats.remaining_orders}</div>
+                                <div class="stat-label">Remaining Orders</div>
+                            </div>
+                            
+                            <div class="stat-card value">
+                                <div class="stat-icon">💰</div>
+                                <div class="stat-number">₹${stats.total_delivered_value.toFixed(2)}</div>
+                                <div class="stat-label">Total Delivered Value</div>
+                            </div>
+                        </div>
+
+                        <div class="progress-section">
+                            <div class="progress-card">
+                                <div class="progress-header">
+                                    <div class="progress-title">Delivery Progress</div>
+                                    <div class="progress-percentage">${stats.delivery_rate}%</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${stats.delivery_rate}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="code-section">
+                            <div class="code-title">📋 Summary</div>
+                            <div class="code-block">
+<span class="highlight">Supplier:</span> ${supplierName}
+<span class="highlight">Total Orders:</span> ${stats.total_orders}
+<span class="highlight">Delivered:</span> ${stats.delivered_orders}
+<span class="highlight">Remaining:</span> ${stats.remaining_orders} (${stats.total_orders} - ${stats.delivered_orders})
+<span class="highlight">Delivery Rate:</span> ${stats.delivery_rate}%
+<span class="highlight">Total Value:</span> ₹${stats.total_delivered_value.toFixed(2)}</div>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error</h3>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Connection Error</h3>
+                        <p>Failed to fetch statistics: ${error.message}</p>
+                        <p>Make sure the backend server is running on http://localhost:5000</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showCodeExample() {
+            const resultsDiv = document.getElementById('demoResults');
+            resultsDiv.innerHTML = `
+                <div class="code-section">
+                    <div class="code-title">💻 Frontend JavaScript Example</div>
+                    <div class="code-block">
+<span class="highlight">// Fetch delivered orders statistics</span>
+async function fetchDeliveredStats(supplierId) {
+    try {
+        const response = await fetch(\`/api/orders/delivered-stats/\${supplierId}\`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const stats = data.stats;
+            
+            console.log('Total Orders:', stats.total_orders);
+            console.log('Delivered Orders:', stats.delivered_orders);
+            console.log('Remaining Orders:', stats.remaining_orders);
+            console.log('Delivery Rate:', stats.delivery_rate + '%');
+            console.log('Total Value:', '₹' + stats.total_delivered_value);
+            
+            return stats;
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        throw error;
+    }
+}
+
+<span class="highlight">// Usage example</span>
+fetchDeliveredStats('688537c9b69abf0009982a2d')
+    .then(stats => {
+        // Update UI with statistics
+        document.getElementById('totalOrders').textContent = stats.total_orders;
+        document.getElementById('deliveredOrders').textContent = stats.delivered_orders;
+        document.getElementById('remainingOrders').textContent = stats.remaining_orders;
+    })
+    .catch(error => {
+        console.error('Failed to fetch stats:', error);
+    });</div>
+                </div>
+            `;
+        }
+
+        // Auto-fetch stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Uncomment the line below to auto-fetch stats on page load
+            // fetchDeliveredStats();
+        });
+    </script>
+</body>
+</html> 

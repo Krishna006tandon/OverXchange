@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - License Verification | OverXchange</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-card.pending i {
+            color: #f6ad55;
+        }
+
+        .stat-card.verified i {
+            color: #68d391;
+        }
+
+        .stat-card.rejected i {
+            color: #fc8181;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .licenses-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            color: #4a5568;
+            font-size: 1.8rem;
+        }
+
+        .refresh-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #3182ce;
+        }
+
+        .license-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .license-card:hover {
+            border-color: #4299e1;
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.1);
+        }
+
+        .license-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .supplier-info h3 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .supplier-info p {
+            color: #718096;
+            margin-bottom: 3px;
+        }
+
+        .license-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #d69e2e;
+        }
+
+        .license-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #718096;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .license-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-approve {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #38a169;
+        }
+
+        .btn-reject {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #e53e3e;
+        }
+
+        .btn-view {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #3182ce;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn-cancel {
+            background: #a0aec0;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #718096;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-licenses {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .no-licenses i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #cbd5e0;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .license-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .license-actions {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1><i class="fas fa-shield-alt"></i> Admin License Verification</h1>
+                    <p>Review and verify supplier licenses for OverXchange platform</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="color: #718096; font-size: 0.9rem;">
+                        Welcome, <strong id="adminName">Admin</strong>
+                    </span>
+                    <span style="color: #a0aec0; font-size: 0.8rem;" id="adminEmail"></span>
+                    <button onclick="logout()" style="background: #f56565; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+
+        <div class="stats-cards">
+            <div class="stat-card pending">
+                <i class="fas fa-clock"></i>
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">Pending Verification</div>
+            </div>
+            <div class="stat-card verified">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-number" id="verifiedCount">0</div>
+                <div class="stat-label">Verified Today</div>
+            </div>
+            <div class="stat-card rejected">
+                <i class="fas fa-times-circle"></i>
+                <div class="stat-number" id="rejectedCount">0</div>
+                <div class="stat-label">Rejected Today</div>
+            </div>
+        </div>
+
+        <div class="licenses-section">
+            <div class="section-header">
+                <h2>Pending Licenses</h2>
+                <button class="refresh-btn" onclick="loadPendingLicenses()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            
+            <div id="licensesContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading pending licenses...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div id="verificationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">Verify License</h3>
+            <div class="form-group">
+                <label for="adminNotes">Admin Notes (Optional):</label>
+                <textarea id="adminNotes" placeholder="Add any notes about this verification..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-approve" onclick="verifyLicense('approve')">Approve</button>
+                <button class="btn btn-reject" onclick="verifyLicense('reject')">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLicenseId = null;
+        let pendingLicenses = [];
+
+        // Check authentication and load pending licenses on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if admin is logged in
+            if (localStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
+            // Set admin information
+            const adminName = localStorage.getItem('adminName') || 'Admin';
+            const adminEmail = localStorage.getItem('adminEmail') || '';
+            document.getElementById('adminName').textContent = adminName;
+            document.getElementById('adminEmail').textContent = adminEmail;
+            
+            loadPendingLicenses();
+        });
+
+        function logout() {
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('adminId');
+            localStorage.removeItem('adminEmail');
+            localStorage.removeItem('adminName');
+            localStorage.removeItem('adminRole');
+            window.location.href = 'admin-login.html';
+        }
+
+        async function loadPendingLicenses() {
+            try {
+                const response = await fetch('/api/admin/licenses/pending');
+                const data = await response.json();
+                
+                if (data.success) {
+                    pendingLicenses = data.licenses;
+                    displayLicenses(pendingLicenses);
+                    updateStats();
+                } else {
+                    showError('Failed to load licenses: ' + data.message);
+                }
+            } catch (error) {
+                showError('Error loading licenses: ' + error.message);
+            }
+        }
+
+        function displayLicenses(licenses) {
+            const container = document.getElementById('licensesContainer');
+            
+            if (licenses.length === 0) {
+                container.innerHTML = `
+                    <div class="no-licenses">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Pending Licenses</h3>
+                        <p>All licenses have been reviewed!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = licenses.map(license => `
+                <div class="license-card">
+                    <div class="license-header">
+                        <div class="supplier-info">
+                            <h3>${license.supplier_name || 'Unknown Supplier'}</h3>
+                            <p><i class="fas fa-envelope"></i> ${license.supplier_email || 'No email'}</p>
+                            <p><i class="fas fa-calendar"></i> Submitted: ${new Date(license.upload_date).toLocaleDateString()}</p>
+                        </div>
+                        <span class="license-status status-pending">Pending</span>
+                    </div>
+                    
+                    <div class="license-details">
+                        <div class="detail-item">
+                            <div class="detail-label">License Type</div>
+                            <div class="detail-value">${license.license_type || 'FSSAI'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">License Number</div>
+                            <div class="detail-value">${license.license_number || 'Not provided'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Business Name</div>
+                            <div class="detail-value">${license.business_name || 'Not extracted'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Address</div>
+                            <div class="detail-value">${license.address || 'Not extracted'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="license-actions">
+                        <button class="btn btn-view" onclick="viewLicenseDetails('${license._id}')">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                        <button class="btn btn-approve" onclick="openVerificationModal('${license._id}', 'approve')">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="btn btn-reject" onclick="openVerificationModal('${license._id}', 'reject')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/admin/licenses/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.stats;
+                    document.getElementById('pendingCount').textContent = stats.pending;
+                    document.getElementById('verifiedCount').textContent = stats.verified_today;
+                    document.getElementById('rejectedCount').textContent = stats.rejected_today;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Fallback to basic stats
+                document.getElementById('pendingCount').textContent = pendingLicenses.length;
+                document.getElementById('verifiedCount').textContent = '0';
+                document.getElementById('rejectedCount').textContent = '0';
+            }
+        }
+
+        function openVerificationModal(licenseId, action) {
+            currentLicenseId = licenseId;
+            const modal = document.getElementById('verificationModal');
+            const title = document.getElementById('modalTitle');
+            
+            title.textContent = action === 'approve' ? 'Approve License' : 'Reject License';
+            document.getElementById('adminNotes').value = '';
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('verificationModal').style.display = 'none';
+            currentLicenseId = null;
+        }
+
+        async function verifyLicense(action) {
+            if (!currentLicenseId) return;
+            
+            const notes = document.getElementById('adminNotes').value;
+            
+            try {
+                const response = await fetch(`/api/admin/license/verify/${currentLicenseId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: action,
+                        notes: notes
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess(`License ${action}d successfully!`);
+                    closeModal();
+                    loadPendingLicenses(); // Refresh the list
+                } else {
+                    showError('Failed to verify license: ' + data.message);
+                }
+            } catch (error) {
+                showError('Error verifying license: ' + error.message);
+            }
+        }
+
+        function viewLicenseDetails(licenseId) {
+            const license = pendingLicenses.find(l => l._id === licenseId);
+            if (!license) return;
+            
+            // For now, just show an alert with basic info
+            // In a real implementation, you'd show a detailed modal with all license information
+            alert(`License Details for ${license.supplier_name}:\n\n` +
+                  `License Number: ${license.license_number || 'Not provided'}\n` +
+                  `Business Name: ${license.business_name || 'Not extracted'}\n` +
+                  `Address: ${license.address || 'Not extracted'}\n` +
+                  `Upload Date: ${new Date(license.upload_date).toLocaleString()}`);
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 5000);
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 5000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('verificationModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html> 

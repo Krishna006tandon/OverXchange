@@ -290,6 +290,138 @@
             text-align: center;
         }
 
+        /* Coupon Section Styles */
+        .coupon-section {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+
+        .coupon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+
+        .coupon-header span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .coupon-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-toggle-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .coupon-content {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .coupon-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .coupon-dropdown {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .coupon-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .apply-coupon-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .apply-coupon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .apply-coupon-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .coupon-info {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            margin-top: 0.5rem;
+        }
+
+        .coupon-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .coupon-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .coupon-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .coupon-validity {
+            color: var(--success-color);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .coupon-applied {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-color: #16a34a;
+        }
+
+        .coupon-applied .coupon-title {
+            color: #16a34a;
+        }
+
         @media (max-width: 768px) {
             .checkout-container {
                 grid-template-columns: 1fr;
@@ -297,6 +429,14 @@
             
             .form-row {
                 grid-template-columns: 1fr;
+            }
+
+            .coupon-selector {
+                flex-direction: column;
+            }
+
+            .apply-coupon-btn {
+                justify-content: center;
             }
         }
     </style>
@@ -451,10 +591,30 @@
                     <span>GST (18%)</span>
                     <span id="taxAmount">₹0.00</span>
                 </div>
-                <div class="summary-row">
-                    <span>Available Coupons</span>
-                    <select id="couponSelect" style="width: 180px; margin-right: 8px;"></select>
-                    <button type="button" class="btn" style="padding: 4px 10px; font-size: 0.9em;" onclick="applyCoupon()">Apply</button>
+                <div class="summary-row coupon-section">
+                    <div class="coupon-header">
+                        <span><i class="fas fa-tag"></i> Available Coupons</span>
+                        <button type="button" class="coupon-toggle-btn" onclick="toggleCouponSection()">
+                            <i class="fas fa-chevron-down" id="couponToggleIcon"></i>
+                        </button>
+                    </div>
+                    <div class="coupon-content" id="couponContent" style="display: none;">
+                        <div class="coupon-selector">
+                            <select id="couponSelect" class="coupon-dropdown">
+                                <option value="">Select a coupon...</option>
+                            </select>
+                            <button type="button" class="apply-coupon-btn" onclick="applyCoupon()">
+                                <i class="fas fa-check"></i> Apply
+                            </button>
+                        </div>
+                        <div class="coupon-info" id="couponInfo" style="display: none;">
+                            <div class="coupon-details">
+                                <div class="coupon-title" id="couponTitle"></div>
+                                <div class="coupon-description" id="couponDescription"></div>
+                                <div class="coupon-validity" id="couponValidity"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="summary-row" id="discountRow" style="display:none; color: #28a745;">
                     <span>Discount</span>
@@ -514,25 +674,71 @@
             shippingMethod.addEventListener('change', updateOrderSummary);
         }
 
+        function toggleCouponSection() {
+            const content = document.getElementById('couponContent');
+            const icon = document.getElementById('couponToggleIcon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                content.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+            }
+        }
+
         function fetchAvailableCoupons() {
-            // For demo, use the first supplier in cart
-            const supplierId = cart.length > 0 && cart[0].supplierId ? cart[0].supplierId : null;
-            if (!supplierId) return;
+            // Get all unique supplier IDs from cart
+            const supplierIds = [...new Set(cart.map(item => item.supplierId).filter(id => id))];
+            
+            if (supplierIds.length === 0) {
+                document.getElementById('couponSelect').innerHTML = '<option value="">No supplier information available</option>';
+                return;
+            }
+            
+            // For now, use the first supplier's coupons
+            // In a more advanced implementation, you could show coupons from all suppliers
+            const supplierId = supplierIds[0];
+            
             fetch(`/api/coupons?supplier_id=${supplierId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.coupons && data.coupons.length > 0) {
                         availableCoupons = data.coupons;
                         const couponSelect = document.getElementById('couponSelect');
-                        couponSelect.innerHTML = '<option value="">Select a coupon</option>' +
-                            data.coupons.map(c => `<option value="${c.code}">${c.title} (${c.code}) - ${c.discount_type === 'percentage' ? c.discount_value + '% off' : '₹' + c.discount_value + ' off'}</option>`).join('');
+                        couponSelect.innerHTML = '<option value="">Select a coupon...</option>' +
+                            data.coupons.map(c => `<option value="${c.code}" data-coupon='${JSON.stringify(c)}'>${c.title} (${c.code}) - ${c.discount_type === 'percentage' ? c.discount_value + '% off' : '₹' + c.discount_value + ' off'}</option>`).join('');
+                        
+                        // Add change event listener to show coupon details
+                        couponSelect.addEventListener('change', showCouponDetails);
                     } else {
-                        document.getElementById('couponSelect').innerHTML = '<option value="">No coupons available</option>';
+                        document.getElementById('couponSelect').innerHTML = '<option value="">No coupons available for this supplier</option>';
                     }
                 })
-                .catch(() => {
-                    document.getElementById('couponSelect').innerHTML = '<option value="">No coupons available</option>';
+                .catch((error) => {
+                    console.error('Error fetching coupons:', error);
+                    document.getElementById('couponSelect').innerHTML = '<option value="">Error loading coupons</option>';
                 });
+        }
+
+        function showCouponDetails() {
+            const couponSelect = document.getElementById('couponSelect');
+            const couponInfo = document.getElementById('couponInfo');
+            const selectedOption = couponSelect.options[couponSelect.selectedIndex];
+            
+            if (couponSelect.value) {
+                const coupon = JSON.parse(selectedOption.getAttribute('data-coupon'));
+                
+                document.getElementById('couponTitle').textContent = coupon.title;
+                document.getElementById('couponDescription').textContent = 
+                    `${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '₹' + coupon.discount_value} off on orders above ₹${coupon.min_order_amount}`;
+                document.getElementById('couponValidity').textContent = 
+                    `Valid until ${new Date(coupon.valid_until).toLocaleDateString()}`;
+                
+                couponInfo.style.display = 'block';
+            } else {
+                couponInfo.style.display = 'none';
+            }
         }
 
         function applyCoupon() {
@@ -560,11 +766,23 @@
                     discountAmount = data.coupon.discount_amount;
                     document.getElementById('discountAmount').textContent = `-₹${discountAmount.toFixed(2)}`;
                     document.getElementById('discountRow').style.display = '';
+                    
+                    // Update coupon info to show it's applied
+                    const couponInfo = document.getElementById('couponInfo');
+                    couponInfo.classList.add('coupon-applied');
+                    document.getElementById('couponTitle').innerHTML = `<i class="fas fa-check-circle"></i> ${data.coupon.title} - Applied!`;
+                    
+                    showSuccess('Coupon applied successfully!');
                     updateOrderSummary();
                 } else {
                     appliedCoupon = null;
                     discountAmount = 0;
                     document.getElementById('discountRow').style.display = 'none';
+                    
+                    // Reset coupon info
+                    const couponInfo = document.getElementById('couponInfo');
+                    couponInfo.classList.remove('coupon-applied');
+                    
                     showError(data.message || 'Invalid coupon code.');
                     updateOrderSummary();
                 }

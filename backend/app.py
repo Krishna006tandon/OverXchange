@@ -26,21 +26,52 @@ CORS(app, resources={
 mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')
 db = mongo_client['OverXchange']
 
+# Initialize admin collection with default admin if not exists
+def initialize_admin():
+    """Initialize admin collection with default admin account"""
+    admin_collection = db['admins']
+    
+    # Create default admin accounts
+    default_admins = [
+        {
+            'email': 'admin@overxchange.com',
+            'password': generate_password_hash('admin123'),
+            'name': 'System Administrator',
+            'role': 'super_admin',
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        },
+        {
+            'email': 'admin@gmail.com',
+            'password': generate_password_hash('admin'),
+            'name': 'Admin User',
+            'role': 'admin',
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        }
+    ]
+    
+    # Check and create admin accounts if they don't exist
+    for admin_data in default_admins:
+        existing_admin = admin_collection.find_one({'email': admin_data['email']})
+        if not existing_admin:
+            admin_collection.insert_one(admin_data)
+            print(f"Admin account created: {admin_data['email']} / {admin_data['password'][:10]}...")
+        else:
+            print(f"Admin account already exists: {admin_data['email']}")
+
+# Initialize admin on startup
+initialize_admin()
+
 # Serve frontend static files
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_frontend(path):
-    if path != "" and os.path.exists(os.path.join(FRONTEND_DIR, path)):
-        return send_from_directory(FRONTEND_DIR, path)
-    else:
-        return send_from_directory(FRONTEND_DIR, 'index.html')
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -70,6 +101,127 @@ def login():
         response_data['name'] = user.get('name', '')
     
     return jsonify(response_data)
+
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    """Admin login with email and password"""
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+        
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email and password are required'}), 400
+        
+        # Find admin by email
+        admin = db['admins'].find_one({'email': email, 'is_active': True})
+        
+        if not admin:
+            return jsonify({'success': False, 'message': 'Admin account not found or inactive'}), 404
+        
+        # Check password
+        if not check_password_hash(admin['password'], password):
+            return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+        
+        # Return admin data (without password)
+        response_data = {
+            'success': True,
+            'message': 'Admin login successful',
+            'admin_id': str(admin['_id']),
+            'email': admin['email'],
+            'name': admin['name'],
+            'role': admin['role'],
+            'login_time': datetime.utcnow().isoformat()
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"Admin login error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/admin/signup', methods=['POST'])
+def admin_signup():
+    """Create new admin account (only super admin can create other admins)"""
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+        name = data.get('name')
+        role = data.get('role', 'admin')  # Default role is admin
+        
+        if not email or not password or not name:
+            return jsonify({'success': False, 'message': 'Email, password, and name are required'}), 400
+        
+        # Check if admin already exists
+        existing_admin = db['admins'].find_one({'email': email})
+        if existing_admin:
+            return jsonify({'success': False, 'message': 'Admin with this email already exists'}), 409
+        
+        # Create new admin
+        admin_data = {
+            'email': email,
+            'password': generate_password_hash(password),
+            'name': name,
+            'role': role,
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        }
+        
+        result = db['admins'].insert_one(admin_data)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Admin account created successfully',
+            'admin_id': str(result.inserted_id)
+        }), 201
+        
+    except Exception as e:
+        print(f"Admin signup error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/admin/create', methods=['POST'])
+def create_admin_manual():
+    """Manually create admin account (for development/testing)"""
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+        name = data.get('name', 'Admin User')
+        role = data.get('role', 'admin')
+        
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email and password are required'}), 400
+        
+        # Check if admin already exists
+        existing_admin = db['admins'].find_one({'email': email})
+        if existing_admin:
+            return jsonify({'success': False, 'message': 'Admin with this email already exists'}), 409
+        
+        # Create new admin
+        admin_data = {
+            'email': email,
+            'password': generate_password_hash(password),
+            'name': name,
+            'role': role,
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        }
+        
+        result = db['admins'].insert_one(admin_data)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Admin account created successfully: {email}',
+            'admin_id': str(result.inserted_id),
+            'email': email,
+            'name': name,
+            'role': role
+        }), 201
+        
+    except Exception as e:
+        print(f"Manual admin creation error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @app.route('/api/signup/vendor', methods=['POST'])
 def signup_vendor():
@@ -274,6 +426,31 @@ def get_dashboard_data(supplier_id):
             if quantity and price:
                 total_value += quantity * price
         
+        # Get total orders delivered for this supplier
+        total_orders_delivered = 0
+        delivered_orders_value = 0
+        
+        # Find supplier name from supplier_id
+        supplier_info = db['suppliers'].find_one({'_id': ObjectId(supplier_id)})
+        if supplier_info:
+            supplier_name = supplier_info.get('business_name', supplier_info.get('name', ''))
+            
+            # Get all orders where this supplier has delivered items
+            delivered_orders = db['orders'].find({
+                'supplier_orders.supplier_name': supplier_name,
+                'supplier_orders.status': 'delivered'
+            })
+            
+            for order in delivered_orders:
+                for supplier_order in order.get('supplier_orders', []):
+                    if supplier_order.get('supplier_name') == supplier_name and supplier_order.get('status') == 'delivered':
+                        total_orders_delivered += 1
+                        # Calculate delivered order value
+                        for item in supplier_order.get('items', []):
+                            item_quantity = item.get('quantity', 0)
+                            item_price = item.get('price', 0)
+                            delivered_orders_value += item_quantity * item_price
+        
         # Calculate left stock value (remaining inventory value)
         left_stock_value = total_value
         
@@ -406,7 +583,11 @@ def redeem_coupon(coupon_id):
             return jsonify({'success': False, 'message': 'Coupon is not active'}), 400
         
         # Check if coupon has expired
-        if datetime.now() > coupon['valid_until']:
+        valid_until = coupon['valid_until']
+        if isinstance(valid_until, str):
+            valid_until = datetime.fromisoformat(valid_until.replace('Z', '+00:00'))
+        
+        if datetime.now() > valid_until:
             return jsonify({'success': False, 'message': 'Coupon has expired'}), 400
         
         # Check usage limit
@@ -454,7 +635,11 @@ def validate_coupon(coupon_code):
             return jsonify({'success': False, 'message': 'Coupon is not active'}), 400
         
         # Check if coupon has expired
-        if datetime.now() > coupon['valid_until']:
+        valid_until = coupon['valid_until']
+        if isinstance(valid_until, str):
+            valid_until = datetime.fromisoformat(valid_until.replace('Z', '+00:00'))
+        
+        if datetime.now() > valid_until:
             return jsonify({'success': False, 'message': 'Coupon has expired'}), 400
         
         # Check minimum order amount
@@ -1539,6 +1724,98 @@ def get_license_status(supplier_id):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+# Admin API to get all pending licenses
+@app.route('/api/admin/licenses/pending', methods=['GET'])
+def get_pending_licenses():
+    """Get all pending licenses for admin review"""
+    try:
+        # Get all licenses with pending status
+        pending_licenses = list(db['licenses'].find({'status': 'pending'}))
+        
+        # Get supplier information for each license
+        for license_doc in pending_licenses:
+            if 'supplier_id' in license_doc:
+                supplier = db['suppliers'].find_one({'_id': ObjectId(license_doc['supplier_id'])})
+                if supplier:
+                    license_doc['supplier_name'] = supplier.get('business_name', supplier.get('name', 'Unknown'))
+                    license_doc['supplier_email'] = supplier.get('email', 'Unknown')
+                else:
+                    license_doc['supplier_name'] = 'Unknown'
+                    license_doc['supplier_email'] = 'Unknown'
+            
+            # Convert ObjectId to string for JSON serialization
+            license_doc['_id'] = str(license_doc['_id'])
+            if 'supplier_id' in license_doc:
+                license_doc['supplier_id'] = str(license_doc['supplier_id'])
+        
+        return jsonify({
+            'success': True,
+            'licenses': pending_licenses
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# Admin API to get license statistics
+@app.route('/api/admin/licenses/stats', methods=['GET'])
+def get_license_stats():
+    """Get license verification statistics for admin dashboard"""
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get today's date
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Count licenses by status
+        pending_count = db['licenses'].count_documents({'status': 'pending'})
+        verified_count = db['licenses'].count_documents({'status': 'verified'})
+        rejected_count = db['licenses'].count_documents({'status': 'rejected'})
+        
+        # Count today's verifications
+        verified_today = db['licenses'].count_documents({
+            'status': 'verified',
+            'admin_verification_date': {'$gte': today}
+        })
+        
+        rejected_today = db['licenses'].count_documents({
+            'status': 'rejected',
+            'admin_verification_date': {'$gte': today}
+        })
+        
+        # Get recent activity (last 10 verifications)
+        recent_activity = list(db['licenses'].find({
+            'admin_verification_date': {'$exists': True}
+        }).sort('admin_verification_date', -1).limit(10))
+        
+        # Add supplier names to recent activity
+        for activity in recent_activity:
+            if 'supplier_id' in activity:
+                supplier = db['suppliers'].find_one({'_id': ObjectId(activity['supplier_id'])})
+                if supplier:
+                    activity['supplier_name'] = supplier.get('business_name', supplier.get('name', 'Unknown'))
+                else:
+                    activity['supplier_name'] = 'Unknown'
+            
+            # Convert ObjectId to string
+            activity['_id'] = str(activity['_id'])
+            if 'supplier_id' in activity:
+                activity['supplier_id'] = str(activity['supplier_id'])
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'pending': pending_count,
+                'verified_total': verified_count,
+                'rejected_total': rejected_count,
+                'verified_today': verified_today,
+                'rejected_today': rejected_today,
+                'recent_activity': recent_activity
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 # Admin API for manual verification (for cases where auto-verification is uncertain)
 @app.route('/api/admin/license/verify/<license_id>', methods=['POST'])
 def admin_verify_license(license_id):
@@ -2576,6 +2853,80 @@ def generate_bill_html(order):
     '''
     
     return bill_html
+
+@app.route('/api/orders/delivered-stats/<supplier_id>', methods=['GET'])
+def get_delivered_orders_stats(supplier_id):
+    """Get total delivered orders and remaining orders for a supplier"""
+    try:
+        # Find supplier info
+        supplier_info = db['suppliers'].find_one({'_id': ObjectId(supplier_id)})
+        if not supplier_info:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+        
+        supplier_name = supplier_info.get('business_name', supplier_info.get('name', ''))
+        
+        # Get all orders for this supplier
+        all_orders_query = {
+            '$or': [
+                {'supplier_orders.supplier_name': supplier_name},
+                {'supplier_orders.supplier_id': supplier_id}
+            ]
+        }
+        
+        all_orders = list(db['orders'].find(all_orders_query))
+        total_orders = 0
+        delivered_orders = 0
+        pending_orders = 0
+        rejected_orders = 0
+        total_delivered_value = 0
+        
+        for order in all_orders:
+            for supplier_order in order.get('supplier_orders', []):
+                if (supplier_order.get('supplier_name') == supplier_name or 
+                    supplier_order.get('supplier_id') == supplier_id):
+                    total_orders += 1
+                    
+                    status = supplier_order.get('status', 'pending')
+                    if status == 'delivered':
+                        delivered_orders += 1
+                        # Calculate delivered order value
+                        for item in supplier_order.get('items', []):
+                            item_quantity = item.get('quantity', 0)
+                            item_price = item.get('price', 0)
+                            total_delivered_value += item_quantity * item_price
+                    elif status == 'pending':
+                        pending_orders += 1
+                    elif status == 'rejected':
+                        rejected_orders += 1
+        
+        # Calculate remaining orders (non-delivered)
+        remaining_orders = total_orders - delivered_orders
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_orders': total_orders,
+                'delivered_orders': delivered_orders,
+                'remaining_orders': remaining_orders,
+                'pending_orders': pending_orders,
+                'rejected_orders': rejected_orders,
+                'total_delivered_value': total_delivered_value,
+                'delivery_rate': round((delivered_orders / max(total_orders, 1)) * 100, 2)
+            },
+            'supplier_name': supplier_name
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# Frontend routes - must be at the end to not interfere with API routes
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path != "" and os.path.exists(os.path.join(FRONTEND_DIR, path)):
+        return send_from_directory(FRONTEND_DIR, path)
+    else:
+        return send_from_directory(FRONTEND_DIR, 'index.html')
 
 if __name__ == '__main__':
     # Get port from environment variable for Railway deployment
