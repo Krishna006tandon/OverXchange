@@ -1109,6 +1109,51 @@
             justify-content: flex-end;
         }
 
+        .supplier-status {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .supplier-status h4 {
+            margin: 0 0 10px 0;
+            color: #374151;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .supplier-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .supplier-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .supplier-name {
+            font-weight: 600;
+            color: #374151;
+            min-width: 120px;
+        }
+
+        .accepted-date, .delivery-date {
+            font-size: 12px;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
         .empty-orders {
             text-align: center;
             padding: 60px 20px;
@@ -2123,6 +2168,21 @@
                                     `).join('')}
                                 </div>
                             </div>
+                            ${order.supplier_orders ? `
+                            <div class="supplier-status">
+                                <h4>Supplier Status</h4>
+                                <div class="supplier-list">
+                                    ${order.supplier_orders.map(supplierOrder => `
+                                        <div class="supplier-item">
+                                            <span class="supplier-name">${supplierOrder.supplier_name}</span>
+                                            <span class="status-badge ${getStatusClass(supplierOrder.status)}">${supplierOrder.status.toUpperCase()}</span>
+                                            ${supplierOrder.accepted_at ? `<span class="accepted-date">Accepted: ${new Date(supplierOrder.accepted_at).toLocaleDateString()}</span>` : ''}
+                                            ${supplierOrder.estimated_delivery ? `<span class="delivery-date">Est. Delivery: ${supplierOrder.estimated_delivery}</span>` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
                             <div class="order-summary">
                                 <div class="summary-row">
                                     <span>Subtotal:</span>

@@ -1673,8 +1673,13 @@ def get_orders():
             })
         
         if user_type == 'vendor':
-            # Get orders for vendor
+            # Get orders for vendor with supplier_orders included
             orders = list(db['orders'].find({'vendor_id': user_id}).sort('order_date', -1))
+            
+            # Ensure supplier_orders are included for vendor view
+            for order in orders:
+                if 'supplier_orders' not in order:
+                    order['supplier_orders'] = []
         elif user_type == 'supplier':
             # Get orders for supplier (filter by supplier ID or name)
             # Try to find supplier by ObjectId first, then by string ID
