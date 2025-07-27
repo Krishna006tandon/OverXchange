@@ -177,7 +177,7 @@
         document.body.innerHTML = '<div class="profile-container"><h2>Not logged in</h2><p>Please log in to view your profile.</p></div>';
         throw new Error('Not logged in');
     }
-    const apiUrl = `http://localhost:5000/api/profile/${user_type}/${user_id}`;
+    const apiUrl = `${window.location.origin}/api/profile/${user_type}/${user_id}`;
     const editableFields = ['name', 'email', 'bio', 'shop_name', 'company_name', 'business_name', 'food_beverage_details', 'business_address', 'pincode', 'phone', 'gstin', 'preferred_categories', 'product_categories', 'warehouse_address', 'business_proof', 'moq', 'logistics_options'];
     const fieldLabels = {
         name: 'Name',
