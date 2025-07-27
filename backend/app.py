@@ -1774,7 +1774,7 @@ def update_order_status(order_id):
 
 @app.route('/api/orders/<order_id>/accept', methods=['POST'])
 def accept_order(order_id):
-    """Supplier accepts an order"""
+    """Supplier accepts an order - Optimized for performance"""
     try:
         print(f"Accept order request for order_id: {order_id}")
         data = request.json
@@ -1785,19 +1785,19 @@ def accept_order(order_id):
         acceptance_notes = data.get('acceptance_notes', '')
         estimated_delivery = data.get('estimated_delivery')
         
-        # Check if order exists
-        order = db['orders'].find_one({'order_id': order_id})
-        if not order:
-            print(f"Order not found: {order_id}")
-            return jsonify({'success': False, 'message': f'Order {order_id} not found'}), 404
-        
-        print(f"Order found: {order.get('order_id')}")
-        print(f"Supplier orders: {order.get('supplier_orders', [])}")
-        
         if not supplier_id and not supplier_name:
             return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
         
         timestamp = datetime.now()
+        
+        # Build query for single update operation
+        query = {'order_id': order_id}
+        if supplier_id:
+            query['supplier_orders.supplier_id'] = supplier_id
+        elif supplier_name:
+            query['supplier_orders.supplier_name'] = supplier_name
+        
+        # Optimized update with minimal fields
         update_data = {
             'supplier_orders.$.status': 'accepted',
             'supplier_orders.$.accepted_at': timestamp,
@@ -1806,41 +1806,13 @@ def accept_order(order_id):
             'supplier_orders.$.last_updated': timestamp
         }
         
-        # Add status history
-        status_update = {
-            'status': 'accepted',
-            'timestamp': timestamp,
-            'updated_by': 'supplier',
-            'notes': acceptance_notes
-        }
-        update_data['supplier_orders.$.status_history'] = status_update
-        
-        # Build query
-        query = {'order_id': order_id}
-        if supplier_id:
-            query['supplier_orders.supplier_id'] = supplier_id
-        elif supplier_name:
-            query['supplier_orders.supplier_name'] = supplier_name
-        
+        # Single database operation
         result = db['orders'].update_one(query, {'$set': update_data})
         
         if result.modified_count == 0:
             return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
         
-        # Check if all suppliers have accepted
-        order = db['orders'].find_one({'order_id': order_id})
-        if order and 'supplier_orders' in order:
-            all_accepted = all(so.get('status') == 'accepted' for so in order['supplier_orders'])
-            if all_accepted:
-                db['orders'].update_one(
-                    {'order_id': order_id},
-                    {
-                        '$set': {
-                            'status': 'confirmed',
-                            'confirmed_at': timestamp
-                        }
-                    }
-                )
+        print(f"Order accepted successfully: {order_id}")
         
         return jsonify({
             'success': True,
@@ -1848,6 +1820,7 @@ def accept_order(order_id):
         })
         
     except Exception as e:
+        print(f"Error accepting order: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/orders/<order_id>/reject', methods=['POST'])

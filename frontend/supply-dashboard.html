@@ -5164,6 +5164,12 @@
             const acceptanceNotes = document.getElementById('acceptanceNotes').value;
             const estimatedDelivery = document.getElementById('estimatedDelivery').value;
             
+            // Show loading state
+            const acceptButton = document.querySelector('#acceptOrderForm button[type="submit"]');
+            const originalText = acceptButton.innerHTML;
+            acceptButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accepting...';
+            acceptButton.disabled = true;
+            
             const data = {
                 supplier_name: getCurrentSupplierName(),
                 acceptance_notes: acceptanceNotes,
@@ -5181,6 +5187,10 @@
             })
             .then(response => response.json())
             .then(data => {
+                // Reset button state
+                acceptButton.innerHTML = originalText;
+                acceptButton.disabled = false;
+                
                 if (data.success) {
                     alert('Order accepted successfully!');
                     closeAcceptOrderModal();
@@ -5190,6 +5200,10 @@
                 }
             })
             .catch(error => {
+                // Reset button state
+                acceptButton.innerHTML = originalText;
+                acceptButton.disabled = false;
+                
                 console.error('Error accepting order:', error);
                 alert('Error accepting order. Please try again.');
             });
