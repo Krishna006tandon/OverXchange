@@ -289,9 +289,12 @@
         signupForm.onsubmit = async (e) => {
             e.preventDefault();
             messageDiv.textContent = 'Submitting...';
+            
+            // Get current domain for API calls
+            const currentDomain = window.location.origin;
             let url = currentRole === 'vendor'
-                ? 'http://localhost:5000/api/signup/vendor'
-                : 'http://localhost:5000/api/signup/supplier';
+                ? `${currentDomain}/api/signup/vendor`
+                : `${currentDomain}/api/signup/supplier`;
             // Only get fields from the visible section
             let visibleFields = currentRole === 'vendor' ? vendorFields : supplierFields;
             let inputs = visibleFields.querySelectorAll('input,select,textarea');

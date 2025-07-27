@@ -14,7 +14,13 @@ import base64
 import io
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={
+    r"/*": {
+        "origins": ["*"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+    }
+})
 
 # MongoDB setup
 mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')
@@ -60,19 +66,59 @@ def login():
 
 @app.route('/api/signup/vendor', methods=['POST'])
 def signup_vendor():
-    data = request.json
-    if 'password' in data:
-        data['password'] = generate_password_hash(data['password'])
-    result = db['vendors'].insert_one(data)
-    return jsonify({"success": True, "message": "Vendor signup successful!", "id": str(result.inserted_id)})
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"success": False, "message": "No data provided"}), 400
+        
+        # Check if user already exists
+        existing_user = db['vendors'].find_one({'email': data.get('email')})
+        if existing_user:
+            return jsonify({"success": False, "message": "User already exists with this email"}), 409
+        
+        if 'password' in data:
+            data['password'] = generate_password_hash(data['password'])
+        
+        # Add timestamp
+        data['created_at'] = datetime.utcnow()
+        
+        result = db['vendors'].insert_one(data)
+        return jsonify({
+            "success": True, 
+            "message": "Vendor signup successful!", 
+            "id": str(result.inserted_id)
+        }), 201
+    except Exception as e:
+        print(f"Vendor signup error: {str(e)}")
+        return jsonify({"success": False, "message": "Internal server error"}), 500
 
 @app.route('/api/signup/supplier', methods=['POST'])
 def signup_supplier():
-    data = request.json
-    if 'password' in data:
-        data['password'] = generate_password_hash(data['password'])
-    result = db['suppliers'].insert_one(data)
-    return jsonify({"success": True, "message": "Supplier signup successful!", "id": str(result.inserted_id)})
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"success": False, "message": "No data provided"}), 400
+        
+        # Check if user already exists
+        existing_user = db['suppliers'].find_one({'email': data.get('email')})
+        if existing_user:
+            return jsonify({"success": False, "message": "User already exists with this email"}), 409
+        
+        if 'password' in data:
+            data['password'] = generate_password_hash(data['password'])
+        
+        # Add timestamp
+        data['created_at'] = datetime.utcnow()
+        
+        result = db['suppliers'].insert_one(data)
+        return jsonify({
+            "success": True, 
+            "message": "Supplier signup successful!", 
+            "id": str(result.inserted_id)
+        }), 201
+    except Exception as e:
+        print(f"Supplier signup error: {str(e)}")
+        return jsonify({"success": False, "message": "Internal server error"}), 500
 
 def get_user_collection(user_type):
     if user_type == 'vendor':

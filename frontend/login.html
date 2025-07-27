@@ -223,7 +223,9 @@
         e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
-        fetch('http://localhost:5000/api/login', {
+        // Get current domain for API calls
+        const currentDomain = window.location.origin;
+        fetch(`${currentDomain}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
