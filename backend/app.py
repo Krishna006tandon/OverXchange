@@ -1885,6 +1885,22 @@ def accept_order(order_id):
         if result.modified_count == 0:
             return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
         
+        # Check if all suppliers have accepted to update main order status
+        order = db['orders'].find_one({'order_id': order_id})
+        if order and 'supplier_orders' in order:
+            all_accepted = all(so.get('status') == 'accepted' for so in order['supplier_orders'])
+            if all_accepted:
+                db['orders'].update_one(
+                    {'order_id': order_id},
+                    {
+                        '$set': {
+                            'status': 'confirmed',
+                            'confirmed_at': timestamp
+                        }
+                    }
+                )
+                print(f"Order {order_id} confirmed - all suppliers accepted")
+        
         # Update stock quantities after order acceptance
         stock_update_result = update_supplier_stock_on_order_accept(order_id, supplier_name)
         
@@ -1933,15 +1949,24 @@ def update_supplier_stock_on_order_accept(order_id, supplier_name):
             print(f"Processing item: {product_name}, quantity: {ordered_quantity}")
             
             # Find the stock item for this supplier and product
+            # First try to get supplier name from supplier_id
+            supplier_info = db['suppliers'].find_one({'business_name': supplier_name})
+            supplier_id = None
+            if supplier_info:
+                supplier_id = str(supplier_info['_id'])
+            
             stock_query = {
-                'supplier_name': supplier_name,
-                'name': product_name
+                'product_name': product_name
             }
+            
+            # Add supplier filter if we have supplier_id
+            if supplier_id:
+                stock_query['supplier_id'] = supplier_id
             
             stock_item = db['stocks'].find_one(stock_query)
             
             if stock_item:
-                current_stock = stock_item.get('quantity', 0)
+                current_stock = stock_item.get('quantity_available', 0)
                 new_stock = current_stock - ordered_quantity
                 
                 if new_stock >= 0:
@@ -1950,8 +1975,8 @@ def update_supplier_stock_on_order_accept(order_id, supplier_name):
                         {'_id': stock_item['_id']},
                         {
                             '$set': {
-                                'quantity': new_stock,
-                                'last_updated': datetime.now()
+                                'quantity_available': new_stock,
+                                'updated_at': datetime.now()
                             },
                             '$push': {
                                 'stock_history': {
