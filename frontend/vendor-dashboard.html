@@ -1004,6 +1004,16 @@
             color: #d97706;
         }
 
+        .status-accepted {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
         .status-processing {
             background: #dbeafe;
             color: #2563eb;
@@ -1263,9 +1273,14 @@
                                     <span class="stat-label">Completed</span>
                                 </div>
                             </div>
-                            <button class="btn btn-secondary" onclick="refreshOrders()">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-secondary" onclick="refreshOrders()">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                                <button class="btn btn-primary" onclick="loadOrders()">
+                                    <i class="fas fa-download"></i> Load Orders
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="orders-list" id="ordersList">
@@ -2041,20 +2056,31 @@
         // Orders functionality
         function loadOrders() {
             const userId = localStorage.getItem('user_id');
+            console.log('Loading orders for user ID:', userId);
+            
             if (!userId) {
                 console.error('User ID not found');
+                document.getElementById('ordersList').innerHTML = '<p class="error-message">User ID not found. Please login again.</p>';
                 return;
             }
 
-            fetch(`/api/orders?user_type=vendor&user_id=${userId}`)
-                .then(response => response.json())
+            const apiUrl = `/api/orders?user_type=vendor&user_id=${userId}`;
+            console.log('Fetching orders from:', apiUrl);
+
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Orders API response:', data);
                     if (data.success) {
+                        console.log('Orders loaded successfully:', data.orders.length, 'orders');
                         displayOrders(data.orders);
                         updateOrderStats(data.orders);
                     } else {
                         console.error('Failed to load orders:', data.message);
-                        document.getElementById('ordersList').innerHTML = '<p class="error-message">Failed to load orders. Please try again.</p>';
+                        document.getElementById('ordersList').innerHTML = `<p class="error-message">Failed to load orders: ${data.message}</p>`;
                     }
                 })
                 .catch(error => {
@@ -2156,6 +2182,8 @@
         function getStatusClass(status) {
             switch (status.toLowerCase()) {
                 case 'pending': return 'status-pending';
+                case 'accepted': return 'status-accepted';
+                case 'rejected': return 'status-rejected';
                 case 'processing': return 'status-processing';
                 case 'shipped': return 'status-shipped';
                 case 'delivered': return 'status-delivered';
@@ -2213,10 +2241,43 @@
         function showOrderDetailsModal(order) {
             // Create modal HTML with comprehensive order details
             const modalHTML = `
-                <div id="orderDetailsModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;">
-                    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto; background: white; border-radius: 10px; padding: 20px; position: relative; margin: 20px;">
-                        <span class="close" onclick="closeOrderDetailsModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; z-index: 1001;">&times;</span>
-                        <h2><i class="fas fa-shopping-cart"></i> Order Details</h2>
+                <div id="orderDetailsModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; backdrop-filter: blur(5px);">
+                    <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 20px; padding: 0; position: relative; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 2px solid #667eea;">
+                        
+                        <!-- Close Button -->
+                        <span class="close" onclick="closeOrderDetailsModal()" style="position: absolute; top: 20px; right: 25px; font-size: 32px; font-weight: bold; color: #667eea; cursor: pointer; z-index: 1001; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">&times;</span>
+                        
+                        <!-- Order Header with Gradient -->
+                        <div class="order-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 18px 18px 0 0; margin-bottom: 0; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+                                <div>
+                                    <h2 style="margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                        <i class="fas fa-shopping-cart" style="margin-right: 10px;"></i>Order Details
+                                    </h2>
+                                    <h3 style="margin: 10px 0 0 0; font-size: 22px; opacity: 0.9;">#${order.order_id}</h3>
+                                    <p style="margin: 8px 0 0 0; opacity: 0.8; font-size: 16px;">
+                                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>Placed on ${new Date(order.order_date).toLocaleDateString('en-IN', { 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="status-badge ${getStatusClass(order.status)}" style="font-size: 18px; padding: 12px 24px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                        <i class="fas fa-circle" style="margin-right: 8px; font-size: 12px;"></i>${order.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content Container -->
+                        <div style="padding: 30px; background: white; border-radius: 0 0 18px 18px;">
                         
                         <!-- Order Header -->
                         <div class="order-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
@@ -2286,13 +2347,33 @@
                             <h3><i class="fas fa-truck"></i> Supplier Information</h3>
                             ${order.supplier_orders.map(supplierOrder => `
                                 <div style="border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
-                                    <h4 style="margin: 0 0 10px 0; color: #667eea;">${supplierOrder.supplier_name}</h4>
-                                    <p style="margin: 5px 0;"><strong>Status:</strong> 
-                                        <span class="status-badge ${getStatusClass(supplierOrder.status)}">${supplierOrder.status}</span>
-                                    </p>
-                                    <p style="margin: 5px 0;"><strong>Items:</strong> ${supplierOrder.items.length} items</p>
-                                    <p style="margin: 5px 0;"><strong>Subtotal:</strong> ₹${supplierOrder.subtotal.toFixed(2)}</p>
-                                    <p style="margin: 5px 0;"><strong>Order Date:</strong> ${new Date(supplierOrder.order_date).toLocaleDateString()}</p>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h4 style="margin: 0; color: #667eea;">${supplierOrder.supplier_name}</h4>
+                                        <span class="status-badge ${getStatusClass(supplierOrder.status)}" style="font-size: 14px; padding: 6px 12px;">${supplierOrder.status.toUpperCase()}</span>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                        <div>
+                                            <p style="margin: 5px 0;"><strong>Items:</strong> ${supplierOrder.items.length} items</p>
+                                            <p style="margin: 5px 0;"><strong>Subtotal:</strong> ₹${supplierOrder.subtotal.toFixed(2)}</p>
+                                            <p style="margin: 5px 0;"><strong>Order Date:</strong> ${new Date(supplierOrder.order_date).toLocaleDateString()}</p>
+                                        </div>
+                                        <div>
+                                            ${supplierOrder.status === 'accepted' ? `
+                                                <p style="margin: 5px 0;"><strong>Accepted:</strong> ${new Date(supplierOrder.accepted_at).toLocaleDateString()}</p>
+                                                <p style="margin: 5px 0;"><strong>Est. Delivery:</strong> ${supplierOrder.estimated_delivery || 'Not specified'}</p>
+                                                ${supplierOrder.acceptance_notes ? `<p style="margin: 5px 0;"><strong>Notes:</strong> ${supplierOrder.acceptance_notes}</p>` : ''}
+                                            ` : ''}
+                                            ${supplierOrder.status === 'rejected' ? `
+                                                <p style="margin: 5px 0;"><strong>Rejected:</strong> ${new Date(supplierOrder.rejected_at).toLocaleDateString()}</p>
+                                                <p style="margin: 5px 0;"><strong>Reason:</strong> ${supplierOrder.rejection_reason}</p>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                    ${supplierOrder.status === 'pending' ? `
+                                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 10px; margin-top: 10px;">
+                                            <p style="margin: 0; color: #856404;"><i class="fas fa-clock"></i> Waiting for supplier to accept/reject this order</p>
+                                        </div>
+                                    ` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -2319,9 +2400,49 @@
                             </div>
                         </div>
 
-                        <!-- Order Timeline -->
+                        <!-- Order Flow & Timeline -->
                         <div class="detail-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                            <h3><i class="fas fa-clock"></i> Order Timeline</h3>
+                            <h3><i class="fas fa-project-diagram"></i> Order Flow & Timeline</h3>
+                            
+                            <!-- Order Flow Diagram -->
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <div style="text-align: center; flex: 1;">
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: #28a745; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">1</div>
+                                        <div style="font-size: 12px; color: #666;">Order Placed</div>
+                                    </div>
+                                    <div style="flex: 1; height: 2px; background: #dee2e6; position: relative;">
+                                        <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
+                                    </div>
+                                    <div style="text-align: center; flex: 1;">
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'pending' ? '#ffc107' : '#28a745'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">2</div>
+                                        <div style="font-size: 12px; color: #666;">Supplier Acceptance</div>
+                                    </div>
+                                    <div style="flex: 1; height: 2px; background: #dee2e6; position: relative;">
+                                        <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
+                                    </div>
+                                    <div style="text-align: center; flex: 1;">
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'confirmed' || order.status === 'processing' || order.status === 'shipped' || order.status === 'completed' ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">3</div>
+                                        <div style="font-size: 12px; color: #666;">Processing</div>
+                                    </div>
+                                    <div style="flex: 1; height: 2px; background: #dee2e6; position: relative;">
+                                        <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
+                                    </div>
+                                    <div style="text-align: center; flex: 1;">
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'shipped' || order.status === 'completed' ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">4</div>
+                                        <div style="font-size: 12px; color: #666;">Shipped</div>
+                                    </div>
+                                    <div style="flex: 1; height: 2px; background: #dee2e6; position: relative;">
+                                        <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%);">→</div>
+                                    </div>
+                                    <div style="text-align: center; flex: 1;">
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: ${order.status === 'completed' ? '#28a745' : '#dee2e6'}; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">5</div>
+                                        <div style="font-size: 12px; color: #666;">Delivered</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Detailed Timeline -->
                             <div style="position: relative; padding-left: 30px;">
                                 <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #667eea;"></div>
                                 <div style="position: relative; margin-bottom: 20px;">
@@ -2331,12 +2452,30 @@
                                         <small style="color: #666;">${new Date(order.order_date).toLocaleString()}</small>
                                     </div>
                                 </div>
-                                ${order.status !== 'pending' ? `
+                                ${order.status === 'confirmed' ? `
                                 <div style="position: relative; margin-bottom: 20px;">
                                     <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
                                     <div>
-                                        <strong>Order Confirmed</strong><br>
-                                        <small style="color: #666;">Processing started</small>
+                                        <strong>All Suppliers Accepted</strong><br>
+                                        <small style="color: #666;">${order.confirmed_at ? new Date(order.confirmed_at).toLocaleString() : 'Order confirmed'}</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${order.status === 'processing' ? `
+                                <div style="position: relative; margin-bottom: 20px;">
+                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
+                                    <div>
+                                        <strong>Order Processing</strong><br>
+                                        <small style="color: #666;">Items being prepared</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${order.status === 'shipped' ? `
+                                <div style="position: relative; margin-bottom: 20px;">
+                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #28a745; border-radius: 50%;"></div>
+                                    <div>
+                                        <strong>Order Shipped</strong><br>
+                                        <small style="color: #666;">Items dispatched</small>
                                     </div>
                                 </div>
                                 ` : ''}
@@ -2346,6 +2485,15 @@
                                     <div>
                                         <strong>Order Completed</strong><br>
                                         <small style="color: #666;">Successfully delivered</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${order.status === 'cancelled' ? `
+                                <div style="position: relative; margin-bottom: 20px;">
+                                    <div style="position: absolute; left: -34px; top: 0; width: 10px; height: 10px; background: #dc3545; border-radius: 50%;"></div>
+                                    <div>
+                                        <strong>Order Cancelled</strong><br>
+                                        <small style="color: #666;">One or more suppliers rejected the order</small>
                                     </div>
                                 </div>
                                 ` : ''}
@@ -2406,6 +2554,13 @@
             const deliveryDateInput = document.getElementById('delivery-date');
             if (deliveryDateInput) {
                 deliveryDateInput.min = today;
+            }
+            
+            // For testing: Set a default user ID if none exists
+            if (!localStorage.getItem('user_id')) {
+                localStorage.setItem('user_id', 'test_vendor_123');
+                localStorage.setItem('user_type', 'vendor');
+                console.log('Set default test user ID for testing');
             }
             
             console.log('Dashboard initialization complete');
