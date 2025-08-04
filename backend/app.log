@@ -1,0 +1,245 @@
+2025-08-04 22:37:03,415 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-04 22:37:03,416 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 22:37:03,421 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:37:04,597 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:37:04,634 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:37:27,761 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:27] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 22:37:28,388 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:28] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:33,244 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:33] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:34,921 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:34] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:37:35,079 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:35] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:37,158 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:37] "GET /profile.html HTTP/1.1" 200 -
+2025-08-04 22:37:37,376 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:37] "GET /js/security.js HTTP/1.1" 200 -
+2025-08-04 22:37:37,457 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:37] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:46,161 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:46] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:47,181 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:47] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:37:47,358 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:47] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:49,119 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:49] "[36mGET /profile.html HTTP/1.1[0m" 304 -
+2025-08-04 22:37:49,154 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:49] "[36mGET /js/security.js HTTP/1.1[0m" 304 -
+2025-08-04 22:37:49,195 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:49] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:51,475 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:51] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:52,420 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:52] "GET /vendor-dashboard.html HTTP/1.1" 200 -
+2025-08-04 22:37:52,447 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:52] "[36mGET /images/Blue%20&%20Yellow%20Minimalist%20Fast%20Food%20Banner%20Promotion.png HTTP/1.1[0m" 304 -
+2025-08-04 22:37:52,676 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:52] "[31m[1mGET /api/profile/vendor/688654adba0d67be8c15f05c HTTP/1.1[0m" 401 -
+2025-08-04 22:37:52,693 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:52] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:58,284 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:58] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:37:59,960 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:37:59] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:38:04,023 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:04] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:38:04,190 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:04] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:38:05,818 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:05] "[36mGET /profile.html HTTP/1.1[0m" 304 -
+2025-08-04 22:38:05,848 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:05] "[36mGET /js/security.js HTTP/1.1[0m" 304 -
+2025-08-04 22:38:05,885 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:05] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:38:15,892 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:15] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:38:16,964 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:16] "[36mGET /vendor-dashboard.html HTTP/1.1[0m" 304 -
+2025-08-04 22:38:16,989 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:16] "[36mGET /images/Blue%20&%20Yellow%20Minimalist%20Fast%20Food%20Banner%20Promotion.png HTTP/1.1[0m" 304 -
+2025-08-04 22:38:17,006 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:17] "[31m[1mGET /api/profile/vendor/688654adba0d67be8c15f05c HTTP/1.1[0m" 401 -
+2025-08-04 22:38:17,038 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:17] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:38:20,359 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:20] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:38:23,033 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:23] "[35m[1mGET /api/suppliers HTTP/1.1[0m" 500 -
+2025-08-04 22:38:53,403 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:38:53] "[35m[1mGET /api/suppliers HTTP/1.1[0m" 500 -
+2025-08-04 22:39:04,548 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:04] "[36mGET /vendor-dashboard.html HTTP/1.1[0m" 304 -
+2025-08-04 22:39:04,569 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:04] "[36mGET /images/Blue%20&%20Yellow%20Minimalist%20Fast%20Food%20Banner%20Promotion.png HTTP/1.1[0m" 304 -
+2025-08-04 22:39:04,584 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:04] "[31m[1mGET /api/profile/vendor/688654adba0d67be8c15f05c HTTP/1.1[0m" 401 -
+2025-08-04 22:39:04,622 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:04] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:39:08,038 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:08] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:39:10,644 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:10] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:39:10,864 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:10] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:39:12,076 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:12] "[36mGET /profile.html HTTP/1.1[0m" 304 -
+2025-08-04 22:39:12,103 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:12] "[36mGET /js/security.js HTTP/1.1[0m" 304 -
+2025-08-04 22:39:12,140 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:12] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:39:14,074 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:14] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:39:34,997 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:34] "[35m[1mGET /api/suppliers HTTP/1.1[0m" 500 -
+2025-08-04 22:39:54,143 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:54] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:39:54,359 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:54] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:39:56,745 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:56] "GET /vendor-dashboard.html HTTP/1.1" 200 -
+2025-08-04 22:39:56,771 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:56] "[36mGET /images/Blue%20&%20Yellow%20Minimalist%20Fast%20Food%20Banner%20Promotion.png HTTP/1.1[0m" 304 -
+2025-08-04 22:39:56,797 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:56] "[31m[1mGET /api/profile/vendor/688654adba0d67be8c15f05c HTTP/1.1[0m" 401 -
+2025-08-04 22:39:56,948 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:39:56] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:40:19,593 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:40:19] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:40:27,156 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:40:27] "[35m[1mGET /api/suppliers HTTP/1.1[0m" 500 -
+2025-08-04 22:49:23,252 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-04 22:49:23,253 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 22:49:23,256 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:49:23,867 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:49:23,877 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:49:30,663 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:30] "GET / HTTP/1.1" 200 -
+2025-08-04 22:49:31,205 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:31] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:49:35,012 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:35] "[36mGET /profile.html HTTP/1.1[0m" 304 -
+2025-08-04 22:49:35,059 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:35] "[36mGET /js/security.js HTTP/1.1[0m" 304 -
+2025-08-04 22:49:35,097 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:35] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:49:39,746 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:39] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:49:42,055 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:42] "GET /index.html HTTP/1.1" 200 -
+2025-08-04 22:49:42,248 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:42] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:49:43,164 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:43] "[36mGET /profile.html HTTP/1.1[0m" 304 -
+2025-08-04 22:49:43,189 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:43] "[36mGET /js/security.js HTTP/1.1[0m" 304 -
+2025-08-04 22:49:43,217 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:43] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:49:45,429 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:45] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:49:46,466 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:46] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:49:46,638 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:46] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:49:47,574 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:47] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:49:47,726 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:49:47] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:52:54,428 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:52:54] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:52:54,829 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:52:54] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:05,423 - werkzeug - INFO -  * Detected change in 'C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py', reloading
+2025-08-04 22:54:05,809 - werkzeug - INFO -  * Detected change in 'C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py', reloading
+2025-08-04 22:54:05,823 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:54:06,258 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:54:07,498 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:54:07,505 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:54:07,694 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:54:07,698 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:54:27,408 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:27] "GET /login.html HTTP/1.1" 200 -
+2025-08-04 22:54:27,678 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:27] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:33,737 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:33] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:54:33,938 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:33] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:34,818 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:34] "GET /index.html HTTP/1.1" 200 -
+2025-08-04 22:54:34,986 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:34] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:36,433 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:36] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:37,732 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:37] "GET /index.html HTTP/1.1" 200 -
+2025-08-04 22:54:37,899 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:37] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:38,956 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:38] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:54:39,128 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:39] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:39,914 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:39] "GET /signup.html HTTP/1.1" 200 -
+2025-08-04 22:54:40,085 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:40] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:40,373 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:40] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:54:40,538 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:40] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:41,033 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:41] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:54:41,208 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:41] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:41,813 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:41] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:43,353 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:43] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:54:43,495 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:43] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:54:43,904 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:43] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:54:44,092 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:54:44] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:55:43,073 - werkzeug - INFO -  * Detected change in 'C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py', reloading
+2025-08-04 22:55:43,256 - werkzeug - INFO -  * Detected change in 'C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py', reloading
+2025-08-04 22:55:43,734 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:55:43,857 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:55:44,826 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:55:44,834 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:55:44,879 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:55:44,886 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:57:06,909 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-04 22:57:06,910 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 22:57:06,915 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:57:07,665 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:57:07,670 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:57:11,837 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:11] "GET / HTTP/1.1" 200 -
+2025-08-04 22:57:12,480 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:12] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:15,660 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:15] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:17,903 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:17] "GET /index.html HTTP/1.1" 200 -
+2025-08-04 22:57:18,070 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:18] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:19,012 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:19] "GET /login.html HTTP/1.1" 200 -
+2025-08-04 22:57:19,210 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:19] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:20,112 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:20] "GET /signup.html HTTP/1.1" 200 -
+2025-08-04 22:57:20,296 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:20] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:21,581 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:21] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:21,767 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:21] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:22,550 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:22] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:22,747 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:22] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:23,703 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:23] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:23,873 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:23] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:26,108 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:26] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:26,290 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:26] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:26,885 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:26] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:27,061 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:27] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:27,788 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:27] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:29,753 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:29] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:29,912 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:29] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:30,440 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:30] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:30,602 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:30] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:31,289 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:31] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:31,468 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:31] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:34,628 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:34] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:34,824 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:34] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:36,041 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:36] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:36,938 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:36] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:37,077 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:37] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:37,782 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:37] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:37,950 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:37] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:39,848 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:39] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:40,018 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:40] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:44,003 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:44] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:45,905 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:45] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:46,092 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:46] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:57:46,919 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:46] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:57:47,141 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:57:47] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:58:17,798 - werkzeug - INFO -  * Detected change in 'C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py', reloading
+2025-08-04 22:58:18,188 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:58:18,227 - werkzeug - INFO -  * Detected change in 'C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py', reloading
+2025-08-04 22:58:18,772 - werkzeug - INFO -  * Detected change in 'C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py', reloading
+2025-08-04 22:58:18,843 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:58:18,997 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:58:19,001 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:58:19,201 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:58:19,495 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:58:19,499 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:58:19,873 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:58:19,878 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:59:02,073 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-04 22:59:02,074 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 22:59:02,079 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 22:59:02,825 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 22:59:02,829 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 22:59:05,603 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:05] "GET / HTTP/1.1" 200 -
+2025-08-04 22:59:06,111 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:06] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:07,541 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:07] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:07,805 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:07] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:08,651 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:08] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:08,883 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:08] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:09,556 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:09] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:09,713 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:09] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:10,834 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:10] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:11,005 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:11] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:11,178 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:11] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:11,188 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:11] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:11,461 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:11] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:11,817 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:11] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:12,032 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:12] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:12,196 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:12] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:12,675 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:12] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:12,950 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:12] "GET /index.html HTTP/1.1" 200 -
+2025-08-04 22:59:13,158 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:13] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:13,774 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:13] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:13,949 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:13] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:14,573 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:14] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:15,409 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:15] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:19,212 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:19] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:19,622 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:19] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 22:59:21,370 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:21] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 22:59:21,776 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:59:21] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:01:52,219 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:01:52] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 23:01:52,762 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:01:52] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:02:01,529 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:01] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:02:01,761 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:01] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:02:02,285 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:02] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:02:02,511 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:02] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:02:03,488 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:03] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:02:03,697 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:03] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:02:05,911 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:05] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 23:02:06,214 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:02:06] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:22,907 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:22] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:23,937 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:23] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:25,271 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:25] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:25,709 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:25] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:26,783 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:26] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:27,315 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:27] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:28,634 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:28] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:28,923 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:28] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:29,657 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:29] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:29,987 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:29] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:31,026 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:31] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:31,692 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:31] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:33,976 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:33] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:35,137 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:35] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:36,566 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:36] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:37,048 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:37] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:39,020 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:39] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:39,371 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:39] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:44,202 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:44] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:44,352 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:44] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:07:46,498 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:46] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:07:46,774 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:46] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -

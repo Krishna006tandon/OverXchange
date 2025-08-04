@@ -4,325 +4,540 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup - OverXchange</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="modern-styles.css">
     <style>
-        body { font-family: 'Montserrat', Arial, sans-serif; background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%); margin: 0; padding: 0; min-height: 100vh; position: relative; }
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url('https://www.transparenttextures.com/patterns/cubes.png') repeat;
-            opacity: 0.08;
-            z-index: 0;
-        }
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
-            box-shadow: 0 8px 32px 0 rgba(99,102,241,0.18);
-            border-radius: 0 0 22px 22px;
-            backdrop-filter: blur(12px);
-            border-bottom: 2px solid #a5b4fc44;
-            padding: 0;
-            transition: box-shadow 0.2s;
-        }
-        .navbar-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            height: 72px;
-            padding: 0 28px;
-        }
-        .navbar-logo {
-            display: flex;
-            align-items: center;
-            color: #fff;
-            font-size: 1.7em;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-decoration: none;
-            margin-right: 38px;
-            gap: 12px;
-        }
-        .navbar-logo-icon {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px #6366f133;
-        }
-        .navbar-logo-icon svg {
-            width: 22px;
-            height: 22px;
-            fill: #fff;
-        }
-        .navbar-links {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.13em;
-            margin-right: 8px;
-            font-weight: 500;
-            padding: 10px 22px;
-            border-radius: 10px;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s;
-        }
-        .navbar a:hover {
-            background: #fff3;
-            color: #3730a3;
-            box-shadow: 0 2px 8px #6366f133;
-            transform: translateY(-2px) scale(1.04);
-        }
-        .navbar .signup-btn {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-            font-weight: 800;
-            font-size: 1.18em;
-            margin-right: 0;
-            box-shadow: 0 4px 16px #6366f144;
-            border: none;
-            border-radius: 14px;
-            padding: 12px 32px;
-            letter-spacing: 0.5px;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s;
-        }
-        .navbar .signup-btn:hover {
-            background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
-            color: #fff;
-            box-shadow: 0 6px 24px #6366f155;
-            transform: translateY(-3px) scale(1.07);
-        }
+        /* Signup Page Specific Styles */
         .signup-container {
-            max-width: 520px;
-            margin: 70px auto 0 auto;
-            background: rgba(255,255,255,0.98);
-            border-radius: 22px;
-            box-shadow: 0 8px 32px #6366f122, 0 1.5px 0 #a5b4fc44;
-            padding: 44px 32px 32px 32px;
-            text-align: center;
-            border: 2.5px solid #a5b4fc44;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
             position: relative;
-            animation: fadeIn 0.7s cubic-bezier(.39,.575,.56,1.000);
         }
-        .signup-avatar {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+
+        .signup-card {
+            background: var(--card-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-xl);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-medium);
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--secondary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .signup-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .signup-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--secondary-gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 18px auto;
-            box-shadow: 0 2px 8px #6366f133;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: var(--white);
+            box-shadow: var(--shadow-pink);
         }
-        .signup-avatar svg {
-            width: 36px;
-            height: 36px;
-            fill: #fff;
+
+        .signup-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .signup-container h2 { color: #3730a3; margin-bottom: 18px; font-size: 2em; font-weight: 800; letter-spacing: 0.5px; }
-        .signup-container form { display: flex; flex-direction: column; gap: 16px; }
-        .signup-container input, .signup-container select {
-            padding: 14px;
-            border-radius: 10px;
-            border: 1.5px solid #c7d2fe;
-            font-size: 1.08em;
-            background: #f3f4f6;
-            transition: border 0.2s, box-shadow 0.2s;
+
+        .signup-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
         }
-        .signup-container input:focus, .signup-container select:focus {
-            border: 1.5px solid #6366f1;
-            box-shadow: 0 2px 8px #6366f122;
+
+        .user-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .user-type-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: var(--glass-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            transform-style: preserve-3d;
+            text-align: center;
+        }
+
+        .user-type-btn.active {
+            background: var(--secondary-gradient);
+            color: var(--white);
+            border-color: var(--pink);
+            box-shadow: var(--shadow-pink);
+            transform: translateY(-2px);
+        }
+
+        .user-type-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            z-index: 2;
+        }
+
+        .input-3d {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: var(--glass-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            color: var(--text-primary);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+        }
+
+        .input-3d:focus {
             outline: none;
+            border-color: var(--pink);
+            box-shadow: var(--shadow-pink);
+            transform: translateY(-2px);
         }
-        .signup-container button {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
+
+        .input-3d:focus + .input-icon {
+            color: var(--pink);
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-gradient);
+            color: var(--white);
             border: none;
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 1.13em;
+            border-radius: var(--border-radius);
+            font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 4px 16px #6366f144;
-            transition: background 0.2s, transform 0.18s;
+            transition: var(--transition);
+            transform-style: preserve-3d;
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
         }
-        .signup-container button:hover {
-            background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
-            transform: translateY(-2px) scale(1.04);
+
+        .signup-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
-        .signup-links { margin-top: 18px; font-size: 1em; }
-        .signup-links a { color: #6366f1; text-decoration: none; margin: 0 8px; font-weight: 600; }
-        .signup-links a:hover { text-decoration: underline; }
-        .role-toggle { display: flex; justify-content: center; gap: 16px; margin-bottom: 18px; }
-        .role-toggle button {
-            background: #e0e7ff;
-            color: #3730a3;
-            border: none;
-            border-radius: 999px;
-            padding: 10px 32px;
-            font-size: 1.08em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+
+        .signup-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-medium);
         }
-        .role-toggle button.active, .role-toggle button:hover {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
+
+        .signup-btn:hover::before {
+            left: 100%;
         }
-        .message { margin-top: 18px; font-size: 1.1em; font-weight: 500; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: none; }
+
+        .signup-btn:active {
+            transform: translateY(-2px) scale(1.01);
         }
-        @media (max-width: 700px) { .signup-container { padding: 18px 4px 18px 4px; } }
+
+        .signup-footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .signup-footer a {
+            color: var(--pink);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .signup-footer a:hover {
+            color: var(--dark-blue);
+            text-decoration: underline;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            background: var(--glass-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+        }
+
+        .back-home:hover {
+            background: var(--secondary-gradient);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-pink);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #dc2626;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #059669;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .signup-card {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .signup-title {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-type-selector {
+                flex-direction: column;
+            }
+            
+            .back-home {
+                top: 20px;
+                left: 20px;
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="index.html" class="navbar-logo">
-                <span class="navbar-logo-icon">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 13l3 3 7-7" stroke="#fff" stroke-width="2" fill="none"/></svg>
-                </span>
-                OverXchange
-            </a>
-            <div class="navbar-links">
-                <a href="index.html">Home</a>
-                <a href="login.html">Login</a>
-                <a href="signup.html" class="signup-btn">Signup</a>
-            </div>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
         </div>
-    </nav>
-    <div class="signup-container">
-        <div class="signup-avatar">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4.5"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/></svg>
-        </div>
-        <h2>Signup</h2>
-        <div class="role-toggle">
-            <button id="vendorBtn" class="active" type="button">Vendor</button>
-            <button id="supplierBtn" type="button">Supplier</button>
-        </div>
-        <form id="signupForm">
-            <div id="vendorFields">
-                <input type="text" name="business_name" placeholder="Business Name" required>
-                <div style="text-align:left; font-weight:700; color:#3730a3; margin-bottom:6px;">Vendor Type: Food & Beverage</div>
-                <input type="text" name="food_beverage_details" placeholder="Food & Beverage Details" required>
-                <input type="text" name="business_address" placeholder="Business Address" required>
-                <input type="text" name="pincode" placeholder="Pincode" required>
-                <input type="tel" name="phone" placeholder="Phone" required>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <input type="text" name="gstin" placeholder="GSTIN (Optional)">
-                <input type="text" name="preferred_categories" placeholder="Preferred Product Categories" required>
-                <input type="text" name="invite_code" placeholder="Invite Code (Optional)">
-            </div>
-            <div id="supplierFields" style="display:none;">
-                <input type="text" name="business_name" placeholder="Business Name" required>
-                <input type="file" name="business_logo" accept="image/*" style="padding:8px;">
-                <input type="text" name="product_categories" placeholder="Product Categories Supplied" required>
-                <input type="text" name="warehouse_address" placeholder="Warehouse Address" required>
-                <input type="tel" name="phone" placeholder="Phone" required>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <input type="text" name="gstin" placeholder="GSTIN (Mandatory)" required>
-                <input type="text" name="business_proof" placeholder="Business Proof (Mandatory)" required>
-                <input type="number" name="moq" placeholder="Minimum Order Quantity (MOQ)" required>
-                <input type="text" name="logistics_options" placeholder="Available Logistics Options" required>
-            </div>
-            <button type="submit">Sign Up</button>
-        </form>
-        <div class="signup-links">
-            Already have an account? <a href="login.html">Login</a>
-        </div>
-        <div class="message" id="message"></div>
     </div>
+
+    <!-- Back to Home -->
+    <a href="index.html" class="back-home">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+
+    <!-- Signup Container -->
+    <div class="signup-container">
+        <div class="signup-card">
+            <div class="signup-header">
+                <div class="signup-logo">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h1 class="signup-title">Join OverXchange</h1>
+                <p class="signup-subtitle">Create your account and start your journey</p>
+            </div>
+
+            <div class="error-message" id="error-message"></div>
+            <div class="success-message" id="success-message"></div>
+
+            <!-- User Type Selector -->
+            <div class="user-type-selector">
+                <button class="user-type-btn active" data-type="vendor">
+                    <i class="fas fa-store"></i> Vendor
+                </button>
+                <button class="user-type-btn" data-type="supplier">
+                    <i class="fas fa-truck"></i> Supplier
+                </button>
+            </div>
+
+            <form id="signup-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="first-name">First Name</label>
+                        <div class="input-group">
+                            <input type="text" id="first-name" name="first_name" class="input-3d" placeholder="Enter first name" required>
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="last-name">Last Name</label>
+                        <div class="input-group">
+                            <input type="text" id="last-name" name="last_name" class="input-3d" placeholder="Enter last name" required>
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <div class="input-group">
+                        <input type="email" id="email" name="email" class="input-3d" placeholder="Enter your email" required>
+                        <i class="fas fa-envelope input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <div class="input-group">
+                        <input type="tel" id="phone" name="phone" class="input-3d" placeholder="Enter phone number" required>
+                        <i class="fas fa-phone input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="input-3d" placeholder="Create a password" required>
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+                </div>
+
+            <div class="form-group">
+                    <label class="form-label" for="confirm-password">Confirm Password</label>
+                    <div class="input-group">
+                        <input type="password" id="confirm-password" name="confirm_password" class="input-3d" placeholder="Confirm your password" required>
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+            </div>
+
+            <div class="form-group">
+                    <label class="form-label" for="address">Address</label>
+                    <div class="input-group">
+                        <input type="text" id="address" name="address" class="input-3d" placeholder="Enter your address" required>
+                        <i class="fas fa-map-marker-alt input-icon"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="signup-btn">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+
+            <div class="signup-footer">
+                <p>Already have an account? <a href="login.html">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <div class="icon-container">
+            <i class="fas fa-sun sun-icon"></i>
+            <i class="fas fa-moon moon-icon"></i>
+        </div>
+        <div class="symbol-label">☀️ Light Mode</div>
+        <div class="mode-indicator">🌙 Dark Mode</div>
+    </button>
+
     <script>
-        const vendorBtn = document.getElementById('vendorBtn');
-        const supplierBtn = document.getElementById('supplierBtn');
-        const vendorFields = document.getElementById('vendorFields');
-        const supplierFields = document.getElementById('supplierFields');
-        const signupForm = document.getElementById('signupForm');
-        const messageDiv = document.getElementById('message');
-        let currentRole = 'vendor';
-
-        // Mark original required fields
-        document.querySelectorAll('#vendorFields [required], #supplierFields [required]').forEach(input => {
-            input.setAttribute('data-original-required', 'true');
-        });
-        function setRequiredFields(visibleFields, hiddenFields) {
-            // Remove required from all hidden fields
-            hiddenFields.querySelectorAll('[required]').forEach(input => input.required = false);
-            // Add required to all visible fields
-            visibleFields.querySelectorAll('input,select,textarea').forEach(input => {
-                if (input.hasAttribute('data-original-required')) input.required = true;
-            });
-        }
-        vendorBtn.onclick = () => {
-            currentRole = 'vendor';
-            vendorBtn.classList.add('active');
-            supplierBtn.classList.remove('active');
-            vendorFields.style.display = '';
-            supplierFields.style.display = 'none';
-            setRequiredFields(vendorFields, supplierFields);
-        };
-        supplierBtn.onclick = () => {
-            currentRole = 'supplier';
-            supplierBtn.classList.add('active');
-            vendorBtn.classList.remove('active');
-            vendorFields.style.display = 'none';
-            supplierFields.style.display = '';
-            setRequiredFields(supplierFields, vendorFields);
-        };
-        // On page load, set required fields correctly
-        setRequiredFields(vendorFields, supplierFields);
-
-        signupForm.onsubmit = async (e) => {
-            e.preventDefault();
-            messageDiv.textContent = 'Submitting...';
-            let url = currentRole === 'vendor'
-                ? 'http://localhost:5000/api/signup/vendor'
-                : 'http://localhost:5000/api/signup/supplier';
-            // Only get fields from the visible section
-            let visibleFields = currentRole === 'vendor' ? vendorFields : supplierFields;
-            let inputs = visibleFields.querySelectorAll('input,select,textarea');
-            let data = {};
-            inputs.forEach(input => {
-                if (!input.name) return;
-                if (input.type === 'file') {
-                    if (input.files && input.files.length > 0) data[input.name] = input.files[0].name;
-                } else {
-                    if (input.value !== "") data[input.name] = input.value;
-                }
-            });
-            try {
-                let res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                let result = await res.json();
-                if (result.success) {
-                    messageDiv.style.color = '#16a34a';
-                    messageDiv.textContent = result.message;
-                } else {
-                    messageDiv.style.color = '#dc2626';
-                    messageDiv.textContent = result.message || 'Signup failed.';
-                }
-            } catch (err) {
-                messageDiv.style.color = '#dc2626';
-                messageDiv.textContent = 'Network error.';
+        // Enhanced Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const sunIcon = document.querySelector('.theme-toggle .sun-icon');
+            const moonIcon = document.querySelector('.theme-toggle .moon-icon');
+            const symbolLabel = document.querySelector('.theme-toggle .symbol-label');
+            const modeIndicator = document.querySelector('.theme-toggle .mode-indicator');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                // Add toggle animation
+                sunIcon.style.transform = 'rotateY(0deg) scale(1)';
+                moonIcon.style.transform = 'rotateY(-90deg) scale(0.8)';
+                sunIcon.style.opacity = '1';
+                moonIcon.style.opacity = '0';
+                // Update labels
+                symbolLabel.textContent = '☀️ Light Mode';
+                modeIndicator.textContent = '🌙 Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                // Add toggle animation
+                sunIcon.style.transform = 'rotateY(90deg) scale(0.8)';
+                moonIcon.style.transform = 'rotateY(0deg) scale(1)';
+                sunIcon.style.opacity = '0';
+                moonIcon.style.opacity = '1';
+                // Update labels
+                symbolLabel.textContent = '🌙 Dark Mode';
+                modeIndicator.textContent = '☀️ Light Mode';
             }
-        };
+        }
+
+        // User Type Selector
+        const userTypeBtns = document.querySelectorAll('.user-type-btn');
+        let selectedUserType = 'vendor';
+
+        userTypeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                userTypeBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedUserType = this.dataset.type;
+            });
+        });
+
+        // Signup Form Handling
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const userData = {
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                password: formData.get('password'),
+                confirm_password: formData.get('confirm_password'),
+                address: formData.get('address'),
+                user_type: selectedUserType
+            };
+            
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Validate passwords match
+            if (userData.password !== userData.confirm_password) {
+                errorMessage.textContent = 'Passwords do not match';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5000/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successMessage.textContent = 'Account created successfully! Redirecting to login...';
+                    successMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+        } else {
+                    errorMessage.textContent = data.error || 'Signup failed. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Network error. Please check your connection.';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // Input focus effects
+        document.querySelectorAll('.input-3d').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
     </script>
 </body>
 </html> 

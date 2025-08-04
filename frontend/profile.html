@@ -4,184 +4,644 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - OverXchange</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Montserrat', Arial, sans-serif;
-            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a5568;
+            --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.37);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --border-radius: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glass-bg: rgba(0, 0, 0, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Montserrat', sans-serif;
+            background: var(--primary-gradient);
             min-height: 100vh;
-        }
-        .profile-container {
-            max-width: 700px;
-            margin: 60px auto 0 auto;
-            background: rgba(255,255,255,0.98);
-            border-radius: 32px;
-            box-shadow: 0 12px 48px #6366f144, 0 2px 0 #a5b4fc44;
-            padding: 56px 48px 40px 48px;
-            text-align: center;
-            border: 2.5px solid #a5b4fc44;
+            overflow-x: hidden;
             position: relative;
-            animation: fadeIn 0.7s cubic-bezier(.39,.575,.56,1.000);
+            transition: var(--transition);
         }
+
+        /* Animated Background Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-light);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-5px) rotateY(10deg);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .theme-toggle i {
+            font-size: 24px;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .theme-toggle .sun-icon {
+            display: none;
+        }
+
+        .theme-toggle .moon-icon {
+            display: block;
+        }
+
+        [data-theme="dark"] .theme-toggle .sun-icon {
+            display: block;
+        }
+
+        [data-theme="dark"] .theme-toggle .moon-icon {
+            display: none;
+        }
+
+        /* Main Container */
+        .profile-container {
+            max-width: 900px;
+            margin: 80px auto 40px auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            border: 2px solid var(--glass-border);
+            padding: 60px 50px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-heavy);
+            animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Profile Header */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
         .profile-avatar {
-            width: 110px;
-            height: 110px;
-            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 30px auto;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: avatarFloat 4s ease-in-out infinite;
+        }
+
+        .profile-avatar::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            z-index: -1;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .avatar-inner {
+            width: 100%;
+            height: 100%;
+            background: var(--secondary-gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 18px auto;
-            box-shadow: 0 2px 12px #6366f133;
-            border: 5px solid #fff;
+            border: 5px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-inner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            animation: avatarShine 3s ease-in-out infinite;
+        }
+
+        @keyframes avatarFloat {
+            0%, 100% { transform: translateY(0px) rotateY(0deg); }
+            50% { transform: translateY(-10px) rotateY(5deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes avatarShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .avatar-inner svg {
+            width: 80px;
+            height: 80px;
+            fill: white;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .profile-title {
+            font-size: 3.5em;
+            font-weight: 900;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 10px rgba(79, 172, 254, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(79, 172, 254, 0.8)); }
+        }
+
+        .profile-role {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             position: relative;
         }
-        .profile-avatar svg {
-            width: 70px;
-            height: 70px;
-            fill: #fff;
+
+        .profile-role::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
         }
-        .profile-title {
-            color: #3730a3;
-            margin-bottom: 8px;
-            font-size: 2.3em;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-        }
-        .profile-role {
-            color: #6366f1;
-            font-size: 1.18em;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
+
+        /* Form Styling */
         .profile-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            margin-top: 18px;
+            position: relative;
         }
+
         #profile-fields {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px 36px;
-            margin-bottom: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
         }
-        @media (max-width: 900px) {
-            .profile-container { padding: 24px 2vw 24px 2vw; }
-            #profile-fields { grid-template-columns: 1fr; gap: 24px 0; }
-        }
+
         .profile-field-box {
-            background: #f3f4f6;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px #6366f122;
-            padding: 22px 24px 16px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            transition: box-shadow 0.18s;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
         }
+
+        .profile-field-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.05) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: var(--transition);
+        }
+
+        .profile-field-box:hover::before {
+            transform: translateX(100%);
+        }
+
+        .profile-field-box:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+        }
+
         .profile-field-box:focus-within {
-            box-shadow: 0 4px 24px #6366f144;
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
         }
+
         .profile-form label {
-            font-weight: 700;
-            color: #3730a3;
-            text-align: left;
-            margin-bottom: 8px;
-            font-size: 1.08em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            display: block;
+            position: relative;
         }
-        .profile-form input, .profile-form textarea {
+
+        .profile-form label::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+
+        .profile-form input,
+        .profile-form textarea {
             width: 100%;
-            padding: 14px 14px;
-            border-radius: 10px;
-            border: 1.5px solid #c7d2fe;
-            font-size: 1.13em;
-            background: #fff;
-            transition: border 0.2s, box-shadow 0.2s;
-            resize: none;
-            margin-bottom: 0;
+            padding: 16px 20px;
+            border-radius: 15px;
+            border: 2px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1.1em;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
         }
-        .profile-form input:focus, .profile-form textarea:focus {
-            border: 1.5px solid #6366f1;
-            box-shadow: 0 2px 8px #6366f122;
+
+        .profile-form input:focus,
+        .profile-form textarea:focus {
             outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
+            transform: scale(1.02);
         }
-        .profile-form img {
-            max-width: 180px;
-            max-height: 120px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px #6366f122;
-            margin-bottom: 8px;
-        }
-        .profile-btns {
-            display: flex;
-            gap: 18px;
-            justify-content: center;
-            margin-top: 18px;
-        }
-        .btn {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            padding: 15px 38px;
-            font-size: 1.18em;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 16px #6366f144;
-            transition: background 0.2s, transform 0.18s;
-        }
-        .btn[disabled] {
-            background: #a5b4fc;
+
+        .profile-form input:disabled,
+        .profile-form textarea:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
         }
-        .btn:hover:not([disabled]) {
-            background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
-            transform: translateY(-2px) scale(1.04);
+
+        .profile-form img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-light);
+            margin-top: 10px;
         }
+
+        /* Buttons */
+        .profile-btns {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transform-style: preserve-3d;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: var(--transition);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 8px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(79, 172, 254, 0.6);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            color: white;
+            box-shadow: 0 8px 30px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(240, 147, 251, 0.6);
+        }
+
+        .btn[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Message */
         #profile-message {
-            color: green;
-            margin-top: 18px;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px 25px;
+            border-radius: 15px;
             font-weight: 600;
-            min-height: 24px;
             font-size: 1.1em;
+            min-height: 30px;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: none; }
+
+        #profile-message.success {
+            background: rgba(72, 187, 120, 0.2);
+            color: #48bb78;
+            border: 1px solid rgba(72, 187, 120, 0.3);
+        }
+
+        #profile-message.error {
+            background: rgba(245, 101, 101, 0.2);
+            color: #f56565;
+            border: 1px solid rgba(245, 101, 101, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 60px 20px 20px 20px;
+                padding: 40px 30px;
+            }
+
+            .profile-title {
+                font-size: 2.5em;
+            }
+
+            #profile-fields {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .profile-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .theme-toggle {
+                top: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+    <!-- Animated Background Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 3D Theme Toggle Button -->
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-sun sun-icon"></i>
+        <i class="fas fa-moon moon-icon"></i>
+    </div>
+
     <div class="profile-container">
+        <div class="profile-header">
         <div class="profile-avatar">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="6.5"/><path d="M4 22c0-4.5 4.5-8 8-8s8 3.5 8 8"/></svg>
+                <div class="avatar-inner">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="8.5" r="6.5"/>
+                        <path d="M4 22c0-4.5 4.5-8 8-8s8 3.5 8 8"/>
+                    </svg>
+                </div>
         </div>
         <div class="profile-title">Your Profile</div>
         <div class="profile-role" id="profile-role"></div>
+        </div>
+
         <form id="profile-form" class="profile-form">
             <div id="profile-fields"></div>
             <div class="profile-btns">
-                <button type="button" id="edit-btn" class="btn">Edit</button>
-                <button type="submit" id="save-btn" class="btn" style="display:none;">Save</button>
+                <button type="button" id="edit-btn" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+                <button type="submit" id="save-btn" class="btn btn-secondary" style="display:none;">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
             </div>
         </form>
         <div id="profile-message"></div>
     </div>
+
     <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Check for saved theme preference or default to light
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', currentTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Add click animation
+            themeToggle.style.transform = 'scale(0.9) rotateY(180deg)';
+            setTimeout(() => {
+                themeToggle.style.transform = 'scale(1) rotateY(0deg)';
+            }, 200);
+        });
+
+        // Load security utilities
+        const script = document.createElement('script');
+        script.src = 'js/security.js';
+        document.head.appendChild(script);
+        
+        // Animated Background Particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 2;
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                const delay = Math.random() * 6;
+                
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.animationDelay = delay + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize particles
+        createParticles();
+
     // Get user_type and user_id from localStorage (set after login)
     const user_type = localStorage.getItem('user_type');
     const user_id = localStorage.getItem('user_id');
+        
     if (!user_type || !user_id) {
-        document.body.innerHTML = '<div class="profile-container"><h2>Not logged in</h2><p>Please log in to view your profile.</p></div>';
+            const safeHtml = SecurityUtils.sanitizeHTML(`
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-title">Not Logged In</div>
+                        <div class="profile-role">Please log in to view your profile</div>
+                    </div>
+                </div>
+            `);
+            document.body.innerHTML = safeHtml;
         throw new Error('Not logged in');
     }
+
     const apiUrl = `http://localhost:5000/api/profile/${user_type}/${user_id}`;
     const editableFields = ['name', 'email', 'bio', 'shop_name', 'company_name', 'business_name', 'food_beverage_details', 'business_address', 'pincode', 'phone', 'gstin', 'preferred_categories', 'product_categories', 'warehouse_address', 'business_proof', 'moq', 'logistics_options'];
+        
     const fieldLabels = {
-        name: 'Name',
-        email: 'Email',
+            name: 'Full Name',
+            email: 'Email Address',
         bio: 'Bio',
         shop_name: 'Shop Name',
         company_name: 'Company Name',
@@ -189,7 +649,7 @@
         food_beverage_details: 'Food & Beverage Details',
         business_address: 'Business Address',
         pincode: 'Pincode',
-        phone: 'Phone',
+            phone: 'Phone Number',
         gstin: 'GSTIN',
         preferred_categories: 'Preferred Product Categories',
         product_categories: 'Product Categories Supplied',
@@ -203,38 +663,91 @@
         user_id: 'User ID',
         _id: 'User ID',
     };
+
     let profileData = {};
     let isEditable = false;
+
     // Elements
     const fieldsDiv = document.getElementById('profile-fields');
     const editBtn = document.getElementById('edit-btn');
     const saveBtn = document.getElementById('save-btn');
     const messageDiv = document.getElementById('profile-message');
     const roleDiv = document.getElementById('profile-role');
-    // Render profile fields
+
+        // Render profile fields with enhanced styling
     function renderFields(data, editable) {
         fieldsDiv.innerHTML = '';
+            
         Object.entries(data).forEach(([key, value]) => {
             if (key === 'password' || key === 'user_id' || key === '_id') return;
+                
             if (key === 'user_type') {
                 roleDiv.textContent = value.charAt(0).toUpperCase() + value.slice(1);
             }
+
             let label = fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             let inputType = (key === 'bio' || key === 'food_beverage_details') ? 'textarea' : 'text';
             let isFieldEditable = editable && editableFields.includes(key);
             let fieldHtml = '';
+
             if (inputType === 'textarea') {
-                fieldHtml = `<div class="profile-field-box"><label>${label}</label><textarea name="${key}" id="profile-${key}" ${isFieldEditable ? '' : 'disabled'} rows="3">${value || ''}</textarea></div>`;
+                    fieldHtml = `
+                        <div class="profile-field-box">
+                            <label><i class="fas fa-align-left"></i> ${label}</label>
+                            <textarea name="${key}" id="profile-${key}" ${isFieldEditable ? '' : 'disabled'} rows="4">${value || ''}</textarea>
+                        </div>
+                    `;
             } else if (key === 'business_logo' && value) {
-                fieldHtml = `<div class="profile-field-box"><label>${label}</label><br><img src="${value}" alt="Business Logo"></div>`;
+                    fieldHtml = `
+                        <div class="profile-field-box">
+                            <label><i class="fas fa-image"></i> ${label}</label>
+                            <img src="${value}" alt="Business Logo">
+                        </div>
+                    `;
             } else {
-                fieldHtml = `<div class="profile-field-box"><label>${label}</label><input type="text" name="${key}" id="profile-${key}" value="${value || ''}" ${isFieldEditable ? '' : 'disabled'}></div>`;
-            }
+                    const icon = getFieldIcon(key);
+                    fieldHtml = `
+                        <div class="profile-field-box">
+                            <label><i class="${icon}"></i> ${label}</label>
+                            <input type="text" name="${key}" id="profile-${key}" value="${value || ''}" ${isFieldEditable ? '' : 'disabled'}>
+                        </div>
+                    `;
+                }
+                
             fieldsDiv.innerHTML += fieldHtml;
         });
     }
-    // Load profile
+
+        // Get appropriate icon for each field
+        function getFieldIcon(key) {
+            const iconMap = {
+                name: 'fas fa-user',
+                email: 'fas fa-envelope',
+                phone: 'fas fa-phone',
+                bio: 'fas fa-align-left',
+                shop_name: 'fas fa-store',
+                company_name: 'fas fa-building',
+                business_name: 'fas fa-briefcase',
+                business_address: 'fas fa-map-marker-alt',
+                warehouse_address: 'fas fa-warehouse',
+                pincode: 'fas fa-map-pin',
+                gstin: 'fas fa-receipt',
+                moq: 'fas fa-boxes',
+                logistics_options: 'fas fa-truck',
+                preferred_categories: 'fas fa-tags',
+                product_categories: 'fas fa-box',
+                business_proof: 'fas fa-certificate',
+                food_beverage_details: 'fas fa-utensils'
+            };
+            return iconMap[key] || 'fas fa-info-circle';
+        }
+
+        // Load profile with enhanced animations
     function loadProfile() {
+            // Show loading state
+            messageDiv.innerHTML = '<div class="loading"></div> Loading profile...';
+            messageDiv.className = '';
+
         fetch(apiUrl)
             .then(res => {
                 if (!res.ok) throw new Error('Profile not found');
@@ -245,30 +758,55 @@
                 renderFields(profileData, false);
                 setEditable(false);
                 messageDiv.textContent = '';
+                    
+                    // Add success animation
+                    messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> Profile loaded successfully!';
+                    messageDiv.className = 'success';
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        messageDiv.className = '';
+                    }, 2000);
             })
             .catch(err => {
-                messageDiv.style.color = 'red';
-                messageDiv.textContent = err.message;
+                    messageDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+                    messageDiv.className = 'error';
             });
     }
-    // Edit/Save logic
+
+        // Edit/Save logic with enhanced animations
     function setEditable(editable) {
         isEditable = editable;
         editBtn.style.display = editable ? 'none' : 'inline-block';
         saveBtn.style.display = editable ? 'inline-block' : 'none';
         renderFields(profileData, editable);
-    }
+            
+            if (editable) {
+                // Add edit animation
+                editBtn.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    editBtn.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+
     editBtn.addEventListener('click', function() {
         setEditable(true);
     });
+
     document.getElementById('profile-form').addEventListener('submit', function(e) {
         e.preventDefault();
+            
+            // Show loading state
+            saveBtn.innerHTML = '<div class="loading"></div> Saving...';
+            saveBtn.disabled = true;
+
         // Only send editable fields
         const data = {};
         editableFields.forEach(key => {
             const el = document.getElementById('profile-' + key);
             if (el) data[key] = el.value;
         });
+
         fetch(apiUrl, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -277,17 +815,41 @@
         .then(res => res.json())
         .then(resp => {
             setEditable(false);
-            messageDiv.style.color = 'green';
-            messageDiv.textContent = resp.message;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                saveBtn.disabled = false;
+                
+                messageDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${resp.message}`;
+                messageDiv.className = 'success';
+                
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                    messageDiv.className = '';
+                }, 3000);
+                
             loadProfile();
         })
         .catch(err => {
-            messageDiv.style.color = 'red';
-            messageDiv.textContent = err.message;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                saveBtn.disabled = false;
+                
+                messageDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+                messageDiv.className = 'error';
+            });
+        });
+
+        // Initialize on page load
+        loadProfile();
+
+        // Add window resize handler for particles
+        window.addEventListener('resize', () => {
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach(particle => {
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
         });
     });
-    // On page load
-    loadProfile();
     </script>
 </body>
 </html> 

@@ -1,9 +1,11 @@
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
+import os
+from config import Config
 
-# MongoDB setup
-mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')
-db = mongo_client['OverXchange']
+# MongoDB setup with environment variable
+mongo_client = MongoClient(Config.MONGODB_URI)
+db = mongo_client[Config.DATABASE_NAME]
 
 # Sample suppliers data
 sample_suppliers = [

@@ -4,1589 +4,693 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vendor Dashboard - OverXchange</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="modern-styles.css">
     <style>
-        body {
-            font-family: 'Montserrat', Arial, sans-serif;
-            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
-            margin: 0;
-            padding: 0;
+        /* Dashboard Specific Styles */
+        .dashboard-container {
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--glass-gradient);
+            backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--glass-border);
+            padding: 30px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 30px 30px;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 30px;
+        }
+
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .nav-menu {
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+            font-weight: 500;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--secondary-gradient);
+            color: var(--white);
+            transform: translateX(10px);
+            box-shadow: var(--shadow-pink);
+        }
+
+        .nav-link i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+            background: var(--primary-gradient);
             min-height: 100vh;
         }
-        
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
-            box-shadow: 0 8px 32px 0 rgba(99,102,241,0.18);
-            border-radius: 0 0 22px 22px;
-            backdrop-filter: blur(12px);
-            border-bottom: 2px solid #a5b4fc44;
-            padding: 0;
-            transition: box-shadow 0.2s;
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
-        
-        .navbar-container {
-            max-width: 1100px;
-            margin: 0 auto;
+
+        .welcome-section {
+            flex: 1;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-profile {
             display: flex;
             align-items: center;
-            height: 72px;
-            padding: 0 28px;
+            gap: 15px;
+            padding: 15px 20px;
+            background: var(--glass-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            transform-style: preserve-3d;
         }
-        
-        .navbar-logo {
-            display: flex;
-            align-items: center;
-            color: #fff;
-            font-size: 1.7em;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-decoration: none;
-            margin-right: 38px;
-            gap: 12px;
+
+        .user-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
         }
-        
-        .navbar-logo-icon {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--secondary-gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px #6366f133;
-        }
-        
-        .navbar-logo-icon svg {
-            width: 22px;
-            height: 22px;
-            fill: #fff;
-        }
-        
-        .navbar-links {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-left: auto;
-        }
-        
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.13em;
-            margin-right: 8px;
-            font-weight: 500;
-            padding: 10px 22px;
-            border-radius: 10px;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s;
-        }
-        
-        .navbar a:hover {
-            background: #fff3;
-            color: #3730a3;
-            box-shadow: 0 2px 8px #6366f133;
-            transform: translateY(-2px) scale(1.04);
-        }
-        
-        .navbar .logout-btn {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-            font-weight: 800;
-            font-size: 1.13em;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 22px;
-            margin-left: 8px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.18s;
-        }
-        
-        .navbar .logout-btn:hover {
-            background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
-            transform: translateY(-2px) scale(1.04);
-        }
-        
-        .food-banner {
-            width: 100%;
-            height: 350px;
-            overflow: hidden;
-            position: relative;
-            background: linear-gradient(135deg, #1a375a 0%, #6366f1 50%, #ffd700 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .banner-image {
-            max-width: 100%;
-            max-height: 90%;
-            object-fit: contain;
-            object-position: center;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .dashboard-container {
-            display: flex;
-            min-height: calc(100vh - 272px); /* Adjusted for banner height */
-        }
-        
-        .sidebar {
-            width: 280px;
-            background: rgba(255, 255, 255, 0.95);
-            border-right: 2px solid #a5b4fc44;
-            box-shadow: 4px 0 16px rgba(99, 102, 241, 0.1);
-            padding: 24px 0;
-        }
-        
-        .sidebar-header {
-            padding: 0 24px 24px 24px;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 16px;
-        }
-        
-        .sidebar-header h3 {
-            color: #3730a3;
-            margin: 0 0 8px 0;
-            font-size: 1.4em;
-            font-weight: 700;
-        }
-        
-        .sidebar-header p {
-            color: #6b7280;
-            margin: 0;
-            font-size: 0.9em;
-        }
-        
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .sidebar-menu li {
-            margin: 0;
-        }
-        
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 16px 24px;
-            color: #4b5563;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
-        
-        .sidebar-menu a:hover {
-            background: #f3f4f6;
-            color: #3730a3;
-            border-left-color: #6366f1;
-        }
-        
-        .sidebar-menu a.active {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-            border-left-color: #3730a3;
-        }
-        
-        .sidebar-menu a svg {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            fill: currentColor;
-        }
-        
-        .main-content {
-            flex: 1;
-            padding: 32px;
-        }
-        
-        .content-header {
-            margin-bottom: 32px;
-        }
-        
-        .content-header h1 {
-            color: #3730a3;
-            margin: 0 0 8px 0;
-            font-size: 2.2em;
-            font-weight: 700;
-        }
-        
-        .content-header p {
-            color: #6b7280;
-            margin: 0;
-            font-size: 1.1em;
-        }
-        
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.1);
-            border: 1px solid #a5b4fc44;
-        }
-        
-        .order-form {
-            display: grid;
-            gap: 20px;
-            max-width: 600px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-group label {
-            color: #3730a3;
+            color: var(--white);
             font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 1em;
         }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.2s;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #6366f1;
-        }
-        
-        .submit-btn {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 14px 24px;
-            font-size: 1.1em;
+
+        .user-info h4 {
+            margin: 0;
+            color: var(--text-primary);
             font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
         }
         
-        .submit-btn:hover {
-            transform: translateY(-2px);
+        .user-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
-        
-        /* Supplier Grid Styles */
-        .suppliers-grid {
+
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 24px;
-            padding: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
-        
-        .supplier-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e5e7eb;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .supplier-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        }
-        
-        .supplier-image {
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        .stat-card {
+            background: var(--card-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            transform-style: preserve-3d;
             position: relative;
+            overflow: hidden;
         }
-        
-        .supplier-image::before {
+
+        .stat-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff" opacity="0.1"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>') repeat;
-            background-size: 60px 60px;
+            height: 4px;
+            background: var(--secondary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
-        
-        .supplier-icon {
+
+        .stat-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-icon {
             width: 60px;
             height: 60px;
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--secondary-gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(10px);
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+            color: var(--white);
+            box-shadow: var(--shadow-pink);
         }
-        
-        .supplier-icon svg {
-            width: 32px;
-            height: 32px;
-            fill: #fff;
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 10px;
         }
-        
-        .supplier-info {
-            padding: 20px;
-        }
-        
-        .supplier-name {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        
-        .supplier-specialization {
-            color: #6b7280;
-            font-size: 0.95em;
-            margin-bottom: 12px;
-        }
-        
-        .supplier-location {
-            color: #9ca3af;
-            font-size: 0.9em;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .supplier-location svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-        }
-        
-        .supplier-rating {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        
-        .rating-stars {
-            display: flex;
-            gap: 2px;
-        }
-        
-        .star {
-            color: #fbbf24;
-            font-size: 16px;
-        }
-        
-        .rating-text {
-            color: #6b7280;
-            font-size: 0.9em;
-        }
-        
-        .order-btn {
-            width: 100%;
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
+
+        .stat-label {
+            color: var(--text-secondary);
             font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .panel-card {
+            background: var(--card-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+        }
+
+        .panel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .panel-action {
+            color: var(--pink);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .panel-action:hover {
+            color: var(--dark-blue);
+        }
+
+        .order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--glass-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+        }
+
+        .order-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .order-info h4 {
+            margin: 0 0 5px 0;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .order-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-processing {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--glass-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 12px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
-        
-        .order-btn:hover {
+
+        .sidebar-toggle:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            box-shadow: var(--shadow-light);
         }
-        
-        .loading-suppliers {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6b7280;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e5e7eb;
-            border-top: 4px solid #6366f1;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .welcome-message {
-            text-align: center;
-            padding: 40px;
-        }
-        
-        .welcome-message h2 {
-            color: #3730a3;
-            margin-bottom: 16px;
-        }
-        
-        .welcome-message p {
-            color: #6b7280;
-            font-size: 1.1em;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-container {
-                flex-direction: column;
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
             }
             
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 2px solid #a5b4fc44;
+            .sidebar.open {
+                transform: translateX(0);
             }
             
             .main-content {
-                padding: 20px;
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
             }
         }
 
-        /* Settings Styles */
-        .settings-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .settings-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
-        }
-
-        .section-title {
-            color: #3730a3;
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 16px;
-            border-bottom: 2px solid #6366f1;
-            padding-bottom: 8px;
-        }
-
-        .section-description {
-            color: #6b7280;
-            margin-bottom: 20px;
-            font-size: 0.95em;
-        }
-
-        .settings-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.95em;
-        }
-
-        .form-control {
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background: #fff;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .form-text {
-            font-size: 0.85em;
-            color: #6b7280;
-            margin-top: 4px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1em;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #374151;
-            border: 2px solid #e5e7eb;
-        }
-
-        .btn-secondary:hover {
-            background: #e5e7eb;
-            transform: translateY(-1px);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-            transform: translateY(-1px);
-        }
-
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 0.9em;
-        }
-
-        /* License Verification Styles */
-        .license-number-section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-        .subsection-title {
-            color: #3730a3;
-            font-size: 1.1em;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .subsection-description {
-            color: #6b7280;
-            font-size: 0.9em;
-            margin-bottom: 16px;
-        }
-
-        .license-number-form {
-            display: flex;
-            gap: 12px;
-            align-items: end;
-        }
-
-        .license-number-form .form-group {
-            flex: 1;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 2rem 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e5e7eb;
-        }
-
-        .divider span {
-            background: #fff;
-            padding: 0 16px;
-            color: #6b7280;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        .license-upload-section {
-            margin-top: 2rem;
-        }
-
-        .license-status {
-            margin-bottom: 1.5rem;
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        .status-indicator.verified {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-indicator.pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-indicator.rejected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-indicator:not(.verified):not(.pending):not(.rejected) {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
-
-        .upload-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 40px 20px;
-            text-align: center;
-            background: #f9fafb;
-            transition: border-color 0.2s, background 0.2s;
-            cursor: pointer;
-        }
-
-        .upload-area:hover {
-            border-color: #6366f1;
-            background: #f0f9ff;
-        }
-
-        .upload-area.dragover {
-            border-color: #6366f1;
-            background: #f0f9ff;
-        }
-
-        .upload-content i {
-            font-size: 3em;
-            color: #6366f1;
-            margin-bottom: 16px;
-        }
-
-        .upload-content p {
-            margin: 8px 0;
-            color: #6b7280;
-        }
-
-        .file-preview {
-            margin-top: 16px;
-            padding: 12px 16px;
-            background: #f3f4f6;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .preview-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .preview-content i {
-            color: #6366f1;
-            font-size: 1.2em;
-        }
-
-        .preview-content span {
-            flex: 1;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        .export-buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .license-number-form {
+            .dashboard-header {
                 flex-direction: column;
-                align-items: stretch;
+                align-items: flex-start;
             }
-
-            .export-buttons {
-                flex-direction: column;
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
             }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="index.html" class="navbar-logo">
-                <span class="navbar-logo-icon">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 13l3 3 7-7" stroke="#fff" stroke-width="2" fill="none"/></svg>
-                </span>
-                OverXchange
-            </a>
-            <div class="navbar-links">
-                <a href="index.html">Home</a>
-                <a href="profile.html">Profile</a>
-                <button class="logout-btn" id="logout-btn">Logout</button>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Food Banner Image -->
-    <div class="food-banner">
-        <img src="images/Blue & Yellow Minimalist Fast Food Banner Promotion.png" alt="Food Banner" class="banner-image">
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
     </div>
-    
-    <div class="dashboard-container">
-        <div class="sidebar">
+            </div>
+
+    <!-- Sidebar Toggle for Mobile -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h3>Vendor Dashboard</h3>
-                <p>Welcome back, <span id="vendor-name">Vendor</span>!</p>
+            <div class="sidebar-logo">OverXchange</div>
+            <div class="sidebar-subtitle">Vendor Dashboard</div>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="#" class="menu-item active" data-content="welcome">
-                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                    Dashboard
-                </a></li>
-                <li><a href="#" class="menu-item" data-content="order-supplier">
-                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                    Order from Supplier
-                </a></li>
-                <li><a href="#" class="menu-item" data-content="orders">
-                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                    My Orders
-                </a></li>
-                <li><a href="#" class="menu-item" data-content="profile">
-                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                    Profile Settings
-                </a></li>
-                <li><a href="#" class="menu-item" data-content="settings">
-                    <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-                    Settings
-                </a></li>
-            </ul>
-        </div>
         
-        <div class="main-content">
-            <!-- Welcome Content -->
-            <div id="welcome" class="content-section">
-                <div class="content-header">
-                    <h1>Welcome to Your Dashboard</h1>
-                    <p>Manage your orders and connect with suppliers</p>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+        </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
                 </div>
-                <div class="content-card">
-                    <div class="welcome-message">
-                        <h2>Ready to Order?</h2>
-                        <p>Click on "Order from Supplier" in the sidebar to start placing orders for your raw materials.</p>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Suppliers
+                </a>
                     </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
                 </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
             </div>
-            
-            <!-- Order from Supplier Content -->
-            <div id="order-supplier" class="content-section" style="display: none;">
-                <div class="content-header">
-                    <h1>Order from Supplier</h1>
-                    <p>Choose from our trusted suppliers to place your orders</p>
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
                 </div>
-                <div class="content-card">
-                    <div class="suppliers-grid" id="suppliers-grid">
-                        <div class="loading-suppliers">
-                            <div class="loading-spinner"></div>
-                            <p>Loading suppliers...</p>
+        </nav>
                         </div>
-                    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Welcome back, Vendor!</h1>
+                <p class="welcome-subtitle">Here's what's happening with your business today</p>
+            </div>
+            
+            <div class="header-actions">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                </div>
+                    <div class="user-info">
+                        <h4 id="user-name">Vendor Name</h4>
+                        <p>Vendor Account</p>
+                </div>
+            </div>
                 </div>
             </div>
             
-            <!-- My Orders Content -->
-            <div id="orders" class="content-section" style="display: none;">
-                <div class="content-header">
-                    <h1>My Orders</h1>
-                    <p>Track your order history and status</p>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
                 </div>
-                <div class="content-card">
-                    <p>Your order history will appear here.</p>
-                </div>
-            </div>
-            
-            <!-- Profile Settings Content -->
-            <div id="profile" class="content-section" style="display: none;">
-                <div class="content-header">
-                    <h1>Profile Settings</h1>
-                    <p>Manage your account information</p>
-                </div>
-                <div class="content-card">
-                    <p>Profile settings will appear here.</p>
-                </div>
-            </div>
-            
-            <!-- Settings Content -->
-            <div id="settings" class="content-section" style="display: none;">
-                <div class="content-header">
-                    <h1>Settings</h1>
-                    <p>Manage your account settings and preferences</p>
-                </div>
-                
-                <div class="settings-container">
-                    <!-- Profile Settings Section -->
-                    <div class="settings-section">
-                        <h3 class="section-title">Profile Settings</h3>
-                        <div class="settings-form">
-                            <div class="form-group">
-                                <label for="vendorName">Business Name</label>
-                                <input type="text" id="vendorName" class="form-control" placeholder="Enter your business name">
-                            </div>
-                            <div class="form-group">
-                                <label for="vendorEmail">Email Address</label>
-                                <input type="email" id="vendorEmail" class="form-control" placeholder="Enter your email">
-                            </div>
-                            <div class="form-group">
-                                <label for="vendorPhone">Phone Number</label>
-                                <input type="tel" id="vendorPhone" class="form-control" placeholder="Enter your phone number">
-                            </div>
-                            <div class="form-group">
-                                <label for="vendorAddress">Business Address</label>
-                                <textarea id="vendorAddress" class="form-control" rows="3" placeholder="Enter your business address"></textarea>
-                            </div>
-                            <button class="btn btn-primary" onclick="saveProfileSettings()">Save Profile Settings</button>
-                        </div>
+                <div class="stat-value">24</div>
+                <div class="stat-label">Total Orders</div>
                     </div>
 
-                    <!-- Business Settings Section -->
-                    <div class="settings-section">
-                        <h3 class="section-title">Business Settings</h3>
-                        <div class="settings-form">
-                            <div class="form-group">
-                                <label for="businessType">Business Type</label>
-                                <select id="businessType" class="form-control">
-                                    <option value="">Select business type</option>
-                                    <option value="restaurant">Restaurant</option>
-                                    <option value="cafe">Cafe</option>
-                                    <option value="bakery">Bakery</option>
-                                    <option value="catering">Catering</option>
-                                    <option value="food-truck">Food Truck</option>
-                                    <option value="other">Other</option>
-                                </select>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
                             </div>
-                            <div class="form-group">
-                                <label for="cuisineType">Cuisine Type</label>
-                                <select id="cuisineType" class="form-control">
-                                    <option value="">Select cuisine type</option>
-                                    <option value="indian">Indian</option>
-                                    <option value="chinese">Chinese</option>
-                                    <option value="italian">Italian</option>
-                                    <option value="mexican">Mexican</option>
-                                    <option value="continental">Continental</option>
-                                    <option value="fast-food">Fast Food</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="operatingHours">Operating Hours</label>
-                                <input type="text" id="operatingHours" class="form-control" placeholder="e.g., 9:00 AM - 10:00 PM">
-                            </div>
-                            <button class="btn btn-primary" onclick="saveBusinessSettings()">Save Business Settings</button>
-                        </div>
+                <div class="stat-value">₹12,450</div>
+                <div class="stat-label">Revenue</div>
                     </div>
 
-                    <!-- Security Settings Section -->
-                    <div class="settings-section">
-                        <h3 class="section-title">Security Settings</h3>
-                        <div class="settings-form">
-                            <div class="form-group">
-                                <label for="currentPassword">Current Password</label>
-                                <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
                             </div>
-                            <div class="form-group">
-                                <label for="newPassword">New Password</label>
-                                <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
-                            </div>
-                            <div class="form-group">
-                                <label for="confirmPassword">Confirm New Password</label>
-                                <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password">
-                            </div>
-                            <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
-                        </div>
+                <div class="stat-value">8</div>
+                <div class="stat-label">Active Suppliers</div>
                     </div>
 
-                    <!-- License Verification Section -->
-                    <div class="settings-section">
-                        <h3 class="section-title">License Verification</h3>
-                        <p class="section-description">Verify your food business license for enhanced credibility</p>
-                        
-                        <!-- License Number Verification -->
-                        <div class="license-number-section">
-                            <h3 class="subsection-title">Verify by License Number</h3>
-                            <p class="subsection-description">Enter your 14-digit FSSAI license number for instant verification</p>
-                            <div class="license-number-form">
-                                <div class="form-group">
-                                    <label for="licenseNumber">FSSAI License Number</label>
-                                    <input type="text" id="licenseNumber" placeholder="Enter 14-digit license number" maxlength="14" class="form-control">
-                                    <small class="form-text">Example: 22119005000732</small>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
                                 </div>
-                                <button class="btn btn-primary" onclick="verifyLicenseNumber()">
-                                    <i class="fas fa-search"></i> Verify License
-                                </button>
+                <div class="stat-value">4.8</div>
+                <div class="stat-label">Rating</div>
                             </div>
                         </div>
                         
-                        <div class="divider"><span>OR</span></div>
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <div class="main-panel">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Recent Orders</h3>
+                        <a href="#" class="panel-action">View All</a>
+                                </div>
+                    <div class="order-list">
+                        <div class="order-item">
+                            <div class="order-info">
+                                <h4>Order #12345</h4>
+                                <p>Fresh vegetables from Green Farms</p>
+                            </div>
+                            <span class="order-status status-pending">Pending</span>
+                            </div>
+                            
+                        <div class="order-item">
+                            <div class="order-info">
+                                <h4>Order #12344</h4>
+                                <p>Spices from Spice World</p>
+                                </div>
+                            <span class="order-status status-completed">Completed</span>
+                            </div>
+                            
+                        <div class="order-item">
+                            <div class="order-info">
+                                <h4>Order #12343</h4>
+                                <p>Meat from Fresh Meat Co.</p>
+                        </div>
+                            <span class="order-status status-processing">Processing</span>
+                    </div>
+                        </div>
+                    </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Quick Actions</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <button class="btn-3d btn-pink" style="width: 100%;">
+                            <i class="fas fa-plus"></i> New Order
+                                </button>
+                        <button class="btn-3d" style="width: 100%;">
+                            <i class="fas fa-search"></i> Find Supplier
+                                </button>
+                        <button class="btn-3d" style="width: 100%;">
+                            <i class="fas fa-chart-bar"></i> View Reports
+                        </button>
+                        <button class="btn-3d" style="width: 100%;">
+                            <i class="fas fa-cog"></i> Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+            
+            <div class="side-panel">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Notifications</h3>
+                        <a href="#" class="panel-action">Clear All</a>
+                </div>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="padding: 15px; background: var(--glass-gradient); border-radius: var(--border-radius); border: 1px solid var(--glass-border);">
+                            <h4 style="margin: 0 0 5px 0; font-size: 0.9rem; color: var(--text-primary);">New supplier available</h4>
+                            <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Fresh Farms joined the platform</p>
+                        </div>
                         
-                        <!-- File Upload Verification -->
-                        <div class="license-upload-section">
-                            <h3 class="subsection-title">Upload License Document</h3>
-                            <p class="subsection-description">Upload your FSSAI license document (PDF, JPG, PNG)</p>
-                            
-                            <!-- License Status Display -->
-                            <div class="license-status">
-                                <div class="status-indicator" id="verificationStatus">
-                                    <i class="fas fa-times-circle"></i>
-                                    <span>Not Verified</span>
-                                </div>
-                            </div>
-                            
-                            <!-- File Upload Area -->
-                            <div class="upload-area" id="uploadArea">
-                                <div class="upload-content">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <p>Drag & drop your license file here</p>
-                                    <p>or</p>
-                                    <input type="file" id="licenseFile" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                                    <button class="btn btn-secondary" onclick="document.getElementById('licenseFile').click()">
-                                        Choose File
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- File Preview -->
-                            <div class="file-preview" id="filePreview" style="display: none;">
-                                <div class="preview-content">
-                                    <i class="fas fa-file-alt"></i>
-                                    <span id="fileName">filename.pdf</span>
-                                    <button class="btn btn-danger btn-sm" onclick="removeFile()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Submit Button -->
-                            <button class="btn btn-primary" id="submitLicenseBtn" onclick="submitLicense()" style="display: none;">
-                                <i class="fas fa-upload"></i> Submit License for Verification
-                            </button>
+                        <div style="padding: 15px; background: var(--glass-gradient); border-radius: var(--border-radius); border: 1px solid var(--glass-border);">
+                            <h4 style="margin: 0 0 5px 0; font-size: 0.9rem; color: var(--text-primary);">Order delivered</h4>
+                            <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Order #12344 has been delivered</p>
                         </div>
-                    </div>
-
-                    <!-- Theme Settings Section -->
-                    <div class="settings-section">
-                        <h3 class="section-title">Theme Settings</h3>
-                        <div class="settings-form">
-                            <div class="form-group">
-                                <label for="themeSelect">Theme</label>
-                                <select id="themeSelect" class="form-control" onchange="changeTheme()">
-                                    <option value="light">Light Theme</option>
-                                    <option value="dark">Dark Theme</option>
-                                    <option value="auto">Auto (System)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="languageSelect">Language</label>
-                                <select id="languageSelect" class="form-control" onchange="changeLanguage()">
-                                    <option value="en">English</option>
-                                    <option value="hi">Hindi</option>
-                                    <option value="gu">Gujarati</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Data Export Section -->
-                    <div class="settings-section">
-                        <h3 class="section-title">Data Export</h3>
-                        <div class="settings-form">
-                            <p class="section-description">Export your data for backup or analysis</p>
-                            <div class="export-buttons">
-                                <button class="btn btn-secondary" onclick="exportData('orders')">
-                                    <i class="fas fa-download"></i> Export Orders
-                                </button>
-                                <button class="btn btn-secondary" onclick="exportData('profile')">
-                                    <i class="fas fa-download"></i> Export Profile
-                                </button>
-                                <button class="btn btn-secondary" onclick="exportData('all')">
-                                    <i class="fas fa-download"></i> Export All Data
-                                </button>
-                            </div>
+    
+                        <div style="padding: 15px; background: var(--glass-gradient); border-radius: var(--border-radius); border: 1px solid var(--glass-border);">
+                            <h4 style="margin: 0 0 5px 0; font-size: 0.9rem; color: var(--text-primary);">Price update</h4>
+                            <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Vegetable prices have been updated</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- Enhanced Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <div class="icon-container">
+            <i class="fas fa-sun sun-icon"></i>
+            <i class="fas fa-moon moon-icon"></i>
+        </div>
+        <div class="symbol-label">☀️ Light Mode</div>
+        <div class="mode-indicator">🌙 Dark Mode</div>
+    </button>
+
     <script>
-        // Check if user is logged in and is a vendor
-        function checkAuth() {
-            const userType = localStorage.getItem('user_type');
-            const userId = localStorage.getItem('user_id');
+        // Enhanced Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const sunIcon = document.querySelector('.theme-toggle .sun-icon');
+            const moonIcon = document.querySelector('.theme-toggle .moon-icon');
+            const symbolLabel = document.querySelector('.theme-toggle .symbol-label');
+            const modeIndicator = document.querySelector('.theme-toggle .mode-indicator');
             
-            if (!userType || !userId) {
-                window.location.href = 'login.html';
-                return;
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                // Add toggle animation
+                sunIcon.style.transform = 'rotateY(0deg) scale(1)';
+                moonIcon.style.transform = 'rotateY(-90deg) scale(0.8)';
+                sunIcon.style.opacity = '1';
+                moonIcon.style.opacity = '0';
+                // Update labels
+                symbolLabel.textContent = '☀️ Light Mode';
+                modeIndicator.textContent = '🌙 Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                // Add toggle animation
+                sunIcon.style.transform = 'rotateY(90deg) scale(0.8)';
+                moonIcon.style.transform = 'rotateY(0deg) scale(1)';
+                sunIcon.style.opacity = '0';
+                moonIcon.style.opacity = '1';
+                // Update labels
+                symbolLabel.textContent = '🌙 Dark Mode';
+                modeIndicator.textContent = '☀️ Light Mode';
             }
-            
-            if (userType !== 'vendor') {
-                alert('This dashboard is only for vendors.');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Load vendor profile
-            loadVendorProfile();
         }
-        
-        // Load vendor profile
-        function loadVendorProfile() {
-            const userId = localStorage.getItem('user_id');
-            fetch(`/api/profile/vendor/${userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('vendor-name').textContent = data.name || 'Vendor';
-                })
-                .catch(err => {
-                    console.error('Error loading profile:', err);
-                });
-        }
-        
-        // Load suppliers list
-        function loadSuppliers() {
-            console.log('Loading suppliers...');
-            fetch('/api/suppliers')
-                .then(res => {
-                    console.log('Response status:', res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    console.log('Suppliers data:', data);
-                    const suppliersGrid = document.getElementById('suppliers-grid');
-                    
-                    if (data.success && data.suppliers) {
-                        if (data.suppliers.length === 0) {
-                            // If no suppliers in database, add sample suppliers
-                            const sampleSuppliers = [
-                                { _id: 'sample1', company_name: 'Fresh Foods Supplier', specialization: 'Fresh Vegetables and Fruits', address: 'Mumbai, Maharashtra' },
-                                { _id: 'sample2', company_name: 'Quality Ingredients Co.', specialization: 'Premium Spices and Herbs', address: 'Delhi, NCR' },
-                                { _id: 'sample3', company_name: 'Local Market Supplier', specialization: 'Local Produce and Dairy', address: 'Ahmedabad, Gujarat' },
-                                { _id: 'sample4', company_name: 'Organic Foods Ltd.', specialization: 'Organic Vegetables and Grains', address: 'Pune, Maharashtra' },
-                                { _id: 'sample5', company_name: 'Premium Spices & Herbs', specialization: 'Premium Spices and Seasonings', address: 'Jaipur, Rajasthan' }
-                            ];
-                            createSupplierCards(sampleSuppliers);
-                        } else {
-                            createSupplierCards(data.suppliers);
-                        }
-                    }
-                })
-                .catch(err => {
-                    console.error('Error loading suppliers:', err);
-                    // Add fallback suppliers if API fails
-                    const fallbackSuppliers = [
-                        { _id: 'fallback1', company_name: 'Fresh Foods Supplier', specialization: 'Fresh Vegetables and Fruits', address: 'Mumbai, Maharashtra' },
-                        { _id: 'fallback2', company_name: 'Quality Ingredients Co.', specialization: 'Premium Spices and Herbs', address: 'Delhi, NCR' },
-                        { _id: 'fallback3', company_name: 'Local Market Supplier', specialization: 'Local Produce and Dairy', address: 'Ahmedabad, Gujarat' },
-                        { _id: 'fallback4', company_name: 'Organic Foods Ltd.', specialization: 'Organic Vegetables and Grains', address: 'Pune, Maharashtra' },
-                        { _id: 'fallback5', company_name: 'Premium Spices & Herbs', specialization: 'Premium Spices and Seasonings', address: 'Jaipur, Rajasthan' }
-                    ];
-                    createSupplierCards(fallbackSuppliers);
-                });
-        }
-        
-        // Create supplier cards
-        function createSupplierCards(suppliers) {
-            const suppliersGrid = document.getElementById('suppliers-grid');
-            suppliersGrid.innerHTML = '';
-            
-            suppliers.forEach(supplier => {
-                const card = document.createElement('div');
-                card.className = 'supplier-card';
-                card.onclick = () => openOrderForm(supplier);
-                
-                const rating = (Math.random() * 2 + 3).toFixed(1); // Random rating between 3-5
-                const stars = Math.floor(rating);
-                
-                card.innerHTML = `
-                    <div class="supplier-image">
-                        <div class="supplier-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="supplier-info">
-                        <div class="supplier-name">${supplier.company_name || supplier.name}</div>
-                        <div class="supplier-specialization">${supplier.specialization || 'Quality Food Supplies'}</div>
-                        <div class="supplier-location">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                            </svg>
-                            ${supplier.address || 'Location not specified'}
-                        </div>
-                        <div class="supplier-rating">
-                            <div class="rating-stars">
-                                ${'★'.repeat(stars)}${'☆'.repeat(5-stars)}
-                            </div>
-                            <span class="rating-text">${rating} • 100+ orders</span>
-                        </div>
-                        <button class="order-btn">Order Now</button>
-                    </div>
-                `;
-                
-                suppliersGrid.appendChild(card);
-            });
-        }
-        
-        // Open order form for specific supplier
-        function openOrderForm(supplier) {
-            // For now, just show an alert. You can expand this to show a modal or redirect to order page
-            alert(`Order form for ${supplier.company_name || supplier.name} will open here.`);
-        }
-        
-        // Sidebar menu functionality
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Remove active class from all menu items
-                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-                
-                // Add active class to clicked item
-                this.classList.add('active');
-                
-                // Hide all content sections
-                document.querySelectorAll('.content-section').forEach(section => {
-                    section.style.display = 'none';
-                });
-                
-                // Show selected content section
-                const contentId = this.getAttribute('data-content');
-                document.getElementById(contentId).style.display = 'block';
-            });
-        });
-        
 
-        
-        // Logout functionality
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            localStorage.removeItem('user_type');
+        // Sidebar Toggle for Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Logout Function
+        function logout() {
             localStorage.removeItem('user_id');
+            localStorage.removeItem('user_type');
+            localStorage.removeItem('user_name');
             window.location.href = 'index.html';
-        });
-        
-        // Settings Functions
-        function saveProfileSettings() {
-            const settings = {
-                vendorName: document.getElementById('vendorName').value,
-                vendorEmail: document.getElementById('vendorEmail').value,
-                vendorPhone: document.getElementById('vendorPhone').value,
-                vendorAddress: document.getElementById('vendorAddress').value
-            };
-            
-            localStorage.setItem('vendor_profile_settings', JSON.stringify(settings));
-            alert('Profile settings saved successfully!');
         }
 
-        function saveBusinessSettings() {
-            const settings = {
-                businessType: document.getElementById('businessType').value,
-                cuisineType: document.getElementById('cuisineType').value,
-                operatingHours: document.getElementById('operatingHours').value
-            };
-            
-            localStorage.setItem('vendor_business_settings', JSON.stringify(settings));
-            alert('Business settings saved successfully!');
+        // Load User Data
+        function loadUserData() {
+            const userName = localStorage.getItem('user_name') || 'Vendor';
+            document.getElementById('user-name').textContent = userName;
         }
 
-        function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                alert('Please fill in all password fields.');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                alert('New passwords do not match.');
-                return;
-            }
-            
-            if (newPassword.length < 6) {
-                alert('Password must be at least 6 characters long.');
-                return;
-            }
-            
-            // Here you would typically make an API call to change password
-            alert('Password changed successfully!');
-            
-            // Clear password fields
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-        }
-
-        function changeTheme() {
-            const theme = document.getElementById('themeSelect').value;
-            localStorage.setItem('vendor_theme', theme);
-            alert('Theme changed successfully!');
-        }
-
-        function changeLanguage() {
-            const language = document.getElementById('languageSelect').value;
-            localStorage.setItem('vendor_language', language);
-            alert('Language changed successfully!');
-        }
-
-        function exportData(type) {
-            let data = {};
-            
-            switch(type) {
-                case 'orders':
-                    data = { orders: 'Your order data will be exported here' };
-                    break;
-                case 'profile':
-                    data = { profile: 'Your profile data will be exported here' };
-                    break;
-                case 'all':
-                    data = { 
-                        orders: 'Your order data will be exported here',
-                        profile: 'Your profile data will be exported here',
-                        settings: 'Your settings data will be exported here'
-                    };
-                    break;
-            }
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `vendor_${type}_data.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
-        }
-
-        // License Verification Functions
-        async function verifyLicenseNumber() {
-            const licenseNumber = document.getElementById('licenseNumber').value.trim();
-            const userId = localStorage.getItem('user_id');
-            
-            // Get button and store original text
-            const verifyBtn = document.querySelector('.license-number-form .btn-primary');
-            const originalText = verifyBtn ? verifyBtn.innerHTML : '<i class="fas fa-search"></i> Verify License';
-
-            if (!licenseNumber || !userId || !/^\d{14}$/.test(licenseNumber)) {
-                alert('Please enter a valid 14-digit license number.');
-                return;
-            }
-
-            try {
-                if (verifyBtn) {
-                    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-                    verifyBtn.disabled = true;
-                }
-
-                // Call backend API
-                const response = await fetch('/api/license/verify-number', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        license_number: licenseNumber,
-                        supplier_id: userId
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Update status
-                    updateVerificationStatus('verified');
-                    localStorage.setItem(`verification_${userId}`, 'verified');
-                    
-                    // Show success message with license details
-                    const licenseInfo = result.verification_result.license_info;
-                    alert(`🎉 License verified successfully!\n\nBusiness: ${licenseInfo.business_name}\nAddress: ${licenseInfo.address}\nValid Until: ${licenseInfo.valid_until}`);
-                    
-                    // Clear input
-                    document.getElementById('licenseNumber').value = '';
-                } else {
-                    alert('License verification failed: ' + result.message);
-                }
-
-            } catch (error) {
-                console.error('Error verifying license:', error);
-                alert('Error verifying license. Please try again.');
-            } finally {
-                // Reset button state
-                if (verifyBtn) {
-                    verifyBtn.innerHTML = originalText;
-                    verifyBtn.disabled = false;
-                }
-            }
-        }
-
-        // Update verification status display
-        function updateVerificationStatus(status) {
-            const statusElement = document.getElementById('verificationStatus');
-            const icon = statusElement.querySelector('i');
-            const text = statusElement.querySelector('span');
-
-            statusElement.className = `status-indicator ${status}`;
-
-            switch(status) {
-                case 'verified':
-                    icon.className = 'fas fa-check-circle';
-                    text.textContent = 'Verified';
-                    break;
-                case 'pending':
-                    icon.className = 'fas fa-clock';
-                    text.textContent = 'Pending Verification';
-                    break;
-                case 'rejected':
-                    icon.className = 'fas fa-times-circle';
-                    text.textContent = 'Verification Rejected';
-                    break;
-                default:
-                    icon.className = 'fas fa-times-circle';
-                    text.textContent = 'Not Verified';
-            }
-        }
-
-        // File upload handling
+        // Initialize Dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('licenseFile');
-            const uploadArea = document.getElementById('uploadArea');
-
-            // File input change
-            fileInput.addEventListener('change', handleFileSelect);
-
-            // Drag and drop functionality
-            uploadArea.addEventListener('dragover', handleDragOver);
-            uploadArea.addEventListener('dragleave', handleDragLeave);
-            uploadArea.addEventListener('drop', handleDrop);
+            loadUserData();
+            
+            // Check if user is logged in
+            const userType = localStorage.getItem('user_type');
+            if (!userType || userType !== 'vendor') {
+                window.location.href = 'login.html';
+            }
         });
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                validateAndDisplayFile(file);
-            }
-        }
-
-        function handleDragOver(event) {
-            event.preventDefault();
-            event.currentTarget.classList.add('dragover');
-        }
-
-        function handleDragLeave(event) {
-            event.preventDefault();
-            event.currentTarget.classList.remove('dragover');
-        }
-
-        function handleDrop(event) {
-            event.preventDefault();
-            event.currentTarget.classList.remove('dragover');
-            
-            const files = event.dataTransfer.files;
-            if (files.length > 0) {
-                validateAndDisplayFile(files[0]);
-            }
-        }
-
-        function validateAndDisplayFile(file) {
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-            const maxSize = 5 * 1024 * 1024; // 5MB
-
-            if (!allowedTypes.includes(file.type)) {
-                alert('Please select a valid file type (PDF, JPG, PNG).');
-                return;
-            }
-
-            if (file.size > maxSize) {
-                alert('File size must be less than 5MB.');
-                return;
-            }
-
-            // Display file preview
-            document.getElementById('fileName').textContent = file.name;
-            document.getElementById('filePreview').style.display = 'block';
-            document.getElementById('submitLicenseBtn').style.display = 'block';
-        }
-
-        function removeFile() {
-            document.getElementById('licenseFile').value = '';
-            document.getElementById('filePreview').style.display = 'none';
-            document.getElementById('submitLicenseBtn').style.display = 'none';
-        }
-
-        async function submitLicense() {
-            const fileInput = document.getElementById('licenseFile');
-            const file = fileInput.files[0];
-            const userId = localStorage.getItem('user_id');
-
-            if (!file || !userId) {
-                alert('Please select a file to upload.');
-                return;
-            }
-
-            // Get button and store original text
-            const submitBtn = document.getElementById('submitLicenseBtn');
-            const originalText = submitBtn ? submitBtn.innerHTML : '<i class="fas fa-upload"></i> Submit License for Verification';
-
-            try {
-                if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-                    submitBtn.disabled = true;
-                }
-
-                const formData = new FormData();
-                formData.append('license_file', file);
-                formData.append('supplier_id', userId);
-
-                // Submit to backend API
-                const response = await fetch('/api/license/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    updateVerificationStatus(result.status);
-                    localStorage.setItem(`verification_${userId}`, result.status);
-                    alert('License uploaded successfully! Verification in progress.');
-                    
-                    // Clear file
-                    removeFile();
-                } else {
-                    alert('License upload failed: ' + result.message);
-                }
-
-            } catch (error) {
-                console.error('Error uploading license:', error);
-                alert('Error uploading license. Please try again.');
-            } finally {
-                // Reset button state
-                if (submitBtn) {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            }
-        }
-
-        // Load settings on page load
-        function loadSettings() {
-            // Load profile settings
-            const profileSettings = JSON.parse(localStorage.getItem('vendor_profile_settings') || '{}');
-            if (profileSettings.vendorName) document.getElementById('vendorName').value = profileSettings.vendorName;
-            if (profileSettings.vendorEmail) document.getElementById('vendorEmail').value = profileSettings.vendorEmail;
-            if (profileSettings.vendorPhone) document.getElementById('vendorPhone').value = profileSettings.vendorPhone;
-            if (profileSettings.vendorAddress) document.getElementById('vendorAddress').value = profileSettings.vendorAddress;
-
-            // Load business settings
-            const businessSettings = JSON.parse(localStorage.getItem('vendor_business_settings') || '{}');
-            if (businessSettings.businessType) document.getElementById('businessType').value = businessSettings.businessType;
-            if (businessSettings.cuisineType) document.getElementById('cuisineType').value = businessSettings.cuisineType;
-            if (businessSettings.operatingHours) document.getElementById('operatingHours').value = businessSettings.operatingHours;
-
-            // Load theme and language
-            const theme = localStorage.getItem('vendor_theme') || 'light';
-            const language = localStorage.getItem('vendor_language') || 'en';
-            document.getElementById('themeSelect').value = theme;
-            document.getElementById('languageSelect').value = language;
-
-            // Load license verification status
-            const userId = localStorage.getItem('user_id');
-            if (userId) {
-                const verificationStatus = localStorage.getItem(`verification_${userId}`);
-                if (verificationStatus) {
-                    updateVerificationStatus(verificationStatus);
-                }
-            }
-        }
-
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            
-            // Load suppliers list
-            loadSuppliers();
-            
-            // Load settings
-            loadSettings();
-            
-            // Set minimum date for delivery to today
-            const today = new Date().toISOString().split('T')[0];
-            const deliveryDateInput = document.getElementById('delivery-date');
-            if (deliveryDateInput) {
-                deliveryDateInput.min = today;
-            }
-            
-            // Fallback: If suppliers don't load within 3 seconds, show sample suppliers
-            setTimeout(() => {
-                const supplierSelect = document.getElementById('supplier');
-                if (supplierSelect && supplierSelect.options.length <= 1) {
-                    console.log('Loading fallback suppliers...');
-                    supplierSelect.innerHTML = `
-                        <option value="">Choose a supplier...</option>
-                        <option value="sample1">Fresh Foods Supplier</option>
-                        <option value="sample2">Quality Ingredients Co.</option>
-                        <option value="sample3">Local Market Supplier</option>
-                        <option value="sample4">Organic Foods Ltd.</option>
-                        <option value="sample5">Premium Spices & Herbs</option>
-                        <option value="sample6">City Fresh Market</option>
-                        <option value="sample7">Spice Paradise</option>
-                        <option value="sample8">Vegetable Kingdom</option>
-                    `;
-                }
-            }, 3000);
+        // Navigation Active State
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
         });
     </script>
 </body>

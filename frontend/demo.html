@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OverXchange - Modern Design Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="modern-styles.css">
+    <style>
+        .demo-container {
+            min-height: 100vh;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .demo-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .demo-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .page-card {
+            background: var(--card-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .page-card:hover {
+            transform: translateY(-15px) rotateX(10deg);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .page-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .page-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--secondary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: var(--white);
+            box-shadow: var(--shadow-pink);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .page-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .page-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--primary-gradient);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: var(--transition);
+            transform-style: preserve-3d;
+        }
+
+        .page-link:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .features-section {
+            background: var(--card-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .features-title {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--secondary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5rem;
+            color: var(--white);
+            box-shadow: var(--shadow-pink);
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .color-palette {
+            background: var(--card-gradient);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .palette-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .colors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .color-item {
+            padding: 20px;
+            border-radius: var(--border-radius);
+            color: var(--white);
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-dark-blue {
+            background: var(--dark-blue);
+        }
+
+        .color-light-blue {
+            background: var(--light-blue);
+        }
+
+        .color-white {
+            background: var(--white);
+            color: var(--text-primary);
+            border: 2px solid var(--glass-border);
+        }
+
+        .color-pink {
+            background: var(--pink);
+        }
+
+        .color-baby-pink {
+            background: var(--baby-pink);
+        }
+
+        @media (max-width: 768px) {
+            .demo-title {
+                font-size: 2.5rem;
+            }
+            
+            .pages-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .colors-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">OverXchange Modern Design</h1>
+            <p class="demo-subtitle">Beautiful redesign with dark blue, light blue, white, pink, and baby pink colors with 3D effects</p>
+        </div>
+
+        <!-- Pages Showcase -->
+        <div class="pages-grid">
+            <div class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <h3 class="page-title">Home Page</h3>
+                <p class="page-description">Modern landing page with animated background, 3D cards, and beautiful gradients showcasing the platform's features.</p>
+                <a href="index.html" class="page-link">View Home Page</a>
+            </div>
+
+            <div class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <h3 class="page-title">Login Page</h3>
+                <p class="page-description">Elegant login form with glass morphism effects, 3D input fields, and smooth animations.</p>
+                <a href="login.html" class="page-link">View Login Page</a>
+            </div>
+
+            <div class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h3 class="page-title">Signup Page</h3>
+                <p class="page-description">Modern signup form with user type selection, 3D buttons, and beautiful form validation.</p>
+                <a href="signup.html" class="page-link">View Signup Page</a>
+            </div>
+
+            <div class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h3 class="page-title">Vendor Dashboard</h3>
+                <p class="page-description">Comprehensive vendor dashboard with sidebar navigation, stats cards, and 3D effects.</p>
+                <a href="vendor-dashboard.html" class="page-link">View Vendor Dashboard</a>
+            </div>
+
+            <div class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3 class="page-title">Supplier Dashboard</h3>
+                <p class="page-description">Supplier dashboard with modern interface, order management, and analytics panels.</p>
+                <a href="supply-dashboard.html" class="page-link">View Supplier Dashboard</a>
+            </div>
+
+            <div class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3 class="page-title">Design System</h3>
+                <p class="page-description">Complete design system with CSS variables, 3D effects, and responsive components.</p>
+                <a href="modern-styles.css" class="page-link">View Design System</a>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <h2 class="features-title">Design Features</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <h3 class="feature-title">3D Effects</h3>
+                    <p class="feature-description">Advanced 3D transformations, rotations, and perspective effects for interactive elements.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="feature-title">Modern Color Palette</h3>
+                    <p class="feature-description">Carefully selected colors: dark blue, light blue, white, pink, and baby pink for a cohesive design.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3 class="feature-title">Glass Morphism</h3>
+                    <p class="feature-description">Beautiful glass effects with backdrop blur, transparency, and subtle borders.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Responsive Design</h3>
+                    <p class="feature-description">Fully responsive layout that works perfectly on all devices and screen sizes.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <h3 class="feature-title">Dark Mode</h3>
+                    <p class="feature-description">Built-in dark mode support with smooth theme transitions and optimized colors.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="feature-title">Performance Optimized</h3>
+                    <p class="feature-description">Optimized animations and effects for smooth performance across all devices.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="color-palette">
+            <h2 class="palette-title">Color Palette</h2>
+            <div class="colors-grid">
+                <div class="color-item color-dark-blue">
+                    Dark Blue<br>#1e3a8a
+                </div>
+                <div class="color-item color-light-blue">
+                    Light Blue<br>#3b82f6
+                </div>
+                <div class="color-item color-white">
+                    White<br>#ffffff
+                </div>
+                <div class="color-item color-pink">
+                    Pink<br>#ec4899
+                </div>
+                <div class="color-item color-baby-pink">
+                    Baby Pink<br>#f9a8d4
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                This color palette creates a modern, professional, and visually appealing design that's perfect for a food supply chain platform.
+            </p>
+        </div>
+    </div>
+
+    <!-- Enhanced Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <div class="icon-container">
+            <i class="fas fa-sun sun-icon"></i>
+            <i class="fas fa-moon moon-icon"></i>
+        </div>
+        <div class="symbol-label">☀️ Light Mode</div>
+        <div class="mode-indicator">🌙 Dark Mode</div>
+    </button>
+
+    <script>
+        // Enhanced Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const sunIcon = document.querySelector('.theme-toggle .sun-icon');
+            const moonIcon = document.querySelector('.theme-toggle .moon-icon');
+            const symbolLabel = document.querySelector('.theme-toggle .symbol-label');
+            const modeIndicator = document.querySelector('.theme-toggle .mode-indicator');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                // Add toggle animation
+                sunIcon.style.transform = 'rotateY(0deg) scale(1)';
+                moonIcon.style.transform = 'rotateY(-90deg) scale(0.8)';
+                sunIcon.style.opacity = '1';
+                moonIcon.style.opacity = '0';
+                // Update labels
+                symbolLabel.textContent = '☀️ Light Mode';
+                modeIndicator.textContent = '🌙 Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                // Add toggle animation
+                sunIcon.style.transform = 'rotateY(90deg) scale(0.8)';
+                moonIcon.style.transform = 'rotateY(0deg) scale(1)';
+                sunIcon.style.opacity = '0';
+                moonIcon.style.opacity = '1';
+                // Update labels
+                symbolLabel.textContent = '🌙 Dark Mode';
+                modeIndicator.textContent = '☀️ Light Mode';
+            }
+        }
+
+        // Parallax Effect for Shapes
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const shapes = document.querySelectorAll('.shape');
+            
+            shapes.forEach((shape, index) => {
+                const speed = 0.5 + (index * 0.1);
+                shape.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Enhanced hover effects to page cards
+        document.querySelectorAll('.page-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-20px) rotateX(15deg) rotateY(10deg) scale(1.05)';
+                this.style.animation = 'cardHover 0.6s ease-out';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg) scale(1)';
+                this.style.animation = 'cardFloat 6s ease-in-out infinite';
+            });
+        });
+
+        // Add impulsive effects to feature items
+        document.querySelectorAll('.feature-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.05)';
+                this.style.animation = 'statCardHover 0.5s ease-out';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.animation = 'statCardFloat 8s ease-in-out infinite';
+            });
+        });
+
+        // Add impulsive effects to color items
+        document.querySelectorAll('.color-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.1) rotate(5deg)';
+                this.style.animation = 'pulse 0.6s ease-out';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1) rotate(0deg)';
+                this.style.animation = 'none';
+            });
+        });
+    </script>
+</body>
+</html> 
