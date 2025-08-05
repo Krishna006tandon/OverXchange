@@ -1206,6 +1206,13 @@
     </style>
 </head>
 <body>
+    <script>
+      // Vendor-only access check
+      const userType = localStorage.getItem('user_type');
+      if (userType !== 'vendor') {
+        window.location.href = 'login.html';
+      }
+    </script>
     <nav class="navbar">
         <div class="navbar-container">
             <a href="index.html" class="navbar-logo">
@@ -2659,6 +2666,57 @@
             
             console.log('Dashboard initialization complete');
         });
+
+        // Add tab navigation for Browse Vendors
+        if (!document.getElementById('browse-vendors-tab')) {
+          const nav = document.querySelector('.navbar-container') || document.body;
+          const tabBtn = document.createElement('button');
+          tabBtn.id = 'browse-vendors-tab';
+          tabBtn.textContent = 'Browse Vendors';
+          tabBtn.style.marginLeft = '10px';
+          tabBtn.onclick = function() {
+            document.getElementById('browse-vendors-section').style.display = 'block';
+            loadVendors();
+          };
+          nav.appendChild(tabBtn);
+        }
+
+        function loadVendors() {
+          const userId = localStorage.getItem('user_id');
+          fetch(`/api/vendors?user_id=${userId}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                const listDiv = document.getElementById('vendors-list');
+                listDiv.innerHTML = '';
+                data.vendors.forEach(vendor => {
+                  const div = document.createElement('div');
+                  div.style.border = '1px solid #eee';
+                  div.style.margin = '8px 0';
+                  div.style.padding = '8px';
+                  div.innerHTML = `<b>${vendor.name || vendor.business_name}</b> <br> Email: ${vendor.email} <br> <button onclick="viewVendorProfile('${vendor._id}')">View Profile</button>`;
+                  listDiv.appendChild(div);
+                });
+              }
+            });
+        }
+
+        function viewVendorProfile(vendorId) {
+          fetch(`/api/profile/vendor/${vendorId}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                const v = data.vendor;
+                let html = `<h3>${v.name || v.business_name}</h3>`;
+                html += `<p>Email: ${v.email}</p>`;
+                if (v.company_name) html += `<p>Company: ${v.company_name}</p>`;
+                if (v.bio) html += `<p>Bio: ${v.bio}</p>`;
+                if (v.shop_name) html += `<p>Shop: ${v.shop_name}</p>`;
+                document.getElementById('vendor-profile-content').innerHTML = html;
+                document.getElementById('vendor-profile-modal').style.display = 'block';
+              }
+            });
+        }
     </script>
 </body>
 </html> 

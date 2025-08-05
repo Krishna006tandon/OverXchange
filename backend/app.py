@@ -2577,6 +2577,30 @@ def generate_bill_html(order):
     
     return bill_html
 
+@app.route('/api/vendors', methods=['GET'])
+def list_vendors():
+    """List all vendors except the current user (if user_id is provided as a query param)"""
+    user_id = request.args.get('user_id')
+    query = {}
+    if user_id:
+        try:
+            query = {'_id': {'$ne': ObjectId(user_id)}}
+        except:
+            pass
+    vendors = list(db['vendors'].find(query, {'password': 0}))  # Exclude password
+    for vendor in vendors:
+        vendor['_id'] = str(vendor['_id'])
+    return jsonify({'success': True, 'vendors': vendors})
+
+@app.route('/api/profile/vendor/<vendor_id>', methods=['GET'])
+def get_vendor_profile(vendor_id):
+    """Get public profile of a vendor by ID"""
+    vendor = db['vendors'].find_one({'_id': ObjectId(vendor_id)}, {'password': 0})
+    if not vendor:
+        return jsonify({'success': False, 'message': 'Vendor not found'}), 404
+    vendor['_id'] = str(vendor['_id'])
+    return jsonify({'success': True, 'vendor': vendor})
+
 if __name__ == '__main__':
     # Get port from environment variable for Railway deployment
     port = int(os.environ.get('PORT', 5000))
