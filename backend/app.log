@@ -243,3 +243,121 @@
 2025-08-04 23:07:44,352 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:44] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
 2025-08-04 23:07:46,498 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:46] "[36mGET /login.html HTTP/1.1[0m" 304 -
 2025-08-04 23:07:46,774 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:07:46] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:35:55,297 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-04 23:35:55,298 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 23:35:55,302 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 23:35:56,595 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 23:35:56,643 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 23:35:58,477 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:35:58] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 23:35:58,939 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:35:58] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:02,929 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:02] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:04,017 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:04] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 23:36:04,192 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:04] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:05,020 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:05] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:36:05,204 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:05] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:05,915 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:05] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:36:06,105 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:06] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:06,797 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:06] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:36:06,973 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:06] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:36:07,167 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:07] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:08,384 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:08] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:36:08,593 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:08] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:09,921 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:09] "[36mGET /index.html HTTP/1.1[0m" 304 -
+2025-08-04 23:36:10,074 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:10] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:36:10,775 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:36:10] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:40:38,095 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-04 23:40:38,095 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 23:40:38,098 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 23:40:39,273 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 23:40:39,281 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 23:40:42,468 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:40:42] "GET / HTTP/1.1" 200 -
+2025-08-04 23:40:42,632 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:40:42] "GET /modern-styles.css HTTP/1.1" 200 -
+2025-08-04 23:40:43,179 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:40:43] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:40:48,479 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:40:48] "GET /login.html HTTP/1.1" 200 -
+2025-08-04 23:40:48,507 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:40:48] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:40:48,570 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:40:48] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:40:51,370 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:40:51] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:41:07,006 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:41:07] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:41:07,046 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:41:07] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:41:07,118 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:41:07] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:42:34,563 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:34] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:42:43,585 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:43] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:42:43,616 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:43] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:42:43,671 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:43] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:42:45,713 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:45] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:42:47,281 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:47] "GET /signup.html HTTP/1.1" 200 -
+2025-08-04 23:42:47,315 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:47] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:42:47,378 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:42:47] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:50:29,070 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-04 23:50:29,071 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 23:50:29,074 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 23:50:30,383 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 23:50:30,390 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-04 23:50:32,586 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:32] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 23:50:32,871 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:32] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:50:33,172 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:33] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:50:49,489 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:49] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:50:49,537 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:49] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:50:49,642 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:49] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:50:52,841 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:52] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:50:52,888 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:52] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:50:52,955 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:50:52] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:00,462 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:00] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:01,469 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:01] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:14,669 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:14] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:51:14,701 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:14] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:51:14,757 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:14] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:16,699 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:16] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:25,416 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:25] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:51:25,453 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:25] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:51:25,524 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:25] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:30,886 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:30] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:32,701 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:32] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:51:32,750 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:32] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:51:32,801 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:32] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:51:40,625 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:40] "[36mGET /signup.html HTTP/1.1[0m" 304 -
+2025-08-04 23:51:40,668 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:40] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:51:40,723 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:51:40] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:52:12,454 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:52:12] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-04 23:52:12,477 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:52:12] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-04 23:52:12,516 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:52:12] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:52:40,428 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:52:40] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-04 23:52:49,421 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:52:49] "GET /login.html HTTP/1.1" 200 -
+2025-08-04 23:52:49,464 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:52:49] "GET /modern-styles.css HTTP/1.1" 200 -
+2025-08-04 23:52:49,503 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 23:52:49] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:10:31,912 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-05 00:10:31,913 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 00:10:31,917 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 00:10:33,151 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 00:10:33,158 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-05 00:10:35,114 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:10:35] "GET / HTTP/1.1" 200 -
+2025-08-05 00:10:35,253 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:10:35] "GET /modern-styles.css HTTP/1.1" 200 -
+2025-08-05 00:10:35,474 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:10:35] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:15:40,307 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-05 00:15:40,308 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 00:15:40,311 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 00:15:41,457 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 00:15:41,462 - werkzeug - INFO -  * Debugger PIN: 113-036-410
+2025-08-05 00:15:46,308 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:15:46] "GET / HTTP/1.1" 200 -
+2025-08-05 00:15:46,374 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:15:46] "GET /modern-styles.css HTTP/1.1" 200 -
+2025-08-05 00:15:46,660 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:15:46] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:15:56,296 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:15:56] "GET /login.html HTTP/1.1" 200 -
+2025-08-05 00:15:56,314 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:15:56] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-05 00:15:56,394 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:15:56] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:16:10,263 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:16:10] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:18:01,764 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:01] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-05 00:18:01,873 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:01] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-05 00:18:02,083 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:02] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:18:06,447 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:06] "[36mGET /login.html HTTP/1.1[0m" 304 -
+2025-08-05 00:18:06,476 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:06] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-05 00:18:06,581 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:06] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:18:11,556 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:11] "GET /signup.html HTTP/1.1" 200 -
+2025-08-05 00:18:11,589 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:11] "[36mGET /modern-styles.css HTTP/1.1[0m" 304 -
+2025-08-05 00:18:11,647 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:11] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:18:19,856 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:19] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+2025-08-05 00:18:20,738 - werkzeug - INFO - 127.0.0.1 - - [05/Aug/2025 00:18:20] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
