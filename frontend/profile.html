@@ -546,7 +546,7 @@
                     </svg>
                 </div>
         </div>
-        <div class="profile-title">Your Profile</div>
+        <div class="profile-title">आपकी Profile</div>
         <div class="profile-role" id="profile-role"></div>
         </div>
 
@@ -624,6 +624,7 @@
     const user_id = localStorage.getItem('user_id');
         
     if (!user_type || !user_id) {
+<<<<<<< HEAD
             const safeHtml = SecurityUtils.sanitizeHTML(`
                 <div class="profile-container">
                     <div class="profile-header">
@@ -637,14 +638,28 @@
     }
 
     const apiUrl = `http://localhost:5000/api/profile/${user_type}/${user_id}`;
+=======
+        document.body.innerHTML = '<div class="profile-container"><h2>Login नहीं किor गor</h2><p>अपनी Profile देखने के लिए कृपor Login करें।</p></div>';
+        throw new Error('Not logged in');
+    }
+    const apiUrl = `${window.location.origin}/api/profile/${user_type}/${user_id}`;
+>>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
     const editableFields = ['name', 'email', 'bio', 'shop_name', 'company_name', 'business_name', 'food_beverage_details', 'business_address', 'pincode', 'phone', 'gstin', 'preferred_categories', 'product_categories', 'warehouse_address', 'business_proof', 'moq', 'logistics_options'];
         
     const fieldLabels = {
+<<<<<<< HEAD
             name: 'Full Name',
             email: 'Email Address',
         bio: 'Bio',
         shop_name: 'Shop Name',
         company_name: 'Company Name',
+=======
+        name: 'Name',
+        email: 'Email',
+        bio: 'जीवनी',
+        shop_name: 'दुकान का Name',
+        company_name: 'कंपनी का Name',
+>>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
         business_name: 'Business Name',
         food_beverage_details: 'Food & Beverage Details',
         business_address: 'Business Address',
@@ -660,8 +675,8 @@
         invite_code: 'Invite Code',
         business_logo: 'Business Logo',
         user_type: 'Account Type',
-        user_id: 'User ID',
-        _id: 'User ID',
+        user_id: 'उपयोगकर्ता ID',
+        _id: 'उपयोगकर्ता ID',
     };
 
     let profileData = {};

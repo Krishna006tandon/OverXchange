@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - OverXchange</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --text-color: #333;
+            --text-light: #666;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .checkout-form {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .order-summary {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-items {
+            margin-bottom: 1.5rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-details {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid var(--border-color);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .place-order-btn {
+            width: 100%;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+        }
+
+        .place-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .place-order-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .error-message {
+            display: none;
+            background: var(--danger-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Coupon Section Styles */
+        .coupon-section {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+
+        .coupon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+
+        .coupon-header span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .coupon-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-toggle-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .coupon-content {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .coupon-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .coupon-dropdown {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .coupon-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .apply-coupon-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .apply-coupon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .apply-coupon-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .coupon-info {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            margin-top: 0.5rem;
+        }
+
+        .coupon-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .coupon-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .coupon-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .coupon-validity {
+            color: var(--success-color);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .coupon-applied {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-color: #16a34a;
+        }
+
+        .coupon-applied .coupon-title {
+            color: #16a34a;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .coupon-selector {
+                flex-direction: column;
+            }
+
+            .apply-coupon-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shopping-cart"></i>
+                OverXchange
+            </div>
+            <a href="cart.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Cart
+            </a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">
+            <i class="fas fa-credit-card"></i>
+            Checkout
+        </h1>
+
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            आCountry सफलतापूर्वक दिor गor! रीडायरेक्टिंग ऑर्डर्स...
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <div class="checkout-container">
+            <div class="checkout-form">
+                <form id="checkoutForm">
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Customer Information
+                        </h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email पता *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone नंबर *</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-shipping-fast"></i>
+                            Shipping Address
+                        </h2>
+                        <div class="form-group">
+                            <label for="addressLine1">Address Line 1 *</label>
+                            <input type="text" id="addressLine1" name="addressLine1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="addressLine2">Address Line 2</label>
+                            <input type="text" id="addressLine2" name="addressLine2">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City *</label>
+                                <input type="text" id="city" name="city" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State *</label>
+                                <input type="text" id="state" name="state" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pincode">Pincode *</label>
+                                <input type="text" id="pincode" name="pincode" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="country">Country *</label>
+                                <input type="text" id="country" name="country" value="India" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-truck"></i>
+                            Shipping Options
+                        </h2>
+                        <div class="form-group">
+                            <label for="shippingMethod">Shipping Method *</label>
+                            <select id="shippingMethod" name="shippingMethod" required>
+                                <option value="">Shipping Method चुनें</option>
+                                <option value="standard">Standard Delivery (3-5 दिन) - ₹50</option>
+                                <option value="express">Express Delivery (1-2 दिन) - ₹150</option>
+                                <option value="overnight">ऑनेवरनाइट डिलीवरी - ₹300</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deliveryInstructions">डिलीवरी निर्Country</label>
+                            <textarea id="deliveryInstructions" name="deliveryInstructions" rows="3" placeholder="डिलीवरी के लिए कोई विशेष निर्Country..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-credit-card"></i>
+                            Payment Information
+                        </h2>
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method *</label>
+                            <select id="paymentMethod" name="paymentMethod" required>
+                                <option value="">Payment Method चुनें</option>
+                                <option value="cod">कैश ऑन डिलीवरी</option>
+                                <option value="online">Online Payment</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="order-summary">
+                <h2 class="summary-title">
+                    <i class="fas fa-receipt"></i>
+                    Order Summary
+                </h2>
+                <div class="order-items" id="orderItems">
+                    <!-- Order items will be populated here -->
+                </div>
+                <div class="summary-row">
+                    <span>Total मूल्य</span>
+                    <span id="subtotal">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span id="shippingCost">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>GST (18%)</span>
+                    <span id="taxAmount">₹0.00</span>
+                </div>
+                <div class="summary-row coupon-section">
+                    <div class="coupon-header">
+                        <span><i class="fas fa-tag"></i> Available Coupons</span>
+                        <button type="button" class="coupon-toggle-btn" onclick="toggleCouponSection()">
+                            <i class="fas fa-chevron-down" id="couponToggleIcon"></i>
+                        </button>
+                    </div>
+                    <div class="coupon-content" id="couponContent" style="display: none;">
+                        <div class="coupon-selector">
+                            <select id="couponSelect" class="coupon-dropdown">
+                                <option value="">Select a coupon...</option>
+                            </select>
+                            <button type="button" class="apply-coupon-btn" onclick="applyCoupon()">
+                                <i class="fas fa-check"></i> Apply
+                            </button>
+                        </div>
+                        <div class="coupon-info" id="couponInfo" style="display: none;">
+                            <div class="coupon-details">
+                                <div class="coupon-title" id="couponTitle"></div>
+                                <div class="coupon-description" id="couponDescription"></div>
+                                <div class="coupon-validity" id="couponValidity"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-row" id="discountRow" style="display:none; color: #28a745;">
+                    <span>Discount</span>
+                    <span id="discountAmount">-₹0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total मूल्य</span>
+                    <span id="totalAmount">₹0.00</span>
+                </div>
+                <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">
+                    <i class="fas fa-shopping-cart"></i>
+                    आCountry दें
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let cart = [];
+        let currentUser = null;
+        let appliedCoupon = null;
+        let discountAmount = 0;
+        let availableCoupons = [];
+
+        // Load cart and user data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCart();
+            loadUserData();
+            setupFormValidation();
+            fetchAvailableCoupons();
+        });
+
+        function loadCart() {
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                window.location.href = 'cart.html';
+                return;
+            }
+            updateOrderSummary();
+        }
+
+        function loadUserData() {
+            // Try to get user data from localStorage or session
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                // Pre-fill form with user data
+                document.getElementById('firstName').value = currentUser.firstName || '';
+                document.getElementById('lastName').value = currentUser.lastName || '';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('phone').value = currentUser.phone || '';
+            }
+        }
+
+        function setupFormValidation() {
+            const shippingMethod = document.getElementById('shippingMethod');
+            shippingMethod.addEventListener('change', updateOrderSummary);
+        }
+
+        function toggleCouponSection() {
+            const content = document.getElementById('couponContent');
+            const icon = document.getElementById('couponToggleIcon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                content.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+            }
+        }
+
+        function fetchAvailableCoupons() {
+            // Get all unique supplier IDs from cart
+            const supplierIds = [...new Set(cart.map(item => item.supplierId).filter(id => id))];
+            
+            if (supplierIds.length === 0) {
+                document.getElementById('couponSelect').innerHTML = '<option value="">कोई विक्रेता जानकारी उपलब्ध नहीं</option>';
+                return;
+            }
+            
+            // For now, use the first supplier's coupons
+            // In a more advanced implementation, you could show coupons from all suppliers
+            const supplierId = supplierIds[0];
+            
+            fetch(`/api/coupons?supplier_id=${supplierId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.coupons && data.coupons.length > 0) {
+                        availableCoupons = data.coupons;
+                        const couponSelect = document.getElementById('couponSelect');
+                        couponSelect.innerHTML = '<option value="">Select a coupon...</option>' +
+                            data.coupons.map(c => `<option value="${c.code}" data-coupon='${JSON.stringify(c)}'>${c.title} (${c.code}) - ${c.discount_type === 'percentage' ? c.discount_value + '% Discount' : '₹' + c.discount_value + ' Discount'}</option>`).join('');
+                        
+                        // Add change event listener to show coupon details
+                        couponSelect.addEventListener('change', showCouponDetails);
+                    } else {
+                        document.getElementById('couponSelect').innerHTML = '<option value="">इस विक्रेता के लिए कोई कूपन उपलब्ध नहीं</option>';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching coupons:', error);
+                    document.getElementById('couponSelect').innerHTML = '<option value="">कूपन लोड नहीं हो सकते</option>';
+                });
+        }
+
+        function showCouponDetails() {
+            const couponSelect = document.getElementById('couponSelect');
+            const couponInfo = document.getElementById('couponInfo');
+            const selectedOption = couponSelect.options[couponSelect.selectedIndex];
+            
+            if (couponSelect.value) {
+                const coupon = JSON.parse(selectedOption.getAttribute('data-coupon'));
+                
+                document.getElementById('couponTitle').textContent = coupon.title;
+                document.getElementById('couponDescription').textContent = 
+                    `${coupon.discount_type === 'percentage' ? coupon.discount_value + '%' : '₹' + coupon.discount_value} Discount ऑर्डर ऊपर ₹${coupon.min_order_amount} पर`;
+                document.getElementById('couponValidity').textContent = 
+                    `से वैध ${new Date(coupon.valid_until).toLocaleDateString()}`;
+                
+                couponInfo.style.display = 'block';
+            } else {
+                couponInfo.style.display = 'none';
+            }
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById('couponSelect').value;
+            if (!code) {
+                showError('Please select a coupon.');
+                return;
+            }
+            // For demo, use the first supplier in cart
+            const supplierId = cart.length > 0 && cart[0].supplierId ? cart[0].supplierId : null;
+            if (!supplierId) {
+                showError('कूपन सत्orपन के लिए कोई विक्रेता नहीं मिला।');
+                return;
+            }
+            const orderAmount = parseFloat(document.getElementById('subtotal').textContent.replace('₹', ''));
+            fetch(`/api/coupons/validate/${code}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ supplier_id: supplierId, order_amount: orderAmount })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    appliedCoupon = data.coupon;
+                    discountAmount = data.coupon.discount_amount;
+                    document.getElementById('discountAmount').textContent = `-₹${discountAmount.toFixed(2)}`;
+                    document.getElementById('discountRow').style.display = '';
+                    
+                    // Update coupon info to show it's applied
+                    const couponInfo = document.getElementById('couponInfo');
+                    couponInfo.classList.add('coupon-applied');
+                    document.getElementById('couponTitle').innerHTML = `<i class="fas fa-check-circle"></i> ${data.coupon.title} - लागू!`;
+                    
+                    showSuccess('कूपन सफलतापूर्वक लागू हो गor!');
+                    updateOrderSummary();
+                } else {
+                    appliedCoupon = null;
+                    discountAmount = 0;
+                    document.getElementById('discountRow').style.display = 'none';
+                    
+                    // Reset coupon info
+                    const couponInfo = document.getElementById('couponInfo');
+                    couponInfo.classList.remove('coupon-applied');
+                    
+                    showError(data.message || 'Invalid coupon code.');
+                    updateOrderSummary();
+                }
+            })
+            .catch(() => {
+                showError('कूपन सत्orपन में विफल।');
+            });
+        }
+
+        // Update updateOrderSummary to subtract discountAmount from total
+        function updateOrderSummary() {
+            const orderItemsContainer = document.getElementById('orderItems');
+            const shippingMethod = document.getElementById('shippingMethod');
+            
+            let itemsHTML = '';
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                itemsHTML += `
+                    <div class="order-item">
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-details">भार: ${item.quantity} × ₹${item.price} (${item.unit})</div>
+                        </div>
+                        <div class="item-price">₹${itemTotal.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+
+            orderItemsContainer.innerHTML = itemsHTML;
+
+            // Calculate shipping cost
+            let shippingCost = 0;
+            if (shippingMethod.value) {
+                switch (shippingMethod.value) {
+                    case 'standard':
+                        shippingCost = 50;
+                        break;
+                    case 'express':
+                        shippingCost = 150;
+                        break;
+                    case 'overnight':
+                        shippingCost = 300;
+                        break;
+                }
+            }
+
+            const tax = subtotal * 0.18; // 18% GST
+            let total = subtotal + shippingCost + tax;
+            if (discountAmount > 0) {
+                total -= discountAmount;
+                document.getElementById('discountRow').style.display = '';
+                document.getElementById('discountAmount').textContent = `-₹${discountAmount.toFixed(2)}`;
+            } else {
+                document.getElementById('discountRow').style.display = 'none';
+            }
+
+            document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('shippingCost').textContent = `₹${shippingCost.toFixed(2)}`;
+            document.getElementById('taxAmount').textContent = `₹${tax.toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
+        }
+
+        function placeOrder() {
+            const form = document.getElementById('checkoutForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const placeOrderBtn = document.getElementById('placeOrderBtn');
+            placeOrderBtn.disabled = true;
+            placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            // Collect form data
+            const formData = new FormData(form);
+            const orderData = {
+                customerInfo: {
+                    firstName: formData.get('firstName'),
+                    lastName: formData.get('lastName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone')
+                },
+                shippingAddress: {
+                    addressLine1: formData.get('addressLine1'),
+                    addressLine2: formData.get('addressLine2'),
+                    city: formData.get('city'),
+                    state: formData.get('state'),
+                    pincode: formData.get('pincode'),
+                    country: formData.get('country')
+                },
+                shippingMethod: formData.get('shippingMethod'),
+                deliveryInstructions: formData.get('deliveryInstructions'),
+                paymentMethod: formData.get('paymentMethod'),
+                items: cart,
+                subtotal: parseFloat(document.getElementById('subtotal').textContent.replace('₹', '')),
+                shippingCost: parseFloat(document.getElementById('shippingCost').textContent.replace('₹', '')),
+                taxAmount: parseFloat(document.getElementById('taxAmount').textContent.replace('₹', '')),
+                totalAmount: parseFloat(document.getElementById('totalAmount').textContent.replace('₹', '')),
+                orderDate: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            // Get vendor ID from localStorage
+            const vendorId = localStorage.getItem('user_id');
+            if (vendorId) {
+                orderData.vendor_id = vendorId;
+            }
+            // Add coupon info if applied
+            if (appliedCoupon) {
+                orderData.coupon = appliedCoupon;
+                orderData.discountAmount = discountAmount;
+            }
+
+            // Send order to backend
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess('आCountry सफलतापूर्वक दिor गor!');
+                    // Clear cart
+                    localStorage.removeItem('cart');
+                    // Redirect to orders page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'vendor-dashboard.html#orders';
+                    }, 2000);
+                } else {
+                    showError(data.message || 'आCountry देने में विफल।');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Network error. कृपor पुनः प्रorस करें।');
+            })
+            .finally(() => {
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> आCountry दें';
+            });
+        }
+
+        function showSuccess(message) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorMessage.style.display = 'block';
+            errorMessage.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html> 

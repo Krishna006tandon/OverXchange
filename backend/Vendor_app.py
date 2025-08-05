@@ -208,7 +208,7 @@ def create_transaction(current_user):
         'logistics': data.get('logistics', {}),
         'created_at': datetime.utcnow()
     }
-    
+    #
     result = transactions.insert_one(transaction)
     transaction['_id'] = str(result.inserted_id)
     

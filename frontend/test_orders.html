@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Orders - OverXchange</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-processing { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-test-tube"></i> Test Orders Functionality</h1>
+        
+        <div class="test-section">
+            <h3>1. Test Vendor Orders</h3>
+            <p>Test ID: <input type="text" id="vendorId" value="test_vendor_123" placeholder="Enter vendor ID"></p>
+            <button class="btn" onclick="testVendorOrders()">Load Vendor Orders</button>
+            <div id="vendorOrdersResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Supplier Orders</h3>
+            <p>Test ID: <input type="text" id="supplierId" value="test_supplier_456" placeholder="Enter supplier ID"></p>
+            <button class="btn" onclick="testSupplierOrders()">Load Supplier Orders</button>
+            <div id="supplierOrdersResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Create Order</h3>
+            <button class="btn btn-success" onclick="testCreateOrder()">Create Sample Order</button>
+            <div id="createOrderResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Test Download Bill</h3>
+            <p>Order ID: <input type="text" id="orderId" value="ORD-20241201-ABC123" placeholder="Enter order ID"></p>
+            <button class="btn" onclick="testDownloadBill()">Download Bill</button>
+            <div id="downloadBillResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Test Update Order Status</h3>
+            <p>Order ID: <input type="text" id="updateOrderId" value="ORD-20241201-ABC123" placeholder="Enter order ID"></p>
+            <p>New Status: 
+                <select id="newStatus">
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </p>
+            <button class="btn" onclick="testUpdateStatus()">Update Status</button>
+            <div id="updateStatusResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function testVendorOrders() {
+            const vendorId = document.getElementById('vendorId').value;
+            const resultDiv = document.getElementById('vendorOrdersResult');
+            
+            resultDiv.innerHTML = 'Loading...';
+            
+            fetch(`/api/orders?user_type=vendor&user_id=${vendorId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = '<h4>Vendor Orders Found:</h4>';
+                        data.orders.forEach(order => {
+                            html += `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <h4>Order #${order.order_id}</h4>
+                                        <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                                    </div>
+                                    <p><strong>Customer:</strong> ${order.customer_info.firstName} ${order.customer_info.lastName}</p>
+                                    <p><strong>Total:</strong> ₹${order.total_amount}</p>
+                                    <p><strong>Date:</strong> ${new Date(order.order_date).toLocaleDateString()}</p>
+                                    ${order.supplier_orders ? order.supplier_orders.map(supOrder => `
+                                        <div style='margin-left:20px;margin-top:10px;'>
+                                            <strong>Supplier:</strong> ${supOrder.supplier_name}<br/>
+                                            <strong>Subtotal:</strong> ₹${supOrder.subtotal}<br/>
+                                            <strong>Logistic Charges:</strong> ₹${supOrder.supplier_logistic_charges ?? 0}
+                                        </div>
+                                    `).join('') : ''}
+                                </div>
+                            `;
+                        });
+                        resultDiv.innerHTML = html;
+                        resultDiv.className = 'result success';
+                    } else {
+                        resultDiv.innerHTML = `Error: ${data.message}`;
+                        resultDiv.className = 'result error';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `Network Error: ${error.message}`;
+                    resultDiv.className = 'result error';
+                });
+        }
+
+        function testSupplierOrders() {
+            const supplierId = document.getElementById('supplierId').value;
+            const resultDiv = document.getElementById('supplierOrdersResult');
+            
+            resultDiv.innerHTML = 'Loading...';
+            
+            fetch(`/api/orders?user_type=supplier&user_id=${supplierId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = '<h4>Supplier Orders Found:</h4>';
+                        data.orders.forEach(order => {
+                            html += `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <h4>Order #${order.order_id}</h4>
+                                        <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                                    </div>
+                                    <p><strong>Customer:</strong> ${order.customer_info.firstName} ${order.customer_info.lastName}</p>
+                                    <p><strong>Total:</strong> ₹${order.total_amount}</p>
+                                    <p><strong>Date:</strong> ${new Date(order.order_date).toLocaleDateString()}</p>
+                                    ${order.supplier_orders ? order.supplier_orders.map(supOrder => `
+                                        <div style='margin-left:20px;margin-top:10px;'>
+                                            <strong>Supplier:</strong> ${supOrder.supplier_name}<br/>
+                                            <strong>Subtotal:</strong> ₹${supOrder.subtotal}<br/>
+                                            <strong>Logistic Charges:</strong> ₹${supOrder.supplier_logistic_charges ?? 0}
+                                        </div>
+                                    `).join('') : ''}
+                                </div>
+                            `;
+                        });
+                        resultDiv.innerHTML = html;
+                        resultDiv.className = 'result success';
+                    } else {
+                        resultDiv.innerHTML = `Error: ${data.message}`;
+                        resultDiv.className = 'result error';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `Network Error: ${error.message}`;
+                    resultDiv.className = 'result error';
+                });
+        }
+
+        function testCreateOrder() {
+            const resultDiv = document.getElementById('createOrderResult');
+            
+            const sampleOrder = {
+                customerInfo: {
+                    firstName: 'Test',
+                    lastName: 'User',
+                    email: 'test@example.com',
+                    phone: '9876543210'
+                },
+                shippingAddress: {
+                    addressLine1: 'Test Address',
+                    addressLine2: '',
+                    city: 'Mumbai',
+                    state: 'Maharashtra',
+                    pincode: '400001',
+                    country: 'India'
+                },
+                shippingMethod: 'standard',
+                deliveryInstructions: 'Test delivery',
+                paymentMethod: 'cod',
+                items: [
+                    {
+                        id: 'test_item_1',
+                        name: 'Test Product',
+                        price: 100.0,
+                        supplierName: 'Test Supplier',
+                        category: 'Test',
+                        unit: 'kg',
+                        quantity: 2,
+                        maxQuantity: 10
+                    }
+                ],
+                subtotal: 200.0,
+                shippingCost: 50.0,
+                taxAmount: 36.0,
+                totalAmount: 286.0,
+                vendor_id: 'test_vendor_123'
+            };
+            
+            resultDiv.innerHTML = 'Creating order...';
+            
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(sampleOrder)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `Order created successfully!\nOrder ID: ${data.order_id}\nMongoDB ID: ${data.order_mongo_id}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `Error: ${data.message}`;
+                    resultDiv.className = 'result error';
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `Network Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            });
+        }
+
+        function testDownloadBill() {
+            const orderId = document.getElementById('orderId').value;
+            const resultDiv = document.getElementById('downloadBillResult');
+            
+            resultDiv.innerHTML = 'Downloading bill...';
+            
+            fetch(`/api/orders/${orderId}/bill`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resultDiv.innerHTML = 'Bill generated successfully! Opening in new window...';
+                        resultDiv.className = 'result success';
+                        
+                        // Open bill in new window
+                        const billWindow = window.open('', '_blank');
+                        billWindow.document.write(data.bill_html);
+                        billWindow.document.close();
+                    } else {
+                        resultDiv.innerHTML = `Error: ${data.message}`;
+                        resultDiv.className = 'result error';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `Network Error: ${error.message}`;
+                    resultDiv.className = 'result error';
+                });
+        }
+
+        function testUpdateStatus() {
+            const orderId = document.getElementById('updateOrderId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const resultDiv = document.getElementById('updateStatusResult');
+            
+            resultDiv.innerHTML = 'Updating status...';
+            
+            fetch(`/api/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `Status updated successfully to: ${newStatus}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `Error: ${data.message}`;
+                    resultDiv.className = 'result error';
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `Network Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            });
+        }
+    </script>
+</body>
+</html> 

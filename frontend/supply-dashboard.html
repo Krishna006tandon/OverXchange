@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>Supplier Dashboard - OverXchange</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="modern-styles.css">
+=======
+    <title>Supply Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="dashboard-styles.css">
+>>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
     <style>
         /* Supplier Dashboard Specific Styles */
         .dashboard-container {
@@ -1156,6 +1166,227 @@
             resize: vertical;
             min-height: 80px;
         }
+        
+        .form-section-divider {
+            margin: 2rem 0 1.5rem 0;
+            padding: 1rem 0;
+            border-top: 2px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .form-section-divider h4 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Analytics Styles */
+        .analytics-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .analytics-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .card-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0 0 4px 0;
+        }
+
+        .card-content p {
+            color: var(--text-light);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .analytics-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0 0 4px 0;
+        }
+
+        .chart-header p {
+            color: var(--text-light);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .chart-content {
+            position: relative;
+            height: 300px;
+        }
+
+        .analytics-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+        }
+
+        .section-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0 0 4px 0;
+        }
+
+        .section-header p {
+            color: var(--text-light);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .recent-activity {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .activity-content h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0 0 2px 0;
+        }
+
+        .activity-content p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .analytics-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .metric-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0 0 16px 0;
+        }
+
+        .category-item, .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-item:last-child, .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-name, .alert-message {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .category-count, .alert-type {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .alert-type.critical {
+            color: #dc3545;
+        }
+
+        .alert-type.warning {
+            color: #ffc107;
+        }
 
         .modal-actions {
             display: flex;
@@ -1432,9 +1663,91 @@
         }
 
         .status-indicator.verified {
-            background: rgba(16, 185, 129, 0.1);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
             color: #10b981;
             border: 2px solid #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            animation: verifiedPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes verifiedPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .status-indicator.verified i {
+            color: #10b981;
+            font-size: 1.2em;
+            animation: checkmarkBounce 0.6s ease-in-out;
+        }
+
+        @keyframes checkmarkBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Verification Success Notification */
+        .verification-success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            z-index: 1000;
+            animation: slideInRight 0.5s ease-out;
+            max-width: 400px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .success-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .success-content i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .success-text h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .success-text p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-notification:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .status-indicator.not-verified {
@@ -1653,6 +1966,237 @@
                 margin-top: 1rem;
             }
         }
+
+        /* Orders Styles */
+        .orders-section {
+            margin-top: 2rem;
+        }
+
+        /* Enhanced Button Hover Effects */
+        .order-actions button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+        }
+
+        .header-actions button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+        }
+
+        .header-actions select:hover {
+            border-color: #667eea !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+        }
+
+        .section-actions select:hover {
+            border-color: #667eea !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .order-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .order-date, .customer-info {
+            margin: 0.25rem 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-accepted {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-delivered {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-processing {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-shipped {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-delivered {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-items h4 {
+            margin: 0 0 1rem 0;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .item-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .item-quantity {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .order-summary {
+            background: var(--bg-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .summary-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-orders i {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-orders h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-color);
+        }
+
+        .empty-orders p {
+            margin: 0;
+            color: var(--text-light);
+        }
+
+        .error-message {
+            color: #dc2626;
+            text-align: center;
+            padding: 1.5rem;
+            background: #fee2e2;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .order-details {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .order-actions {
+                flex-direction: column;
+            }
+
+            .order-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1768,6 +2312,14 @@
                         <div class="stat-title">Total Value</div>
                         <div class="stat-value" id="totalValue">₹0</div>
                         <div class="stat-change positive">Current inventory</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-title">Left Stock Value</div>
+                        <div class="stat-value" id="leftStockValue">₹0</div>
+                        <div class="stat-change positive">Remaining inventory</div>
                     </div>
                 </div>
 
@@ -1962,6 +2514,64 @@
                                 </select>
                             </div>
                         </div>
+                        
+                        <!-- Additional Product Details -->
+                        <div class="form-section-divider">
+                            <h4>Additional Product Details</h4>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sku">SKU (Stock Keeping Unit)</label>
+                                <input type="text" id="sku" name="sku" placeholder="e.g., MILK-001">
+                            </div>
+                            <div class="form-group">
+                                <label for="brand">Brand</label>
+                                <input type="text" id="brand" name="brand" placeholder="e.g., Amul, Nestle">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weight">Weight</label>
+                                <input type="number" id="weight" name="weight" min="0" step="0.01" placeholder="e.g., 1.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="weightUnit">Weight Unit</label>
+                                <select id="weightUnit" name="weight_unit">
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="gram">Gram (g)</option>
+                                    <option value="pound">Pound (lb)</option>
+                                    <option value="ounce">Ounce (oz)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiryDate">Expiry Date</label>
+                                <input type="date" id="expiryDate" name="expiry_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="storageInstructions">Storage Instructions</label>
+                                <input type="text" id="storageInstructions" name="storage_instructions" placeholder="e.g., Keep refrigerated">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ingredients">Ingredients</label>
+                            <textarea id="ingredients" name="ingredients" rows="2" placeholder="List all ingredients separated by commas"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nutritionalInfo">Nutritional Information</label>
+                            <textarea id="nutritionalInfo" name="nutritional_info" rows="2" placeholder="e.g., Protein: 3.2g, Fat: 3.6g per 100ml"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="allergenInfo">Allergen Information</label>
+                            <textarea id="allergenInfo" name="allergen_info" rows="2" placeholder="e.g., Contains: Milk, Soy"></textarea>
+                        </div>
                         <div class="form-actions">
                             <button type="button" onclick="closeStockModal()" class="btn-secondary">Cancel</button>
                             <button type="submit" class="btn-primary">Save Stock</button>
@@ -1970,12 +2580,83 @@
                 </div>
             </div>
 
-            <!-- Other pages placeholder -->
+            <!-- Orders page -->
             <div id="orders-page" class="page-content" style="display: none;">
                 <div class="page-header">
-                    <h1 class="page-title">Orders</h1>
+                    <h1 class="page-title">My Orders - <span id="pageSupplierName">Loading...</span></h1>
+                    <div class="header-actions">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                                <i class="fas fa-user"></i> 🏪 <span id="currentSupplierName">Loading...</span>
+                            </div>
+                            <button class="btn btn-secondary" onclick="refreshSupplierOrders()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                                <i class="fas fa-sync-alt"></i> 🔄 Refresh
+                            </button>
+                            <button class="btn btn-primary" onclick="loadSupplierOrders()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: white; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);">
+                                <i class="fas fa-download"></i> 📥 Load Orders
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <p>Orders page content will be here...</p>
+                
+                <!-- Order Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-title">Total Orders</div>
+                        <div class="stat-value" id="supplierTotalOrders">0</div>
+                        <div class="stat-change positive">All time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-title">Pending Orders</div>
+                        <div class="stat-value" id="supplierPendingOrders">0</div>
+                        <div class="stat-change neutral">Awaiting action</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-title">Completed Orders</div>
+                        <div class="stat-value" id="supplierCompletedOrders">0</div>
+                        <div class="stat-change positive">Successfully fulfilled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-title">Total Revenue</div>
+                        <div class="stat-value" id="supplierTotalRevenue">₹0</div>
+                        <div class="stat-change positive">From orders</div>
+                    </div>
+                </div>
+
+                <!-- Orders List -->
+                <div class="orders-section">
+                    <div class="section-header">
+                        <h2 class="section-title">All Orders</h2>
+                        <div class="section-actions">
+                            <select id="orderFilter" onchange="filterSupplierOrders()" style="padding: 10px 15px; border-radius: 8px; border: 2px solid #e1e5e9; background: white; font-size: 14px; font-weight: 500; color: #333; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <option value="all">📋 All Orders</option>
+                                <option value="pending">⏳ Pending</option>
+                                <option value="processing">⚙️ Processing</option>
+                                <option value="shipped">🚚 Shipped</option>
+                                <option value="delivered">📦 Delivered</option>
+                                <option value="completed">✅ Completed</option>
+                                <option value="cancelled">❌ Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="supplierOrdersContainer">
+                        <div class="orders-list" id="supplierOrdersList">
+                            <!-- Orders will be loaded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="coupons-page" class="page-content" style="display: none;">
@@ -2047,9 +2728,115 @@
 
             <div id="analytics-page" class="page-content" style="display: none;">
                 <div class="page-header">
-                    <h1 class="page-title">Analytics</h1>
+                    <h1 class="page-title">Analytics Dashboard</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshAnalytics()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="exportAnalytics()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
                 </div>
-                <p>Analytics page content will be here...</p>
+
+                <!-- Analytics Overview Cards -->
+                <div class="analytics-overview">
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="analyticsTotalProducts">0</h3>
+                            <p>Total Products</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="analyticsLowStock">0</h3>
+                            <p>Low Stock Items</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="analyticsOutOfStock">0</h3>
+                            <p>Out of Stock</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="analyticsTotalValue">₹0</h3>
+                            <p>Total Inventory Value</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="analyticsLeftStockValue">₹0</h3>
+                            <p>Left Stock Value</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Category Distribution</h3>
+                            <p>Products by category</p>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="categoryChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Stock Levels</h3>
+                            <p>Current stock status</p>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="stockChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="analytics-section">
+                    <div class="section-header">
+                        <h3>Recent Stock Updates</h3>
+                        <p>Latest changes to your inventory</p>
+                    </div>
+                    <div class="recent-activity" id="recentActivity">
+                        <!-- Recent activity will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="analytics-metrics">
+                    <div class="metric-card">
+                        <h4>Top Performing Categories</h4>
+                        <div id="topCategories">
+                            <!-- Top categories will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Stock Alerts</h4>
+                        <div id="stockAlerts">
+                            <!-- Stock alerts will be loaded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="settings-page" class="page-content" style="display: none;">
@@ -2343,7 +3130,7 @@
                 
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="3" placeholder="Describe the coupon offer..."></textarea>
+                                            <textarea id="couponDescription" name="description" rows="3" placeholder="Describe the coupon offer..."></textarea>
                 </div>
                 
                 <div class="form-row">
@@ -2486,6 +3273,18 @@
                 const targetContent = document.getElementById(targetPage + '-page');
                 if (targetContent) {
                     targetContent.style.display = 'block';
+                    
+                    // Load specific content based on page
+                    if (targetPage === 'orders') {
+                        updateCurrentSupplierDisplay();
+                        loadSupplierOrders();
+                    } else if (targetPage === 'stocks') {
+                        loadStocks();
+                    } else if (targetPage === 'coupons') {
+                        loadCoupons();
+                    } else if (targetPage === 'analytics') {
+                        loadAnalyticsData();
+                    }
                 }
             });
         });
@@ -2496,6 +3295,17 @@
 
         // Load stocks when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // For testing: Set default supplier data if none exists
+            if (!localStorage.getItem('user_id')) {
+                localStorage.setItem('user_id', 'supplier123');
+                localStorage.setItem('user_type', 'supplier');
+                localStorage.setItem('supplier_name', 'Fresh Foods Ltd');
+                console.log('Set default test supplier data for testing');
+            }
+            
+            // Update supplier display
+            updateCurrentSupplierDisplay();
+            
             loadStocks();
             loadSupplierProfile();
             loadDashboardData(); // Load dashboard data from backend
@@ -2517,11 +3327,12 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Update stats
-                    document.getElementById('totalProducts').textContent = data.analytics.total_products;
-                    document.getElementById('lowStockItems').textContent = data.analytics.low_stock_items;
-                    document.getElementById('outOfStockItems').textContent = data.analytics.out_of_stock_items;
-                    document.getElementById('totalValue').textContent = `₹${data.analytics.total_value.toLocaleString()}`;
+                    // Update stats with null checks
+                    document.getElementById('totalProducts').textContent = data.analytics?.total_products || 0;
+                    document.getElementById('lowStockItems').textContent = data.analytics?.low_stock_items || 0;
+                    document.getElementById('outOfStockItems').textContent = data.analytics?.out_of_stock_items || 0;
+                    document.getElementById('totalValue').textContent = `₹${(data.analytics?.total_value || 0).toLocaleString()}`;
+                    document.getElementById('leftStockValue').textContent = `₹${(data.analytics?.left_stock_value || 0).toLocaleString()}`;
                     
                     // Update recent stocks
                     displayDashboardStocks(data.recent_stocks);
@@ -2585,7 +3396,11 @@
                 const data = await response.json();
                 
                 if (data.name) {
-                    document.getElementById('welcomeMessage').textContent = `Welcome back, ${data.name}!`;
+                    const userId = localStorage.getItem('user_id');
+                    const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+                    const verificationBadge = verificationStatus === 'verified' ? 
+                        '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+                    document.getElementById('welcomeMessage').innerHTML = `Welcome back, ${data.name}!${verificationBadge}`;
                 }
             } catch (error) {
                 console.error('Error loading supplier profile:', error);
@@ -2602,7 +3417,7 @@
             document.getElementById('totalProducts').textContent = totalProducts;
             document.getElementById('lowStockItems').textContent = lowStockItems;
             document.getElementById('outOfStockItems').textContent = outOfStockItems;
-            document.getElementById('totalValue').textContent = `₹${totalValue.toLocaleString()}`;
+            document.getElementById('totalValue').textContent = `₹${(totalValue || 0).toLocaleString()}`;
         }
 
         // Stock Management Functions
@@ -2720,6 +3535,17 @@
             document.getElementById('minOrderQuantity').value = stock.minimum_order_quantity;
             document.getElementById('qualityGrade').value = stock.quality_grade || 'A';
             document.getElementById('isOrganic').value = stock.is_organic ? 'true' : 'false';
+            
+            // Fill additional fields
+            document.getElementById('sku').value = stock.sku || '';
+            document.getElementById('brand').value = stock.brand || '';
+            document.getElementById('weight').value = stock.weight || '';
+            document.getElementById('weightUnit').value = stock.weight_unit || 'kg';
+            document.getElementById('expiryDate').value = stock.expiry_date || '';
+            document.getElementById('storageInstructions').value = stock.storage_instructions || '';
+            document.getElementById('ingredients').value = stock.ingredients || '';
+            document.getElementById('nutritionalInfo').value = stock.nutritional_info || '';
+            document.getElementById('allergenInfo').value = stock.allergen_info || '';
         }
 
         // Form submission
@@ -2737,7 +3563,18 @@
                 price_per_unit: parseFloat(formData.get('price_per_unit')),
                 minimum_order_quantity: parseInt(formData.get('minimum_order_quantity')),
                 quality_grade: formData.get('quality_grade'),
-                is_organic: formData.get('is_organic') === 'true'
+                is_organic: formData.get('is_organic') === 'true',
+                
+                // Additional fields
+                sku: formData.get('sku'),
+                brand: formData.get('brand'),
+                weight: formData.get('weight') ? parseFloat(formData.get('weight')) : null,
+                weight_unit: formData.get('weight_unit'),
+                expiry_date: formData.get('expiry_date'),
+                storage_instructions: formData.get('storage_instructions'),
+                ingredients: formData.get('ingredients'),
+                nutritional_info: formData.get('nutritional_info'),
+                allergen_info: formData.get('allergen_info')
             };
 
             try {
@@ -2827,6 +3664,9 @@
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('user_type');
                 localStorage.removeItem('user_id');
+                localStorage.removeItem('supplier_name');
+                localStorage.removeItem('business_name');
+                localStorage.removeItem('name');
                 window.location.href = 'login.html';
             }
         });
@@ -3303,7 +4143,9 @@
             const csvContent = convertToCSV(data);
             
             // Download file
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob([csvContent], { 
+                type: 'text/csv;charset=utf-8;' 
+            });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
@@ -3313,7 +4155,7 @@
             link.click();
             document.body.removeChild(link);
 
-            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported as CSV successfully! (Can be opened in Excel)`);
         }
 
         // Convert data to CSV format
@@ -3321,17 +4163,25 @@
             if (data.length === 0) return '';
             
             const headers = Object.keys(data[0]);
-            const csvRows = [headers.join(',')];
+            const headerRow = headers.map(header => 
+                header.charAt(0).toUpperCase() + header.slice(1).replace(/_/g, ' ')
+            );
+            
+            const csvRows = [headerRow];
             
             for (const row of data) {
                 const values = headers.map(header => {
                     const value = row[header];
-                    return typeof value === 'string' ? `"${value}"` : value;
+                    if (value === null || value === undefined) return '';
+                    if (typeof value === 'string' && value.includes(',')) {
+                        return `"${value}"`;
+                    }
+                    return String(value);
                 });
-                csvRows.push(values.join(','));
+                csvRows.push(values);
             }
             
-            return csvRows.join('\n');
+            return csvRows.map(row => row.join(',')).join('\n');
         }
 
         // Auto refresh functionality
@@ -3365,6 +4215,354 @@
             });
         });
 
+        // Analytics Functions
+        let categoryChart = null;
+        let stockChart = null;
+
+        // Load analytics data
+        async function loadAnalyticsData() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) return;
+
+            try {
+                const response = await fetch(`/api/dashboard/${userId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    try {
+                        updateAnalyticsUI(data.analytics, data.recent_stocks);
+                        createCharts(data.analytics);
+                    } catch (error) {
+                        console.error('Error updating analytics UI:', error);
+                        // Set default values if analytics data is missing
+                        updateAnalyticsUI({
+                            total_products: 0,
+                            low_stock_items: 0,
+                            out_of_stock_items: 0,
+                            total_value: 0,
+                            left_stock_value: 0,
+                            category_distribution: {}
+                        }, []);
+                    }
+                } else {
+                    console.error('Failed to load analytics data:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading analytics data:', error);
+            }
+        }
+
+        // Update analytics UI
+        function updateAnalyticsUI(analytics, recentStocks) {
+            // Update overview cards with null checks
+            document.getElementById('analyticsTotalProducts').textContent = analytics?.total_products || 0;
+            document.getElementById('analyticsLowStock').textContent = analytics?.low_stock_items || 0;
+            document.getElementById('analyticsOutOfStock').textContent = analytics?.out_of_stock_items || 0;
+            document.getElementById('analyticsTotalValue').textContent = `₹${(analytics?.total_value || 0).toLocaleString()}`;
+            document.getElementById('analyticsLeftStockValue').textContent = `₹${(analytics?.left_stock_value || 0).toLocaleString()}`;
+
+            // Update recent activity
+            updateRecentActivity(recentStocks);
+
+            // Update top categories
+            updateTopCategories(analytics.category_distribution);
+
+            // Update stock alerts
+            updateStockAlerts(analytics);
+        }
+
+        // Update recent activity
+        function updateRecentActivity(recentStocks) {
+            const recentActivity = document.getElementById('recentActivity');
+            if (!recentStocks || recentStocks.length === 0) {
+                recentActivity.innerHTML = '<p style="color: var(--text-light); text-align: center;">No recent activity</p>';
+                return;
+            }
+
+            const activityHTML = recentStocks.map(stock => {
+                const date = new Date(stock.updated_at).toLocaleDateString('en-IN');
+                const time = new Date(stock.updated_at).toLocaleTimeString('en-IN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>${stock.product_name}</h4>
+                            <p>Updated on ${date} at ${time}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            recentActivity.innerHTML = activityHTML;
+        }
+
+        // Update top categories
+        function updateTopCategories(categoryDistribution) {
+            const topCategories = document.getElementById('topCategories');
+            if (!categoryDistribution || !Array.isArray(categoryDistribution) && Object.keys(categoryDistribution).length === 0) {
+                topCategories.innerHTML = '<p style="color: var(--text-light); text-align: center;">No categories found</p>';
+                return;
+            }
+
+            const sortedCategories = Object.entries(categoryDistribution)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+
+            const categoriesHTML = sortedCategories.map(([category, count]) => `
+                <div class="category-item">
+                    <span class="category-name">${category}</span>
+                    <span class="category-count">${count} products</span>
+                </div>
+            `).join('');
+
+            topCategories.innerHTML = categoriesHTML;
+        }
+
+        // Update stock alerts
+        function updateStockAlerts(analytics) {
+            const stockAlerts = document.getElementById('stockAlerts');
+            const alerts = [];
+
+            if (analytics?.out_of_stock_items > 0) {
+                alerts.push({
+                    message: `${analytics.out_of_stock_items} items out of stock`,
+                    type: 'critical'
+                });
+            }
+
+            if (analytics?.low_stock_items > 0) {
+                alerts.push({
+                    message: `${analytics.low_stock_items} items running low`,
+                    type: 'warning'
+                });
+            }
+
+            if (alerts.length === 0) {
+                stockAlerts.innerHTML = '<p style="color: var(--text-light); text-align: center;">No alerts</p>';
+                return;
+            }
+
+            const alertsHTML = alerts.map(alert => `
+                <div class="alert-item">
+                    <span class="alert-message">${alert.message}</span>
+                    <span class="alert-type ${alert.type}">${alert.type.toUpperCase()}</span>
+                </div>
+            `).join('');
+
+            stockAlerts.innerHTML = alertsHTML;
+        }
+
+        // Create charts
+        function createCharts(analytics) {
+            createCategoryChart(analytics.category_distribution);
+            createStockChart(analytics);
+        }
+
+        // Create category distribution chart
+        function createCategoryChart(categoryDistribution) {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+
+            // Destroy existing chart if it exists
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+
+            const labels = Object.keys(categoryDistribution);
+            const data = Object.values(categoryDistribution);
+
+            if (labels.length === 0) {
+                ctx.style.display = 'none';
+                return;
+            }
+
+            ctx.style.display = 'block';
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#f5576c',
+                            '#4facfe',
+                            '#00f2fe',
+                            '#fa709a',
+                            '#fee140'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create stock levels chart
+        function createStockChart(analytics) {
+            const ctx = document.getElementById('stockChart');
+            if (!ctx) return;
+
+            // Destroy existing chart if it exists
+            if (stockChart) {
+                stockChart.destroy();
+            }
+
+            const inStock = analytics.total_products - analytics.out_of_stock_items - analytics.low_stock_items;
+            
+            ctx.style.display = 'block';
+            stockChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['In Stock', 'Low Stock', 'Out of Stock'],
+                    datasets: [{
+                        label: 'Products',
+                        data: [inStock, analytics.low_stock_items, analytics.out_of_stock_items],
+                        backgroundColor: [
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Refresh analytics
+        function refreshAnalytics() {
+            loadAnalyticsData();
+        }
+
+        // Export analytics
+        function exportAnalytics() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) return;
+
+            // Get current analytics data
+            const totalProducts = document.getElementById('analyticsTotalProducts').textContent;
+            const lowStock = document.getElementById('analyticsLowStock').textContent;
+            const outOfStock = document.getElementById('analyticsOutOfStock').textContent;
+            const totalValue = document.getElementById('analyticsTotalValue').textContent;
+
+            // Create CSV content
+            const csvContent = createCSVContent(totalProducts, lowStock, outOfStock, totalValue);
+            
+            // Download CSV file
+            const blob = new Blob([csvContent], { 
+                type: 'text/csv;charset=utf-8;' 
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `analytics_report_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            alert('Analytics report exported as CSV successfully! (Can be opened in Excel)');
+        }
+
+        // Create CSV content
+        function createCSVContent(totalProducts, lowStock, outOfStock, totalValue) {
+            // Prepare data for analytics
+            const csvRows = [
+                ['Analytics Report'],
+                [`Generated on: ${new Date().toLocaleString('en-IN')}`],
+                [],
+                ['Metric', 'Value'],
+                ['Total Products', parseInt(totalProducts) || 0],
+                ['Low Stock Items', parseInt(lowStock) || 0],
+                ['Out of Stock Items', parseInt(outOfStock) || 0],
+                ['Total Inventory Value', totalValue || '₹0'],
+                [],
+                ['Category Distribution'],
+                ['Category', 'Count']
+            ];
+
+            // Add category distribution data
+            const topCategories = document.getElementById('topCategories');
+            if (topCategories) {
+                const categoryItems = topCategories.querySelectorAll('.category-item');
+                categoryItems.forEach(item => {
+                    const categoryName = item.querySelector('.category-name').textContent;
+                    const categoryCount = item.querySelector('.category-count').textContent;
+                    csvRows.push([categoryName, parseInt(categoryCount) || 0]);
+                });
+            }
+
+            // Add stock alerts
+            const stockAlerts = document.getElementById('stockAlerts');
+            if (stockAlerts) {
+                const alertItems = stockAlerts.querySelectorAll('.alert-item');
+                if (alertItems.length > 0) {
+                    csvRows.push([]);
+                    csvRows.push(['Stock Alerts']);
+                    csvRows.push(['Alert', 'Type']);
+                    alertItems.forEach(item => {
+                        const alertMessage = item.querySelector('.alert-message').textContent;
+                        const alertType = item.querySelector('.alert-type').textContent;
+                        csvRows.push([alertMessage, alertType]);
+                    });
+                }
+            }
+
+            // Convert to CSV format
+            return csvRows.map(row => 
+                row.map(cell => 
+                    typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell
+                ).join(',')
+            ).join('\n');
+        }
+
+        // Load analytics when analytics page is accessed
+        const analyticsNavLinks = document.querySelectorAll('.nav-link[data-page="analytics"]');
+        analyticsNavLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                setTimeout(() => {
+                    loadAnalyticsData();
+                }, 100);
+            });
+        });
+
         // License Verification Functions
         let selectedFile = null;
 
@@ -3381,16 +4579,19 @@
                 if (result.success) {
                     updateVerificationStatus(result.status);
                     localStorage.setItem(`verification_${userId}`, result.status);
+                    updateVerificationBadges(); // Update badges
                 } else {
                     // Fallback to localStorage
                     const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
                     updateVerificationStatus(verificationStatus);
+                    updateVerificationBadges(); // Update badges
                 }
             } catch (error) {
                 console.error('Error loading verification status:', error);
                 // Fallback to localStorage
                 const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
                 updateVerificationStatus(verificationStatus);
+                updateVerificationBadges(); // Update badges
             }
         }
 
@@ -3478,19 +4679,85 @@
             switch(status) {
                 case 'verified':
                     icon.className = 'fas fa-check-circle';
-                    text.textContent = 'Verified';
+                    text.textContent = '✅ Verified Successfully!';
+                    showVerificationSuccess();
                     break;
                 case 'pending':
                     icon.className = 'fas fa-clock';
-                    text.textContent = 'Pending Verification';
+                    text.textContent = '⏳ Pending Verification';
                     break;
                 case 'rejected':
                     icon.className = 'fas fa-times-circle';
-                    text.textContent = 'Verification Rejected';
+                    text.textContent = '❌ Verification Rejected';
                     break;
                 default:
                     icon.className = 'fas fa-times-circle';
-                    text.textContent = 'Not Verified';
+                    text.textContent = '❌ Not Verified';
+            }
+        }
+
+        // Show verification success notification
+        function showVerificationSuccess() {
+            // Create success notification
+            const notification = document.createElement('div');
+            notification.className = 'verification-success-notification';
+            notification.innerHTML = `
+                <div class="success-content">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="success-text">
+                        <h4>🎉 License Verified Successfully!</h4>
+                        <p>Your account is now verified. You can access all premium features.</p>
+                    </div>
+                    <button class="close-notification" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Update verification badges
+            updateVerificationBadges();
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Update verification badges throughout the page
+        function updateVerificationBadges() {
+            const userId = localStorage.getItem('user_id');
+            const supplierName = getCurrentSupplierName();
+            const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+            
+            const verificationBadge = verificationStatus === 'verified' ? 
+                '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+            
+            // Update header supplier name
+            const supplierNameElement = document.getElementById('currentSupplierName');
+            if (supplierNameElement) {
+                supplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+            }
+            
+            // Update page title supplier name
+            const pageSupplierNameElement = document.getElementById('pageSupplierName');
+            if (pageSupplierNameElement) {
+                pageSupplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+            }
+            
+            // Update welcome message
+            const welcomeMessageElement = document.getElementById('welcomeMessage');
+            if (welcomeMessageElement) {
+                const currentText = welcomeMessageElement.textContent || welcomeMessageElement.innerText;
+                const nameMatch = currentText.match(/Welcome back, (.+)!/);
+                if (nameMatch) {
+                    const name = nameMatch[1];
+                    welcomeMessageElement.innerHTML = `Welcome back, ${name}!${verificationBadge}`;
+                }
             }
         }
 
@@ -3506,6 +4773,8 @@
             uploadArea.addEventListener('dragover', handleDragOver);
             uploadArea.addEventListener('dragleave', handleDragLeave);
             uploadArea.addEventListener('drop', handleDrop);
+
+
         });
 
         function handleFileSelect(event) {
@@ -3584,6 +4853,932 @@
             document.getElementById('uploadedFile').style.display = 'none';
         }
 
+        // Supplier Orders functionality
+        function loadSupplierOrders() {
+            const userId = localStorage.getItem('user_id');
+            const supplierName = getCurrentSupplierName();
+            
+            console.log('Loading supplier orders for user ID:', userId);
+            console.log('Current supplier name:', supplierName);
+            
+            if (!userId) {
+                console.error('User ID not found');
+                document.getElementById('supplierOrdersList').innerHTML = '<p class="error-message">User ID not found. Please login again.</p>';
+                return;
+            }
+
+            const apiUrl = `/api/orders?user_type=supplier&user_id=${userId}`;
+            
+            console.log('Fetching supplier orders from:', apiUrl);
+
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('Supplier orders response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Supplier orders API response:', data);
+                    if (data.success) {
+                        console.log('Supplier orders loaded successfully:', data.orders.length, 'orders');
+                        
+                        // Filter orders for current supplier
+                        const supplierOrders = data.orders.filter(order => {
+                            if (order.supplier_orders) {
+                                return order.supplier_orders.some(so => 
+                                    so.supplier_name === supplierName || 
+                                    so.supplier_id === userId
+                                );
+                            }
+                            return false;
+                        });
+                        
+                        console.log('Filtered orders for supplier:', supplierOrders.length, 'orders');
+                        displaySupplierOrders(supplierOrders);
+                        updateSupplierOrderStats(supplierOrders);
+                    } else {
+                        console.error('Failed to load supplier orders:', data.message);
+                        document.getElementById('supplierOrdersList').innerHTML = `<p class="error-message">Failed to load orders: ${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading supplier orders:', error);
+                    document.getElementById('supplierOrdersList').innerHTML = '<p class="error-message">Error loading orders. Please try again.</p>';
+                });
+        }
+
+        function displaySupplierOrders(orders) {
+            const ordersList = document.getElementById('supplierOrdersList');
+            const currentSupplierName = getCurrentSupplierName();
+            
+            // Filter orders for current supplier only
+            const supplierOrders = orders.filter(order => {
+                if (order.supplier_orders) {
+                    return order.supplier_orders.some(so => 
+                        so.supplier_name === currentSupplierName || 
+                        so.supplier_id === getCurrentSupplierId()
+                    );
+                }
+                return false;
+            });
+            
+            if (supplierOrders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="empty-orders">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>No orders yet</h3>
+                        <p>Orders from vendors will appear here for ${currentSupplierName}!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let ordersHTML = '';
+            supplierOrders.forEach(order => {
+                const orderDate = new Date(order.order_date).toLocaleDateString('en-IN');
+                
+                // Find supplier-specific items for this supplier
+                const supplierItems = order.supplier_orders.find(so => 
+                    so.supplier_name === currentSupplierName || 
+                    so.supplier_id === getCurrentSupplierId()
+                );
+                
+                if (!supplierItems) return; // Skip if no items for this supplier
+                
+                const statusClass = getStatusClass(supplierItems.status);
+                
+                ordersHTML += `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h3>Order #${order.order_id}</h3>
+                                <p class="order-date">${orderDate}</p>
+                                <p class="customer-info">Customer: ${order.customer_info.firstName} ${order.customer_info.lastName}</p>
+                            </div>
+                            <div class="order-status">
+                                <span class="status-badge ${statusClass}">${supplierItems.status.toUpperCase()}</span>
+                            </div>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-items">
+                                <h4>Items (${supplierItems.items.length})</h4>
+                                <div class="items-list">
+                                    ${supplierItems.items.map(item => `
+                                        <div class="item">
+                                            <span class="item-name">${item.name}</span>
+                                            <span class="item-quantity">${item.quantity} ${item.unit}</span>
+                                            <span class="item-price">₹${item.price}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="order-summary">
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span>₹${supplierItems.subtotal.toFixed(2)}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping Address:</span>
+                                    <span>${order.shipping_address.addressLine1}, ${order.shipping_address.city}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Payment Method:</span>
+                                    <span>${order.payment_method}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-info" onclick="viewOrderDetails('${order.order_id}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); margin: 5px;">
+                                <i class="fas fa-eye"></i> 👁️ View Details
+                            </button>
+                            <button class="btn btn-secondary" onclick="downloadBill('${order.order_id}')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: white; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3); margin: 5px;">
+                                <i class="fas fa-download"></i> 📄 Download Bill
+                            </button>
+
+                            ${supplierItems.status === 'accepted' ? `
+                                <button class="btn btn-primary" onclick="updateOrderStatus('${order.order_id}', 'processing')" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border: none; color: #333; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3); margin: 5px;">
+                                    <i class="fas fa-cog"></i> ⚙️ Process Order
+                                </button>
+                                <button class="btn btn-success" onclick="updateOrderStatus('${order.order_id}', 'shipped')" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border: none; color: #333; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 236, 210, 0.3); margin: 5px;">
+                                    <i class="fas fa-shipping-fast"></i> 🚚 Mark Shipped
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            ordersList.innerHTML = ordersHTML;
+        }
+
+        function updateSupplierOrderStats(orders) {
+            let totalOrders = 0;
+            let pendingOrders = 0;
+            let completedOrders = 0;
+            let totalRevenue = 0;
+
+            orders.forEach(order => {
+                const supplierItems = order.supplier_orders.find(so => 
+                    so.supplier_name === getCurrentSupplierName()
+                );
+                
+                if (supplierItems) {
+                    totalOrders++;
+                    totalRevenue += supplierItems.subtotal;
+                    
+                    if (supplierItems.status === 'pending') {
+                        pendingOrders++;
+                    } else if (supplierItems.status === 'completed' || supplierItems.status === 'delivered') {
+                        completedOrders++;
+                    }
+                }
+            });
+
+            document.getElementById('supplierTotalOrders').textContent = totalOrders;
+            document.getElementById('supplierPendingOrders').textContent = pendingOrders;
+            document.getElementById('supplierCompletedOrders').textContent = completedOrders;
+            document.getElementById('supplierTotalRevenue').textContent = `₹${totalRevenue.toFixed(2)}`;
+        }
+
+        function getCurrentSupplierName() {
+            // Get supplier name from localStorage (set during login)
+            const supplierName = localStorage.getItem('supplier_name');
+            if (supplierName) {
+                return supplierName;
+            }
+            
+            // If no supplier name in localStorage, try to get from user profile
+            const userId = localStorage.getItem('user_id');
+            if (userId) {
+                // This will be set during login process
+                return localStorage.getItem('business_name') || localStorage.getItem('name') || 'Unknown Supplier';
+            }
+            
+            // Fallback for testing
+            return 'ND Hotel';
+        }
+
+
+
+        function getCurrentSupplierId() {
+            // Get supplier ID from localStorage or use a test supplier ID
+            const supplierId = localStorage.getItem('user_id');
+            if (supplierId) {
+                return supplierId;
+            }
+            
+            // For testing, return a test supplier ID
+            return 'supplier123';
+        }
+
+        function updateCurrentSupplierDisplay() {
+            const supplierName = getCurrentSupplierName();
+            
+                    // Update header supplier name with verification badge
+        const supplierNameElement = document.getElementById('currentSupplierName');
+        if (supplierNameElement) {
+            const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+            const verificationBadge = verificationStatus === 'verified' ? 
+                '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+            supplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+        }
+
+        // Update page title supplier name with verification badge
+        const pageSupplierNameElement = document.getElementById('pageSupplierName');
+        if (pageSupplierNameElement) {
+            const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
+            const verificationBadge = verificationStatus === 'verified' ? 
+                '<span style="color: #10b981; margin-left: 8px; font-size: 1.2em;" title="Verified Supplier">✅</span>' : '';
+            pageSupplierNameElement.innerHTML = `${supplierName}${verificationBadge}`;
+        }
+        }
+
+        function refreshSupplierOrders() {
+            loadSupplierOrders();
+        }
+
+        function filterSupplierOrders() {
+            // Implementation for filtering orders
+            loadSupplierOrders(); // For now, just reload all orders
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                alert('User ID not found. Please login again.');
+                return;
+            }
+
+            fetch(`/api/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    supplier_name: getCurrentSupplierName()
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Order status updated to ${newStatus}`);
+                    loadSupplierOrders(); // Refresh the orders list
+                } else {
+                    alert('Failed to update order status: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating order status:', error);
+                alert('Error updating order status. Please try again.');
+            });
+        }
+
+        function viewOrderDetails(orderId) {
+            // Fetch order details from API
+            fetch(`/api/orders/${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSupplierOrderDetailsModal(data.order);
+                    } else {
+                        alert('Failed to load order details: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading order details:', error);
+                    alert('Error loading order details. Please try again.');
+                });
+        }
+
+        function showSupplierOrderDetailsModal(order) {
+            // Get supplier-specific items
+            const supplierItems = order.supplier_orders.find(so => 
+                so.supplier_name === getCurrentSupplierName()
+            );
+
+            if (!supplierItems) {
+                alert('No items found for this supplier in this order.');
+                return;
+            }
+
+            // Create modal HTML with comprehensive order details
+            const modalHTML = `
+                <div id="orderDetailsModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; backdrop-filter: blur(5px);">
+                    <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 20px; padding: 0; position: relative; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 2px solid #667eea;">
+                        
+                        <!-- Close Button -->
+                        <span class="close" onclick="closeOrderDetailsModal()" style="position: absolute; top: 20px; right: 25px; font-size: 32px; font-weight: bold; color: #667eea; cursor: pointer; z-index: 1001; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">&times;</span>
+                        
+                        <!-- Order Header with Gradient -->
+                        <div class="order-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 18px 18px 0 0; margin-bottom: 0; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+                                <div>
+                                    <h2 style="margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                        <i class="fas fa-shopping-cart" style="margin-right: 10px;"></i>Order Details
+                                    </h2>
+                                    <h3 style="margin: 10px 0 0 0; font-size: 22px; opacity: 0.9;">#${order.order_id}</h3>
+                                    <p style="margin: 8px 0 0 0; opacity: 0.8; font-size: 16px;">
+                                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>Placed on ${new Date(order.order_date).toLocaleDateString('en-IN', { 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="status-badge ${getStatusClass(supplierItems.status)}" style="font-size: 18px; padding: 12px 24px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                        <i class="fas fa-circle" style="margin-right: 8px; font-size: 12px;"></i>${supplierItems.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content Container -->
+                        <div style="padding: 30px; background: white; border-radius: 0 0 18px 18px;">
+                            
+                            <!-- Customer Information Card -->
+                            <div class="detail-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+                                <h3 style="margin: 0 0 20px 0; font-size: 20px; display: flex; align-items: center;">
+                                    <i class="fas fa-user-circle" style="margin-right: 12px; font-size: 24px;"></i>Customer Information
+                                </h3>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                        <h4 style="margin: 0 0 10px 0; font-size: 16px; opacity: 0.9;">Personal Details</h4>
+                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-user" style="margin-right: 8px; width: 16px;"></i><strong>Name:</strong> ${order.customer_info.firstName} ${order.customer_info.lastName}</p>
+                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-envelope" style="margin-right: 8px; width: 16px;"></i><strong>Email:</strong> ${order.customer_info.email}</p>
+                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-phone" style="margin-right: 8px; width: 16px;"></i><strong>Phone:</strong> ${order.customer_info.phone}</p>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                        <h4 style="margin: 0 0 10px 0; font-size: 16px; opacity: 0.9;">Shipping Address</h4>
+                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-map-marker-alt" style="margin-right: 8px; width: 16px;"></i>${order.shipping_address.addressLine1}</p>
+                                        ${order.shipping_address.addressLine2 ? `<p style="margin: 5px 0; font-size: 15px; padding-left: 24px;">${order.shipping_address.addressLine2}</p>` : ''}
+                                        <p style="margin: 5px 0; font-size: 15px;">${order.shipping_address.city}, ${order.shipping_address.state}</p>
+                                        <p style="margin: 5px 0; font-size: 15px;">${order.shipping_address.pincode}, ${order.shipping_address.country}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Supplier Items Card -->
+                            <div class="detail-section" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);">
+                                <h3 style="margin: 0 0 20px 0; font-size: 20px; display: flex; align-items: center;">
+                                    <i class="fas fa-box-open" style="margin-right: 12px; font-size: 24px;"></i>Your Items in This Order
+                                </h3>
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr style="background: rgba(255,255,255,0.2);">
+                                                <th style="padding: 15px; text-align: left; font-weight: 600; font-size: 16px;"><i class="fas fa-tag" style="margin-right: 8px;"></i>Product</th>
+                                                <th style="padding: 15px; text-align: center; font-weight: 600; font-size: 16px;"><i class="fas fa-sort-numeric-up" style="margin-right: 8px;"></i>Quantity</th>
+                                                <th style="padding: 15px; text-align: right; font-weight: 600; font-size: 16px;"><i class="fas fa-rupee-sign" style="margin-right: 8px;"></i>Price</th>
+                                                <th style="padding: 15px; text-align: right; font-weight: 600; font-size: 16px;"><i class="fas fa-calculator" style="margin-right: 8px;"></i>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${supplierItems.items.map((item, index) => `
+                                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); ${index % 2 === 0 ? 'background: rgba(255,255,255,0.05);' : ''}">
+                                                    <td style="padding: 15px;">
+                                                        <div style="font-weight: 600; font-size: 16px;">${item.name}</div>
+                                                        <div style="opacity: 0.8; font-size: 14px; margin-top: 5px;"><i class="fas fa-info-circle" style="margin-right: 5px;"></i>${item.unit}</div>
+                                                    </td>
+                                                    <td style="padding: 15px; text-align: center; font-weight: 600; font-size: 16px;">
+                                                        <span style="background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px;">${item.quantity}</span>
+                                                    </td>
+                                                    <td style="padding: 15px; text-align: right; font-weight: 600; font-size: 16px;">₹${item.price}</td>
+                                                    <td style="padding: 15px; text-align: right; font-weight: 600; font-size: 16px;">₹${(item.price * item.quantity).toFixed(2)}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="text-align: right; margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px; font-size: 18px; font-weight: 700;">
+                                    <i class="fas fa-coins" style="margin-right: 8px;"></i>Your Subtotal: ₹${supplierItems.subtotal.toFixed(2)}
+                                </div>
+                            </div>
+
+                            <!-- Order Summary Cards -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+                                <!-- Payment Details Card -->
+                                <div class="detail-section" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 25px; border-radius: 15px; box-shadow: 0 8px 25px rgba(168, 237, 234, 0.3);">
+                                    <h3 style="margin: 0 0 20px 0; font-size: 20px; color: #333; display: flex; align-items: center;">
+                                        <i class="fas fa-credit-card" style="margin-right: 12px; font-size: 24px; color: #667eea;"></i>Payment Details
+                                    </h3>
+                                    <div style="background: rgba(255,255,255,0.7); padding: 20px; border-radius: 10px;">
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-money-bill-wave" style="margin-right: 8px; width: 16px; color: #667eea;"></i><strong>Method:</strong> ${order.payment_method}</p>
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-shopping-bag" style="margin-right: 8px; width: 16px; color: #667eea;"></i><strong>Total Order:</strong> ₹${order.total_amount.toFixed(2)}</p>
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-percentage" style="margin-right: 8px; width: 16px; color: #667eea;"></i><strong>Your Share:</strong> ₹${supplierItems.subtotal.toFixed(2)}</p>
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-cut" style="margin-right: 8px; width: 16px; color: #667eea;"></i><strong>Commission:</strong> ₹${(supplierItems.subtotal * 0.05).toFixed(2)} (5%)</p>
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333; font-weight: 700;"><i class="fas fa-hand-holding-usd" style="margin-right: 8px; width: 16px; color: #667eea;"></i><strong>Your Earnings:</strong> ₹${(supplierItems.subtotal * 0.95).toFixed(2)}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Shipping Details Card -->
+                                <div class="detail-section" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 25px; border-radius: 15px; box-shadow: 0 8px 25px rgba(255, 236, 210, 0.3);">
+                                    <h3 style="margin: 0 0 20px 0; font-size: 20px; color: #333; display: flex; align-items: center;">
+                                        <i class="fas fa-shipping-fast" style="margin-right: 12px; font-size: 24px; color: #f5576c;"></i>Shipping Details
+                                    </h3>
+                                    <div style="background: rgba(255,255,255,0.7); padding: 20px; border-radius: 10px;">
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-truck" style="margin-right: 8px; width: 16px; color: #f5576c;"></i><strong>Method:</strong> ${order.shipping_method}</p>
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-calendar-check" style="margin-right: 8px; width: 16px; color: #f5576c;"></i><strong>Est. Delivery:</strong> ${order.estimated_delivery || 'Not specified'}</p>
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-barcode" style="margin-right: 8px; width: 16px; color: #f5576c;"></i><strong>Tracking:</strong> ${order.tracking_number || 'Not available'}</p>
+                                        <p style="margin: 8px 0; font-size: 15px; color: #333;"><i class="fas fa-map-pin" style="margin-right: 8px; width: 16px; color: #f5576c;"></i><strong>Destination:</strong> ${order.shipping_address.city}, ${order.shipping_address.state}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Timeline Card -->
+                            <div class="detail-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+                                <h3 style="margin: 0 0 20px 0; font-size: 20px; display: flex; align-items: center;">
+                                    <i class="fas fa-clock" style="margin-right: 12px; font-size: 24px;"></i>Order Timeline
+                                </h3>
+                                <div style="position: relative; padding-left: 40px;">
+                                    <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,0.3); border-radius: 2px;"></div>
+                                    
+                                    <!-- Order Placed -->
+                                    <div style="position: relative; margin-bottom: 25px;">
+                                        <div style="position: absolute; left: -41px; top: 0; width: 15px; height: 15px; background: #28a745; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                            <strong style="font-size: 16px; display: flex; align-items: center;">
+                                                <i class="fas fa-check-circle" style="margin-right: 8px; color: #28a745;"></i>Order Placed
+                                            </strong>
+                                            <small style="opacity: 0.8; font-size: 14px; display: block; margin-top: 5px;">
+                                                <i class="fas fa-calendar-alt" style="margin-right: 5px;"></i>${new Date(order.order_date).toLocaleString('en-IN', { 
+                                                    year: 'numeric', 
+                                                    month: 'short', 
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    ${supplierItems.status !== 'pending' ? `
+                                    <!-- Order Confirmed -->
+                                    <div style="position: relative; margin-bottom: 25px;">
+                                        <div style="position: absolute; left: -41px; top: 0; width: 15px; height: 15px; background: #28a745; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                            <strong style="font-size: 16px; display: flex; align-items: center;">
+                                                <i class="fas fa-check-circle" style="margin-right: 8px; color: #28a745;"></i>Order Confirmed
+                                            </strong>
+                                            <small style="opacity: 0.8; font-size: 14px; display: block; margin-top: 5px;">
+                                                <i class="fas fa-cog" style="margin-right: 5px;"></i>Processing started
+                                            </small>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    ${supplierItems.status === 'shipped' ? `
+                                    <!-- Order Shipped -->
+                                    <div style="position: relative; margin-bottom: 25px;">
+                                        <div style="position: absolute; left: -41px; top: 0; width: 15px; height: 15px; background: #28a745; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                            <strong style="font-size: 16px; display: flex; align-items: center;">
+                                                <i class="fas fa-shipping-fast" style="margin-right: 8px; color: #28a745;"></i>Order Shipped
+                                            </strong>
+                                            <small style="opacity: 0.8; font-size: 14px; display: block; margin-top: 5px;">
+                                                <i class="fas fa-truck" style="margin-right: 5px;"></i>Items dispatched
+                                            </small>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    ${supplierItems.status === 'delivered' ? `
+                                    <!-- Order Delivered -->
+                                    <div style="position: relative; margin-bottom: 25px;">
+                                        <div style="position: absolute; left: -41px; top: 0; width: 15px; height: 15px; background: #28a745; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                            <strong style="font-size: 16px; display: flex; align-items: center;">
+                                                <i class="fas fa-truck" style="margin-right: 8px; color: #28a745;"></i>Order Delivered
+                                            </strong>
+                                            <small style="opacity: 0.8; font-size: 14px; display: block; margin-top: 5px;">
+                                                <i class="fas fa-check-double" style="margin-right: 5px;"></i>Items delivered to customer
+                                            </small>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    ${supplierItems.status === 'completed' ? `
+                                    <!-- Order Completed -->
+                                    <div style="position: relative; margin-bottom: 25px;">
+                                        <div style="position: absolute; left: -41px; top: 0; width: 15px; height: 15px; background: #28a745; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                            <strong style="font-size: 16px; display: flex: align-items: center;">
+                                                <i class="fas fa-trophy" style="margin-right: 8px; color: #28a745;"></i>Order Completed
+                                            </strong>
+                                            <small style="opacity: 0.8; font-size: 14px; display: block; margin-top: 5px;">
+                                                <i class="fas fa-check-double" style="margin-right: 5px;"></i>Successfully delivered
+                                            </small>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div style="text-align: center; margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+                                <h3 style="margin: 0 0 20px 0; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-tools" style="margin-right: 12px; font-size: 24px;"></i>Order Actions
+                                </h3>
+                                
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                    ${supplierItems.status === 'pending' ? `
+                                    <button class="btn btn-primary" onclick="acceptOrderFromDetails('${order.order_id}')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
+                                        <i class="fas fa-check-circle" style="margin-right: 8px;"></i>✅ Accept Order
+                                    </button>
+                                    <button class="btn btn-danger" onclick="rejectOrderFromDetails('${order.order_id}')" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); font-size: 16px;">
+                                        <i class="fas fa-times-circle" style="margin-right: 8px;"></i>❌ Reject Order
+                                    </button>
+                                    ` : ''}
+                                    
+                                    ${supplierItems.status === 'accepted' ? `
+                                    <button class="btn btn-primary" onclick="updateOrderStatus('${order.order_id}', 'processing')" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); font-size: 16px;">
+                                        <i class="fas fa-cog" style="margin-right: 8px;"></i>⚙️ Process Order
+                                    </button>
+                                    <button class="btn btn-success" onclick="updateOrderStatus('${order.order_id}', 'shipped')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
+                                        <i class="fas fa-shipping-fast" style="margin-right: 8px;"></i>🚚 Mark Shipped
+                                    </button>
+                                    ` : ''}
+                                    
+                                    ${supplierItems.status === 'processing' ? `
+                                    <button class="btn btn-success" onclick="updateOrderStatus('${order.order_id}', 'shipped')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
+                                        <i class="fas fa-shipping-fast" style="margin-right: 8px;"></i>🚚 Mark Shipped
+                                    </button>
+                                    ` : ''}
+                                    
+                                    ${supplierItems.status === 'shipped' ? `
+                                    <button class="btn btn-warning" onclick="updateOrderStatus('${order.order_id}', 'delivered')" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3); font-size: 16px;">
+                                        <i class="fas fa-check-double" style="margin-right: 8px;"></i>✅ Mark Delivered
+                                    </button>
+                                    <button class="btn btn-info" onclick="showDeliveryModal('${order.order_id}')" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3); font-size: 16px;">
+                                        <i class="fas fa-truck" style="margin-right: 8px;"></i>📦 Update Tracking
+                                    </button>
+                                    ` : ''}
+                                    
+                                    <button class="btn btn-info" onclick="downloadBill('${order.order_id}')" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3); font-size: 16px;">
+                                        <i class="fas fa-download" style="margin-right: 8px;"></i>📄 Download Bill
+                                    </button>
+                                    
+                                    <button class="btn btn-secondary" onclick="closeOrderDetailsModal()" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3); font-size: 16px;">
+                                        <i class="fas fa-times" style="margin-right: 8px;"></i>❌ Close
+                                    </button>
+                                </div>
+                                
+                                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
+                                    <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                                    <strong>Status:</strong> ${supplierItems.status.charAt(0).toUpperCase() + supplierItems.status.slice(1)} | 
+                                    <strong>Items:</strong> ${supplierItems.items.length} | 
+                                    <strong>Value:</strong> ₹${supplierItems.subtotal.toFixed(2)}
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeOrderDetailsModal() {
+            const modal = document.getElementById('orderDetailsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function showDeliveryModal(orderId) {
+            const modalHTML = `
+                <div id="deliveryModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; backdrop-filter: blur(5px);">
+                    <div class="modal-content" style="max-width: 500px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 20px; padding: 0; position: relative; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 2px solid #667eea;">
+                        
+                        <!-- Close Button -->
+                        <span class="close" onclick="closeDeliveryModal()" style="position: absolute; top: 20px; right: 25px; font-size: 32px; font-weight: bold; color: #667eea; cursor: pointer; z-index: 1001; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">&times;</span>
+                        
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 18px 18px 0 0; text-align: center;">
+                            <h2 style="margin: 0; font-size: 24px; font-weight: 700;">
+                                <i class="fas fa-truck" style="margin-right: 10px;"></i>Delivery Update
+                            </h2>
+                            <p style="margin: 10px 0 0 0; opacity: 0.9;">Update delivery information for Order #${orderId}</p>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="padding: 30px; background: white; border-radius: 0 0 18px 18px;">
+                            <form id="deliveryForm">
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                                        <i class="fas fa-barcode" style="margin-right: 8px; color: #667eea;"></i>Tracking Number
+                                    </label>
+                                    <input type="text" id="trackingNumber" placeholder="Enter tracking number" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; transition: border-color 0.3s ease;">
+                                </div>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                                        <i class="fas fa-calendar-check" style="margin-right: 8px; color: #667eea;"></i>Estimated Delivery Date
+                                    </label>
+                                    <input type="date" id="estimatedDelivery" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; transition: border-color 0.3s ease;">
+                                </div>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                                        <i class="fas fa-comment" style="margin-right: 8px; color: #667eea;"></i>Delivery Notes
+                                    </label>
+                                    <textarea id="deliveryNotes" placeholder="Any special delivery instructions or notes..." rows="3" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 16px; resize: vertical; transition: border-color 0.3s ease;"></textarea>
+                                </div>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <button type="button" onclick="updateDeliveryInfo('${orderId}')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
+                                        <i class="fas fa-save" style="margin-right: 8px;"></i>💾 Update Info
+                                    </button>
+                                    <button type="button" onclick="closeDeliveryModal()" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); border: none; color: white; padding: 15px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3); font-size: 16px;">
+                                        <i class="fas fa-times" style="margin-right: 8px;"></i>❌ Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('estimatedDelivery').min = today;
+        }
+
+        function closeDeliveryModal() {
+            const modal = document.getElementById('deliveryModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function updateDeliveryInfo(orderId) {
+            const trackingNumber = document.getElementById('trackingNumber').value;
+            const estimatedDelivery = document.getElementById('estimatedDelivery').value;
+            const deliveryNotes = document.getElementById('deliveryNotes').value;
+            const supplierName = getCurrentSupplierName();
+            
+            if (!trackingNumber && !estimatedDelivery && !deliveryNotes) {
+                alert('Please fill in at least one field to update delivery information.');
+                return;
+            }
+            
+            // Make API call to update delivery info
+            fetch(`/api/orders/${orderId}/delivery`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    supplier_name: supplierName,
+                    tracking_number: trackingNumber,
+                    estimated_delivery: estimatedDelivery,
+                    delivery_notes: deliveryNotes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Delivery information updated successfully!');
+                    closeDeliveryModal();
+                    loadSupplierOrders(); // Refresh the orders list
+                } else {
+                    alert('Failed to update delivery information: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating delivery info:', error);
+                alert('Error updating delivery information. Please try again.');
+            });
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('orderDetailsModal');
+            if (modal && event.target === modal) {
+                closeOrderDetailsModal();
+            }
+        });
+
+        function getStatusClass(status) {
+            switch (status.toLowerCase()) {
+                case 'pending': return 'status-pending';
+                case 'accepted': return 'status-accepted';
+                case 'rejected': return 'status-rejected';
+                case 'processing': return 'status-processing';
+                case 'shipped': return 'status-shipped';
+                case 'delivered': return 'status-delivered';
+                case 'completed': return 'status-completed';
+                case 'cancelled': return 'status-cancelled';
+                default: return 'status-pending';
+            }
+        }
+
+        function showAcceptOrderModal(orderId) {
+            const modalHTML = `
+                <div id="acceptOrderModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;">
+                    <div class="modal-content" style="max-width: 500px; background: white; border-radius: 10px; padding: 30px; position: relative;">
+                        <span class="close" onclick="closeAcceptOrderModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;">&times;</span>
+                        <h2 style="color: #28a745; margin-bottom: 20px;"><i class="fas fa-check-circle"></i> Accept Order</h2>
+                        
+                        <form id="acceptOrderForm">
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Acceptance Notes (Optional):</label>
+                                <textarea id="acceptanceNotes" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: vertical;" placeholder="Add any notes about order acceptance..."></textarea>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Estimated Delivery Date:</label>
+                                <input type="date" id="estimatedDelivery" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" min="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 30px;">
+                                <button type="submit" class="btn btn-success" style="margin-right: 10px;">
+                                    <i class="fas fa-check"></i> Accept Order
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="closeAcceptOrderModal()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Handle form submission
+            document.getElementById('acceptOrderForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                acceptOrder(orderId);
+            });
+        }
+
+        function showRejectOrderModal(orderId) {
+            const modalHTML = `
+                <div id="rejectOrderModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;">
+                    <div class="modal-content" style="max-width: 500px; background: white; border-radius: 10px; padding: 30px; position: relative;">
+                        <span class="close" onclick="closeRejectOrderModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;">&times;</span>
+                        <h2 style="color: #dc3545; margin-bottom: 20px;"><i class="fas fa-times-circle"></i> Reject Order</h2>
+                        
+                        <form id="rejectOrderForm">
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Rejection Reason: <span style="color: red;">*</span></label>
+                                <textarea id="rejectionReason" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: vertical;" placeholder="Please provide a reason for rejecting this order..." required></textarea>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 30px;">
+                                <button type="submit" class="btn btn-danger" style="margin-right: 10px;">
+                                    <i class="fas fa-times"></i> Reject Order
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="closeRejectOrderModal()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Handle form submission
+            document.getElementById('rejectOrderForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                rejectOrder(orderId);
+            });
+        }
+
+        function acceptOrder(orderId) {
+            const acceptanceNotes = document.getElementById('acceptanceNotes').value;
+            const estimatedDelivery = document.getElementById('estimatedDelivery').value;
+            
+            // Show loading state
+            const acceptButton = document.querySelector('#acceptOrderForm button[type="submit"]');
+            const originalText = acceptButton.innerHTML;
+            acceptButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accepting...';
+            acceptButton.disabled = true;
+            
+            const data = {
+                supplier_name: getCurrentSupplierName(),
+                acceptance_notes: acceptanceNotes,
+                estimated_delivery: estimatedDelivery
+            };
+            
+            // Get current domain for API calls
+            const currentDomain = window.location.origin;
+            fetch(`${currentDomain}/api/orders/${orderId}/accept`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reset button state
+                acceptButton.innerHTML = originalText;
+                acceptButton.disabled = false;
+                
+                if (data.success) {
+                    alert('Order accepted successfully!');
+                    closeAcceptOrderModal();
+                    loadSupplierOrders(); // Refresh the orders list
+                } else {
+                    alert('Failed to accept order: ' + data.message);
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                acceptButton.innerHTML = originalText;
+                acceptButton.disabled = false;
+                
+                console.error('Error accepting order:', error);
+                alert('Error accepting order. Please try again.');
+            });
+        }
+
+        function rejectOrder(orderId) {
+            const rejectionReason = document.getElementById('rejectionReason').value;
+            
+            if (!rejectionReason.trim()) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+            
+            const data = {
+                supplier_name: getCurrentSupplierName(),
+                rejection_reason: rejectionReason
+            };
+            
+            fetch(`${currentDomain}/api/orders/${orderId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Order rejected successfully!');
+                    closeRejectOrderModal();
+                    loadSupplierOrders(); // Refresh the orders list
+                } else {
+                    alert('Failed to reject order: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error rejecting order:', error);
+                alert('Error rejecting order. Please try again.');
+            });
+        }
+
+        function closeAcceptOrderModal() {
+            const modal = document.getElementById('acceptOrderModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function closeRejectOrderModal() {
+            const modal = document.getElementById('rejectOrderModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function downloadBill(orderId) {
+            const currentDomain = window.location.origin;
+            fetch(`${currentDomain}/api/orders/${orderId}/bill`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Create a new window with the bill HTML
+                        const billWindow = window.open('', '_blank');
+                        billWindow.document.write(data.bill_html);
+                        billWindow.document.close();
+                        
+                        // Trigger print dialog
+                        setTimeout(() => {
+                            billWindow.print();
+                        }, 500);
+                    } else {
+                        alert('Failed to download bill: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error downloading bill:', error);
+                    alert('Error downloading bill. Please try again.');
+                });
+        }
+
         async function submitLicense() {
             if (!selectedFile) {
                 alert('Please select a file first');
@@ -3659,6 +5854,252 @@
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
                 }
+            }
+        }
+
+        // Inline Accept/Reject functions for View Details modal
+        function acceptOrderFromDetails(orderId) {
+            // Show quick accept modal
+            const quickAcceptHTML = `
+                <div id="quickAcceptModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 3000; backdrop-filter: blur(5px);">
+                    <div class="modal-content" style="max-width: 400px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 20px; padding: 0; position: relative; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 2px solid #28a745;">
+                        
+                        <!-- Close Button -->
+                        <span class="close" onclick="closeQuickAcceptModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; color: #28a745; cursor: pointer; z-index: 1001; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">&times;</span>
+                        
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 20px; border-radius: 18px 18px 0 0; text-align: center;">
+                            <h3 style="margin: 0; font-size: 20px; font-weight: 700;">
+                                <i class="fas fa-check-circle" style="margin-right: 10px;"></i>Accept Order
+                            </h3>
+                            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">Order #${orderId}</p>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="padding: 25px; background: white; border-radius: 0 0 18px 18px;">
+                            <form id="quickAcceptForm">
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">
+                                        <i class="fas fa-calendar-check" style="margin-right: 8px; color: #28a745;"></i>Estimated Delivery Date
+                                    </label>
+                                    <input type="date" id="quickEstimatedDelivery" required style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; transition: border-color 0.3s ease;">
+                                </div>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">
+                                        <i class="fas fa-comment" style="margin-right: 8px; color: #28a745;"></i>Acceptance Notes (Optional)
+                                    </label>
+                                    <textarea id="quickAcceptanceNotes" placeholder="Any notes for the customer..." rows="2" style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; resize: vertical; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#28a745'" onblur="this.style.borderColor='#e1e5e9'" tabindex="0"></textarea>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <button type="submit" class="btn btn-success" style="flex: 1; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 14px;">
+                                        <i class="fas fa-check" style="margin-right: 5px;"></i>Accept Order
+                                    </button>
+                                    <button type="button" onclick="closeQuickAcceptModal()" class="btn btn-secondary" style="flex: 1; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); border: none; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 14px;">
+                                        <i class="fas fa-times" style="margin-right: 5px;"></i>Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', quickAcceptHTML);
+            
+            // Handle form submission
+            document.getElementById('quickAcceptForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                quickAcceptOrder(orderId);
+            });
+            
+            // Prevent modal from closing when clicking outside
+            document.getElementById('quickAcceptModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    e.stopPropagation();
+                }
+            });
+        }
+
+        function quickAcceptOrder(orderId) {
+            const estimatedDelivery = document.getElementById('quickEstimatedDelivery').value;
+            const acceptanceNotes = document.getElementById('quickAcceptanceNotes').value;
+            
+            if (!estimatedDelivery) {
+                alert('Please select estimated delivery date');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.querySelector('#quickAcceptForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accepting...';
+            submitBtn.disabled = true;
+            
+            const data = {
+                supplier_name: getCurrentSupplierName(),
+                acceptance_notes: acceptanceNotes,
+                estimated_delivery: estimatedDelivery
+            };
+            
+            const currentDomain = window.location.origin;
+            fetch(`${currentDomain}/api/orders/${orderId}/accept`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    let message = 'Order accepted successfully!';
+                    if (data.stock_updated) {
+                        message += '\n\n📦 Stock Updated: ' + data.stock_message;
+                    }
+                    alert(message);
+                    closeQuickAcceptModal();
+                    closeOrderDetailsModal();
+                    loadSupplierOrders(); // Refresh the orders list
+                } else {
+                    alert('Failed to accept order: ' + data.message);
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                console.error('Error accepting order:', error);
+                alert('Error accepting order. Please try again.');
+            });
+        }
+
+        function rejectOrderFromDetails(orderId) {
+            // Show quick reject modal
+            const quickRejectHTML = `
+                <div id="quickRejectModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 3000; backdrop-filter: blur(5px);">
+                    <div class="modal-content" style="max-width: 400px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 20px; padding: 0; position: relative; margin: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 2px solid #dc3545;">
+                        
+                        <!-- Close Button -->
+                        <span class="close" onclick="closeQuickRejectModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; color: #dc3545; cursor: pointer; z-index: 1001; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">&times;</span>
+                        
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); color: white; padding: 20px; border-radius: 18px 18px 0 0; text-align: center;">
+                            <h3 style="margin: 0; font-size: 20px; font-weight: 700;">
+                                <i class="fas fa-times-circle" style="margin-right: 10px;"></i>Reject Order
+                            </h3>
+                            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">Order #${orderId}</p>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="padding: 25px; background: white; border-radius: 0 0 18px 18px;">
+                            <form id="quickRejectForm">
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #dc3545;"></i>Rejection Reason <span style="color: #dc3545;">*</span>
+                                    </label>
+                                    <textarea id="quickRejectionReason" placeholder="Please provide a reason for rejecting this order..." rows="3" required style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; resize: vertical; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#dc3545'" onblur="this.style.borderColor='#e1e5e9'" tabindex="0"></textarea>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <button type="submit" class="btn btn-danger" style="flex: 1; background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); border: none; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 14px;">
+                                        <i class="fas fa-times" style="margin-right: 5px;"></i>Reject Order
+                                    </button>
+                                    <button type="button" onclick="closeQuickRejectModal()" class="btn btn-secondary" style="flex: 1; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); border: none; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 14px;">
+                                        <i class="fas fa-times" style="margin-right: 5px;"></i>Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', quickRejectHTML);
+            
+            // Handle form submission
+            document.getElementById('quickRejectForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                quickRejectOrder(orderId);
+            });
+            
+            // Prevent modal from closing when clicking outside
+            document.getElementById('quickRejectModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    e.stopPropagation();
+                }
+            });
+        }
+
+        function quickRejectOrder(orderId) {
+            const rejectionReason = document.getElementById('quickRejectionReason').value;
+            
+            if (!rejectionReason.trim()) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.querySelector('#quickRejectForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
+            submitBtn.disabled = true;
+            
+            const data = {
+                supplier_name: getCurrentSupplierName(),
+                rejection_reason: rejectionReason
+            };
+            
+            const currentDomain = window.location.origin;
+            fetch(`${currentDomain}/api/orders/${orderId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    alert('Order rejected successfully!');
+                    closeQuickRejectModal();
+                    closeOrderDetailsModal();
+                    loadSupplierOrders(); // Refresh the orders list
+                } else {
+                    alert('Failed to reject order: ' + data.message);
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                console.error('Error rejecting order:', error);
+                alert('Error rejecting order. Please try again.');
+            });
+        }
+
+        function closeQuickAcceptModal() {
+            const modal = document.getElementById('quickAcceptModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function closeQuickRejectModal() {
+            const modal = document.getElementById('quickRejectModal');
+            if (modal) {
+                modal.remove();
             }
         }
     </script>

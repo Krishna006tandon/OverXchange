@@ -315,6 +315,52 @@
             <div class="shape"></div>
             <div class="shape"></div>
         </div>
+<<<<<<< HEAD
+=======
+    </nav>
+    <div class="signup-container">
+        <div class="signup-avatar">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4.5"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/></svg>
+        </div>
+        <h2>Signup</h2>
+        <div class="role-toggle">
+            <button id="vendorBtn" class="active" type="button">Vendor</button>
+            <button id="supplierBtn" type="button">Supplier</button>
+        </div>
+        <form id="signupForm">
+            <div id="vendorFields">
+                <input type="text" name="business_name" placeholder="Business Name" required>
+                <div style="text-align:left; font-weight:700; color:#3730a3; margin-bottom:6px;">Vendor प्रकार: भोजन और पेय</div>
+                <input type="text" name="food_beverage_details" placeholder="Food & Beverage Details" required>
+                <input type="text" name="business_address" placeholder="Business Address" required>
+                <input type="text" name="pincode" placeholder="Pincode" required>
+                <input type="tel" name="phone" placeholder="Phone" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="text" name="gstin" placeholder="GSTIN (वैकल्पिक)">
+                <input type="text" name="preferred_categories" placeholder="Preferred Product Categories" required>
+                <input type="text" name="invite_code" placeholder="Invite Code (वैकल्पिक)">
+            </div>
+            <div id="supplierFields" style="display:none;">
+                <input type="text" name="business_name" placeholder="Business Name" required>
+                <input type="file" name="business_logo" accept="image/*" style="padding:8px;">
+                <input type="text" name="product_categories" placeholder="Product Categories Supplied" required>
+                <input type="text" name="warehouse_address" placeholder="Warehouse Address" required>
+                <input type="tel" name="phone" placeholder="Phone" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="text" name="gstin" placeholder="GSTIN (अनिवार्य)" required>
+                <input type="text" name="business_proof" placeholder="Business Proof (अनिवार्य)" required>
+                <input type="number" name="moq" placeholder="Minimum Order Quantity (MOQ)" required>
+                <input type="text" name="logistics_options" placeholder="Available Logistics Options" required>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div class="signup-links">
+            पहले से ही खाता है? <a href="login.html">Login</a>
+        </div>
+        <div class="message" id="message"></div>
+>>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
     </div>
 
     <!-- Back to Home -->
@@ -427,6 +473,7 @@
     </button>
 
     <script>
+<<<<<<< HEAD
         // Enhanced Theme Toggle Functionality
         function toggleTheme() {
             const body = document.body;
@@ -455,6 +502,85 @@
                 // Update labels
                 symbolLabel.textContent = '🌙 Dark Mode';
                 modeIndicator.textContent = '☀️ Light Mode';
+=======
+        const vendorBtn = document.getElementById('vendorBtn');
+        const supplierBtn = document.getElementById('supplierBtn');
+        const vendorFields = document.getElementById('vendorFields');
+        const supplierFields = document.getElementById('supplierFields');
+        const signupForm = document.getElementById('signupForm');
+        const messageDiv = document.getElementById('message');
+        let currentRole = 'vendor';
+
+        // Mark original required fields
+        document.querySelectorAll('#vendorFields [required], #supplierFields [required]').forEach(input => {
+            input.setAttribute('data-original-required', 'true');
+        });
+        function setRequiredFields(visibleFields, hiddenFields) {
+            // Remove required from all hidden fields
+            hiddenFields.querySelectorAll('[required]').forEach(input => input.required = false);
+            // Add required to all visible fields
+            visibleFields.querySelectorAll('input,select,textarea').forEach(input => {
+                if (input.hasAttribute('data-original-required')) input.required = true;
+            });
+        }
+        vendorBtn.onclick = () => {
+            currentRole = 'vendor';
+            vendorBtn.classList.add('active');
+            supplierBtn.classList.remove('active');
+            vendorFields.style.display = '';
+            supplierFields.style.display = 'none';
+            setRequiredFields(vendorFields, supplierFields);
+        };
+        supplierBtn.onclick = () => {
+            currentRole = 'supplier';
+            supplierBtn.classList.add('active');
+            vendorBtn.classList.remove('active');
+            vendorFields.style.display = 'none';
+            supplierFields.style.display = '';
+            setRequiredFields(supplierFields, vendorFields);
+        };
+        // On page load, set required fields correctly
+        setRequiredFields(vendorFields, supplierFields);
+
+        signupForm.onsubmit = async (e) => {
+            e.preventDefault();
+            messageDiv.textContent = 'जमा किor जा रहा है...';
+            
+            // Get current domain for API calls
+            const currentDomain = window.location.origin;
+            let url = currentRole === 'vendor'
+                ? `${currentDomain}/api/signup/vendor`
+                : `${currentDomain}/api/signup/supplier`;
+            // Only get fields from the visible section
+            let visibleFields = currentRole === 'vendor' ? vendorFields : supplierFields;
+            let inputs = visibleFields.querySelectorAll('input,select,textarea');
+            let data = {};
+            inputs.forEach(input => {
+                if (!input.name) return;
+                if (input.type === 'file') {
+                    if (input.files && input.files.length > 0) data[input.name] = input.files[0].name;
+                } else {
+                    if (input.value !== "") data[input.name] = input.value;
+                }
+            });
+            try {
+                let res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                let result = await res.json();
+                if (result.success) {
+                    messageDiv.style.color = '#16a34a';
+                    messageDiv.textContent = result.message;
+                } else {
+                    messageDiv.style.color = '#dc2626';
+                    messageDiv.textContent = result.message || 'Signup विफल।';
+                }
+            } catch (err) {
+                messageDiv.style.color = '#dc2626';
+                messageDiv.textContent = 'Network error.';
+>>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
             }
         }
 

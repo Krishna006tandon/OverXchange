@@ -1,0 +1,21 @@
+{
+  "name": "OverXchange",
+  "description": "Food Supply Chain Management Platform",
+  "repository": "https://github.com/Krishna006tandon/OverXchange",
+  "keywords": ["python", "flask", "mongodb", "food-supply-chain"],
+  "env": {
+    "PORT": {
+      "description": "Port for the application",
+      "value": "5000"
+    },
+    "MONGODB_URI": {
+      "description": "MongoDB connection string",
+      "value": "mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+} 
