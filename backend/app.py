@@ -465,7 +465,6 @@ initialize_admin()
 # Serve frontend static files
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
 
-<<<<<<< HEAD
 # Authentication decorator
 def require_auth(f):
     @wraps(f)
@@ -519,7 +518,6 @@ def serve_frontend(path):
         return send_from_directory(FRONTEND_DIR, path)
     else:
         return send_from_directory(FRONTEND_DIR, 'index.html')
-=======
 @app.route('/')
 def serve_index():
     return send_from_directory(FRONTEND_DIR, 'index.html')
@@ -527,7 +525,6 @@ def serve_index():
 @app.route('/<path:filename>')
 def serve_frontend_static(filename):
     return send_from_directory(FRONTEND_DIR, filename)
->>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
 
 @app.route('/favicon.ico')
 def favicon():
@@ -539,7 +536,6 @@ def favicon():
 @app.route('/api/login', methods=['POST'])
 @rate_limit(max_requests=5, window=300)  # 5 attempts per 5 minutes
 def login():
-<<<<<<< HEAD
     try:
         data = request.json
         if not data:
@@ -586,7 +582,6 @@ def login():
     except Exception as e:
         logger.error(f"Login error: {str(e)}")
         SecurityUtils.log_security_event('LOGIN_ERROR', details=str(e))
-=======
     data = request.json
     username = data.get('username')
     password = data.get('password')
@@ -750,7 +745,6 @@ def create_admin_manual():
         
     except Exception as e:
         print(f"Manual admin creation error: {str(e)}")
->>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @app.route('/api/signup/vendor', methods=['POST'])
@@ -759,7 +753,6 @@ def signup_vendor():
     try:
         data = request.json
         if not data:
-<<<<<<< HEAD
             return jsonify({"success": False, "message": "Invalid request data"}), 400
         
         # Sanitize and validate input
@@ -810,8 +803,7 @@ def signup_vendor():
     except Exception as e:
         logger.error(f"Vendor signup error: {str(e)}")
         SecurityUtils.log_security_event('SIGNUP_ERROR', details=f'Vendor signup error: {str(e)}')
-=======
-            return jsonify({"success": False, "message": "No data provided"}), 400
+        return jsonify({"success": False, "message": "No data provided"}), 400
         
         # Check if user already exists
         existing_user = db['vendors'].find_one({'email': data.get('email')})
@@ -832,7 +824,6 @@ def signup_vendor():
         }), 201
     except Exception as e:
         print(f"Vendor signup error: {str(e)}")
->>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
         return jsonify({"success": False, "message": "Internal server error"}), 500
 
 @app.route('/api/signup/supplier', methods=['POST'])
@@ -841,7 +832,6 @@ def signup_supplier():
     try:
         data = request.json
         if not data:
-<<<<<<< HEAD
             return jsonify({"success": False, "message": "Invalid request data"}), 400
         
         # Sanitize and validate input
@@ -892,8 +882,7 @@ def signup_supplier():
     except Exception as e:
         logger.error(f"Supplier signup error: {str(e)}")
         SecurityUtils.log_security_event('SIGNUP_ERROR', details=f'Supplier signup error: {str(e)}')
-=======
-            return jsonify({"success": False, "message": "No data provided"}), 400
+        return jsonify({"success": False, "message": "No data provided"}), 400
         
         # Check if user already exists
         existing_user = db['suppliers'].find_one({'email': data.get('email')})
@@ -914,7 +903,6 @@ def signup_supplier():
         }), 201
     except Exception as e:
         print(f"Supplier signup error: {str(e)}")
->>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
         return jsonify({"success": False, "message": "Internal server error"}), 500
 
 def get_user_collection(user_type):
