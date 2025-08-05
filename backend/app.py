@@ -66,6 +66,14 @@ initialize_admin()
 # Serve frontend static files
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
 
+@app.route('/')
+def serve_index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/<path:filename>')
+def serve_frontend_static(filename):
+    return send_from_directory(FRONTEND_DIR, filename)
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),

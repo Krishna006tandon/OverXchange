@@ -28,17 +28,17 @@ def main():
         import requests
         import bs4
         import lxml
-        print("✓ All required packages are installed")
+        print("All required packages are installed")
     except ImportError as e:
-        print(f"✗ Missing package: {e}")
+        print(f"Missing package: {e}")
         print("Installing requirements...")
         subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-        print("✓ Requirements installed successfully")
+        print("Requirements installed successfully")
     
     # Run the Flask app
-    print("🚀 Starting OverXchange application...")
-    print("📱 Frontend will be available at: http://localhost:5000")
-    print("🔧 API endpoints will be available at: http://localhost:5000/api/")
+    print("Starting OverXchange application...")
+    print("Frontend will be available at: http://localhost:5000")
+    print("API endpoints will be available at: http://localhost:5000/api/")
     print("Press Ctrl+C to stop the server")
     print("-" * 50)
     
