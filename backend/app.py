@@ -15,20 +15,386 @@ from functools import wraps
 # from PIL import Image  # Commented out for now
 import io
 
-<<<<<<< HEAD
 # Import security modules
 from config import Config
 from security import SecurityUtils
-=======
+
 app = Flask(__name__)
+app.config.from_object(Config)
+Config.init_app(app)
+
+# Secure CORS configuration
 CORS(app, resources={
-    r"/*": {
-        "origins": ["*"],
+    r"/api/*": {
+        "origins": Config.ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+        "allow_headers": ["Content-Type", "Authorization", "X-API-Key"],
+        "supports_credentials": True
     }
 })
->>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
+
+# MongoDB setup with environment variable
+mongo_client = MongoClient(Config.MONGODB_URI)
+db = mongo_client[Config.DATABASE_NAME]
+
+# Setup logging
+logging.basicConfig(
+    level=getattr(logging, Config.LOG_LEVEL),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(Config.LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Initialize admin collection with default admin if not exists
+def initialize_admin():
+    """Initialize admin collection with default admin account"""
+    admin_collection = db['admins']
+    
+    # Create default admin accounts
+    default_admins = [
+        {
+            'email': 'admin@overxchange.com',
+            'password': generate_password_hash('admin123'),
+            'name': 'System Administrator',
+            'role': 'super_admin',
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        },
+        {
+            'email': 'admin@gmail.com',
+            'password': generate_password_hash('admin'),
+            'name': 'Admin User',
+            'role': 'admin',
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        }
+    ]
+    
+    # Check and create admin accounts if they don't exist
+    for admin_data in default_admins:
+        existing_admin = admin_collection.find_one({'email': admin_data['email']})
+        if not existing_admin:
+            admin_collection.insert_one(admin_data)
+            print(f"Admin account created: {admin_data['email']} / {admin_data['password'][:10]}...")
+        else:
+            print(f"Admin account already exists: {admin_data['email']}")
+
+# Initialize admin on startup
+initialize_admin()
+
+# Serve frontend static files
+FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
+
+# Authentication decorator
+def require_auth(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authentication required'}), 401
+        
+        token = auth_header.split(' ')[1]
+        payload = SecurityUtils.verify_jwt_token(token)
+        if not payload:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        
+        request.user = payload
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Rate limiting decorator
+def rate_limit(max_requests=100, window=3600):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            client_ip = request.remote_addr
+            key = f"rate_limit:{client_ip}:{f.__name__}"
+            
+            # Simple in-memory rate limiting (use Redis in production)
+            if not hasattr(app, 'rate_limit_store'):
+                app.rate_limit_store = {}
+            
+            current_time = datetime.utcnow()
+            if key in app.rate_limit_store:
+                requests, timestamp = app.rate_limit_store[key]
+                if (current_time - timestamp).seconds < window:
+                    if requests >= max_requests:
+                        SecurityUtils.log_security_event('RATE_LIMIT_EXCEEDED', details=f'IP: {client_ip}')
+                        return jsonify({'error': 'Rate limit exceeded'}), 429
+                    app.rate_limit_store[key] = (requests + 1, timestamp)
+                else:
+                    app.rate_limit_store[key] = (1, current_time)
+            else:
+                app.rate_limit_store[key] = (1, current_time)
+            
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path != "" and os.path.exists(os.path.join(FRONTEND_DIR, path)):
+        return send_from_directory(FRONTEND_DIR, path)
+    else:
+        return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
+
+@app.route('/api/login', methods=['POST'])
+@rate_limit(max_requests=5, window=300)  # 5 attempts per 5 minutes
+def login():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'success': False, 'message': 'Invalid request data'}), 400
+        
+        username = SecurityUtils.sanitize_input(data.get('username', ''))
+        password = data.get('password', '')
+        
+        # Validate input
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Username and password are required'}), 400
+        
+        if not SecurityUtils.validate_email(username):
+            return jsonify({'success': False, 'message': 'Invalid email format'}), 400
+        
+        # Try vendor first
+        user = db['vendors'].find_one({'email': username})
+        user_type = 'vendor'
+        if not user:
+            user = db['suppliers'].find_one({'email': username})
+            user_type = 'supplier' if user else None
+        
+        if not user:
+            SecurityUtils.log_security_event('LOGIN_FAILED', details=f'User not found: {username}')
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+        
+        if not SecurityUtils.verify_password(password, user['password']):
+            SecurityUtils.log_security_event('LOGIN_FAILED', user_id=str(user['_id']), details='Incorrect password')
+            return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+        
+        # Generate JWT token
+        token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
+        
+        SecurityUtils.log_security_event('LOGIN_SUCCESS', user_id=str(user['_id']))
+        
+        return jsonify({
+            'success': True,
+            'message': 'Login successful',
+            'user_type': user_type,
+            'user_id': str(user['_id']),
+            'token': token
+        })
+    
+    except Exception as e:
+        logger.error(f"Login error: {str(e)}")
+        SecurityUtils.log_security_event('LOGIN_ERROR', details=str(e))
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/signup/vendor', methods=['POST'])
+@rate_limit(max_requests=3, window=3600)  # 3 signups per hour
+def signup_vendor():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"success": False, "message": "Invalid request data"}), 400
+        
+        # Sanitize and validate input
+        email = SecurityUtils.sanitize_input(data.get('email', ''))
+        password = data.get('password', '')
+        name = SecurityUtils.sanitize_input(data.get('name', ''))
+        phone = SecurityUtils.sanitize_input(data.get('phone', ''))
+        
+        # Validate required fields
+        if not email or not password or not name:
+            return jsonify({"success": False, "message": "Email, password, and name are required"}), 400
+        
+        # Validate email format
+        if not SecurityUtils.validate_email(email):
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
+        
+        # Validate password strength
+        password_validation = SecurityUtils.validate_password(password)
+        if not password_validation['valid']:
+            return jsonify({"success": False, "message": "Password validation failed", "errors": password_validation['errors']}), 400
+        
+        # Validate phone number if provided
+        if phone and not SecurityUtils.validate_phone_number(phone):
+            return jsonify({"success": False, "message": "Invalid phone number format"}), 400
+        
+        # Check if user already exists
+        existing_user = db['vendors'].find_one({'email': email})
+        if existing_user:
+            return jsonify({"success": False, "message": "Email already registered"}), 409
+        
+        # Hash password and create user
+        hashed_password = SecurityUtils.hash_password(password)
+        user_data = {
+            'email': email,
+            'password': hashed_password,
+            'name': name,
+            'phone': phone,
+            'created_at': datetime.utcnow(),
+            'status': 'active'
+        }
+        
+        result = db['vendors'].insert_one(user_data)
+        
+        SecurityUtils.log_security_event('SIGNUP_SUCCESS', user_id=str(result.inserted_id), details='Vendor signup')
+        
+        return jsonify({"success": True, "message": "Vendor signup successful!", "id": str(result.inserted_id)})
+    
+    except Exception as e:
+        logger.error(f"Vendor signup error: {str(e)}")
+        SecurityUtils.log_security_event('SIGNUP_ERROR', details=f'Vendor signup error: {str(e)}')
+        return jsonify({"success": False, "message": "Internal server error"}), 500
+
+@app.route('/api/signup/supplier', methods=['POST'])
+@rate_limit(max_requests=3, window=3600)  # 3 signups per hour
+def signup_supplier():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"success": False, "message": "Invalid request data"}), 400
+        
+        # Sanitize and validate input
+        email = SecurityUtils.sanitize_input(data.get('email', ''))
+        password = data.get('password', '')
+        name = SecurityUtils.sanitize_input(data.get('name', ''))
+        phone = SecurityUtils.sanitize_input(data.get('phone', ''))
+        
+        # Validate required fields
+        if not email or not password or not name:
+            return jsonify({"success": False, "message": "Email, password, and name are required"}), 400
+        
+        # Validate email format
+        if not SecurityUtils.validate_email(email):
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
+        
+        # Validate password strength
+        password_validation = SecurityUtils.validate_password(password)
+        if not password_validation['valid']:
+            return jsonify({"success": False, "message": "Password validation failed", "errors": password_validation['errors']}), 400
+        
+        # Validate phone number if provided
+        if phone and not SecurityUtils.validate_phone_number(phone):
+            return jsonify({"success": False, "message": "Invalid phone number format"}), 400
+        
+        # Check if user already exists
+        existing_user = db['suppliers'].find_one({'email': email})
+        if existing_user:
+            return jsonify({"success": False, "message": "Email already registered"}), 409
+        
+        # Hash password and create user
+        hashed_password = SecurityUtils.hash_password(password)
+        user_data = {
+            'email': email,
+            'password': hashed_password,
+            'name': name,
+            'phone': phone,
+            'created_at': datetime.utcnow(),
+            'status': 'active'
+        }
+        
+        result = db['suppliers'].insert_one(user_data)
+        
+        SecurityUtils.log_security_event('SIGNUP_SUCCESS', user_id=str(result.inserted_id), details='Supplier signup')
+        
+        return jsonify({"success": True, "message": "Supplier signup successful!", "id": str(result.inserted_id)})
+    
+    except Exception as e:
+        logger.error(f"Supplier signup error: {str(e)}")
+        SecurityUtils.log_security_event('SIGNUP_ERROR', details=f'Supplier signup error: {str(e)}')
+        return jsonify({"success": False, "message": "Internal server error"}), 500
+
+def get_user_collection(user_type):
+    if user_type == 'vendor':
+        return db['vendors']
+    elif user_type == 'supplier':
+        return db['suppliers']
+    else:
+        abort(400, 'Invalid user type')
+
+@app.route('/api/profile/<user_type>/<user_id>', methods=['GET'])
+@require_auth
+@rate_limit(max_requests=100, window=3600)
+def get_profile(user_type, user_id):
+    try:
+        # Verify user can access this profile
+        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
+            return jsonify({'error': 'Unauthorized access'}), 403
+        
+        collection = get_user_collection(user_type)
+        user = collection.find_one({'_id': ObjectId(user_id)})
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Remove sensitive data
+        user.pop('password', None)
+        user['user_type'] = user_type
+        user['user_id'] = str(user['_id'])
+        user['_id'] = str(user['_id'])
+        
+        return jsonify(user)
+    
+    except Exception as e:
+        logger.error(f"Get profile error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/profile/<user_type>/<user_id>', methods=['PUT'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
+def update_profile(user_type, user_id):
+    try:
+        # Verify user can update this profile
+        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
+            return jsonify({'error': 'Unauthorized access'}), 403
+        
+        collection = get_user_collection(user_type)
+        data = request.json
+        
+        if not data:
+            return jsonify({'error': 'Invalid request data'}), 400
+        
+        # Sanitize input data
+        sanitized_data = {}
+        allowed_fields = ['name', 'phone', 'address', 'company_name', 'business_type']
+        
+        for field in allowed_fields:
+            if field in data:
+                sanitized_data[field] = SecurityUtils.sanitize_input(str(data[field]))
+        
+        if not sanitized_data:
+            return jsonify({'error': 'No valid fields to update'}), 400
+        
+        # Update user profile
+        result = collection.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': sanitized_data}
+        )
+        
+        if result.modified_count == 0:
+            return jsonify({'error': 'User not found or no changes made'}), 404
+        
+        SecurityUtils.log_security_event('PROFILE_UPDATED', user_id=user_id)
+        
+        return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    
+    except Exception as e:
+        logger.error(f"Update profile error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
