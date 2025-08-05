@@ -26,37 +26,79 @@ CORS(app, resources={
 mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')
 db = mongo_client['OverXchange']
 
+# Initialize admin collection with default admin if not exists
+def initialize_admin():
+    """Initialize admin collection with default admin account"""
+    admin_collection = db['admins']
+    
+    # Create default admin accounts
+    default_admins = [
+        {
+            'email': 'admin@overxchange.com',
+            'password': generate_password_hash('admin123'),
+            'name': 'System Administrator',
+            'role': 'super_admin',
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        },
+        {
+            'email': 'admin@gmail.com',
+            'password': generate_password_hash('admin'),
+            'name': 'Admin User',
+            'role': 'admin',
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        }
+    ]
+    
+    # Check and create admin accounts if they don't exist
+    for admin_data in default_admins:
+        existing_admin = admin_collection.find_one({'email': admin_data['email']})
+        if not existing_admin:
+            admin_collection.insert_one(admin_data)
+            print(f"Admin account created: {admin_data['email']} / {admin_data['password'][:10]}...")
+        else:
+            print(f"Admin account already exists: {admin_data['email']}")
+
+# Initialize admin on startup
+initialize_admin()
+
 # Serve frontend static files
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_frontend(path):
-    if path != "" and os.path.exists(os.path.join(FRONTEND_DIR, path)):
-        return send_from_directory(FRONTEND_DIR, path)
-    else:
-        return send_from_directory(FRONTEND_DIR, 'index.html')
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
+    
     # Try vendor first
     user = db['vendors'].find_one({'email': username})
     user_type = 'vendor'
+    
     if not user:
+        # Try supplier
         user = db['suppliers'].find_one({'email': username})
         user_type = 'supplier' if user else None
+    
+    if not user:
+        # Try admin
+        user = db['admins'].find_one({'email': username, 'is_active': True})
+        user_type = 'admin' if user else None
+    
     if not user:
         return jsonify({'success': False, 'message': 'User not found'}), 404
+    
     if not check_password_hash(user['password'], password):
         return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+    
     response_data = {
         'success': True,
         'message': 'Login successful',
@@ -69,7 +111,134 @@ def login():
         response_data['business_name'] = user.get('business_name', user.get('name', ''))
         response_data['name'] = user.get('name', '')
     
+    # Add admin-specific data for admins
+    if user_type == 'admin':
+        response_data['name'] = user.get('name', '')
+        response_data['role'] = user.get('role', 'admin')
+        response_data['email'] = user.get('email', '')
+    
     return jsonify(response_data)
+
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    """Admin login with email and password"""
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+        
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email and password are required'}), 400
+        
+        # Find admin by email
+        admin = db['admins'].find_one({'email': email, 'is_active': True})
+        
+        if not admin:
+            return jsonify({'success': False, 'message': 'Admin account not found or inactive'}), 404
+        
+        # Check password
+        if not check_password_hash(admin['password'], password):
+            return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+        
+        # Return admin data (without password)
+        response_data = {
+            'success': True,
+            'message': 'Admin login successful',
+            'admin_id': str(admin['_id']),
+            'email': admin['email'],
+            'name': admin['name'],
+            'role': admin['role'],
+            'login_time': datetime.utcnow().isoformat()
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"Admin login error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/admin/signup', methods=['POST'])
+def admin_signup():
+    """Create new admin account (only super admin can create other admins)"""
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+        name = data.get('name')
+        role = data.get('role', 'admin')  # Default role is admin
+        
+        if not email or not password or not name:
+            return jsonify({'success': False, 'message': 'Email, password, and name are required'}), 400
+        
+        # Check if admin already exists
+        existing_admin = db['admins'].find_one({'email': email})
+        if existing_admin:
+            return jsonify({'success': False, 'message': 'Admin with this email already exists'}), 409
+        
+        # Create new admin
+        admin_data = {
+            'email': email,
+            'password': generate_password_hash(password),
+            'name': name,
+            'role': role,
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        }
+        
+        result = db['admins'].insert_one(admin_data)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Admin account created successfully',
+            'admin_id': str(result.inserted_id)
+        }), 201
+        
+    except Exception as e:
+        print(f"Admin signup error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/admin/create', methods=['POST'])
+def create_admin_manual():
+    """Manually create admin account (for development/testing)"""
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+        name = data.get('name', 'Admin User')
+        role = data.get('role', 'admin')
+        
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email and password are required'}), 400
+        
+        # Check if admin already exists
+        existing_admin = db['admins'].find_one({'email': email})
+        if existing_admin:
+            return jsonify({'success': False, 'message': 'Admin with this email already exists'}), 409
+        
+        # Create new admin
+        admin_data = {
+            'email': email,
+            'password': generate_password_hash(password),
+            'name': name,
+            'role': role,
+            'created_at': datetime.utcnow(),
+            'is_active': True
+        }
+        
+        result = db['admins'].insert_one(admin_data)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Admin account created successfully: {email}',
+            'admin_id': str(result.inserted_id),
+            'email': email,
+            'name': name,
+            'role': role
+        }), 201
+        
+    except Exception as e:
+        print(f"Manual admin creation error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @app.route('/api/signup/vendor', methods=['POST'])
 def signup_vendor():
@@ -274,6 +443,31 @@ def get_dashboard_data(supplier_id):
             if quantity and price:
                 total_value += quantity * price
         
+        # Get total orders delivered for this supplier
+        total_orders_delivered = 0
+        delivered_orders_value = 0
+        
+        # Find supplier name from supplier_id
+        supplier_info = db['suppliers'].find_one({'_id': ObjectId(supplier_id)})
+        if supplier_info:
+            supplier_name = supplier_info.get('business_name', supplier_info.get('name', ''))
+            
+            # Get all orders where this supplier has delivered items
+            delivered_orders = db['orders'].find({
+                'supplier_orders.supplier_name': supplier_name,
+                'supplier_orders.status': 'delivered'
+            })
+            
+            for order in delivered_orders:
+                for supplier_order in order.get('supplier_orders', []):
+                    if supplier_order.get('supplier_name') == supplier_name and supplier_order.get('status') == 'delivered':
+                        total_orders_delivered += 1
+                        # Calculate delivered order value
+                        for item in supplier_order.get('items', []):
+                            item_quantity = item.get('quantity', 0)
+                            item_price = item.get('price', 0)
+                            delivered_orders_value += item_quantity * item_price
+        
         # Calculate left stock value (remaining inventory value)
         left_stock_value = total_value
         
@@ -406,7 +600,11 @@ def redeem_coupon(coupon_id):
             return jsonify({'success': False, 'message': 'Coupon is not active'}), 400
         
         # Check if coupon has expired
-        if datetime.now() > coupon['valid_until']:
+        valid_until = coupon['valid_until']
+        if isinstance(valid_until, str):
+            valid_until = datetime.fromisoformat(valid_until.replace('Z', '+00:00'))
+        
+        if datetime.now() > valid_until:
             return jsonify({'success': False, 'message': 'Coupon has expired'}), 400
         
         # Check usage limit
@@ -454,7 +652,11 @@ def validate_coupon(coupon_code):
             return jsonify({'success': False, 'message': 'Coupon is not active'}), 400
         
         # Check if coupon has expired
-        if datetime.now() > coupon['valid_until']:
+        valid_until = coupon['valid_until']
+        if isinstance(valid_until, str):
+            valid_until = datetime.fromisoformat(valid_until.replace('Z', '+00:00'))
+        
+        if datetime.now() > valid_until:
             return jsonify({'success': False, 'message': 'Coupon has expired'}), 400
         
         # Check minimum order amount
@@ -1469,10 +1671,19 @@ def upload_license():
         # Read file content
         file_content = file.read()
         
-        # Automatically verify the license
-        verification_result = verify_license_automatically(file_content, file.content_type)
+        # For manual admin verification workflow, always set status to pending
+        # Admin will manually verify the license
+        verification_result = {
+            'is_valid': 'manual_review',
+            'message': 'License uploaded successfully. Awaiting admin verification.',
+            'extracted_data': {
+                'business_name': 'To be verified by admin',
+                'address': 'To be verified by admin',
+                'license_number': 'To be verified by admin'
+            }
+        }
         
-        # Save license document to database
+        # Save license document to database with pending status
         license_data = {
             'supplier_id': supplier_id,
             'file_name': file.filename,
@@ -1480,7 +1691,9 @@ def upload_license():
             'file_size': file_size,
             'upload_date': datetime.now(),
             'verification_result': verification_result,
-            'status': 'verified' if verification_result['is_valid'] == True else ('pending' if verification_result['is_valid'] == 'manual_review' else 'rejected')
+            'status': 'pending',  # Always pending for admin verification
+            'file_content': base64.b64encode(file_content).decode('utf-8'),  # Store file content for admin review
+            'admin_verification_required': True
         }
         
         # Save to database
@@ -1501,9 +1714,10 @@ def upload_license():
         
         return jsonify({
             'success': True,
-            'message': 'License uploaded and verified successfully!',
+            'message': 'License uploaded successfully! Admin will review and verify your license shortly.',
             'verification_result': verification_result,
-            'license_data': license_data
+            'license_data': license_data,
+            'next_step': 'Admin verification required'
         })
         
     except Exception as e:
@@ -1539,6 +1753,135 @@ def get_license_status(supplier_id):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+# Admin API to get all pending licenses
+@app.route('/api/admin/licenses/pending', methods=['GET'])
+def get_pending_licenses():
+    """Get all pending licenses for admin review"""
+    try:
+        # Get all licenses with pending status
+        pending_licenses = list(db['licenses'].find({'status': 'pending'}))
+        
+        # Get supplier information for each license
+        for license_doc in pending_licenses:
+            if 'supplier_id' in license_doc:
+                supplier = db['suppliers'].find_one({'_id': ObjectId(license_doc['supplier_id'])})
+                if supplier:
+                    license_doc['supplier_name'] = supplier.get('business_name', supplier.get('name', 'Unknown'))
+                    license_doc['supplier_email'] = supplier.get('email', 'Unknown')
+                else:
+                    license_doc['supplier_name'] = 'Unknown'
+                    license_doc['supplier_email'] = 'Unknown'
+            
+            # Convert ObjectId to string for JSON serialization
+            license_doc['_id'] = str(license_doc['_id'])
+            if 'supplier_id' in license_doc:
+                license_doc['supplier_id'] = str(license_doc['supplier_id'])
+            
+            # Remove file content from list view (too large for JSON)
+            if 'file_content' in license_doc:
+                del license_doc['file_content']
+        
+        return jsonify({
+            'success': True,
+            'licenses': pending_licenses
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# Admin API to get license file content for review
+@app.route('/api/admin/license/file/<license_id>', methods=['GET'])
+def get_license_file(license_id):
+    """Get license file content for admin review"""
+    try:
+        license_doc = db['licenses'].find_one({'_id': ObjectId(license_id)})
+        
+        if not license_doc:
+            return jsonify({'success': False, 'message': 'License not found'}), 404
+        
+        # Get supplier information
+        supplier = None
+        if 'supplier_id' in license_doc:
+            supplier = db['suppliers'].find_one({'_id': ObjectId(license_doc['supplier_id'])})
+        
+        response_data = {
+            'success': True,
+            'license_id': str(license_doc['_id']),
+            'file_name': license_doc.get('file_name', 'Unknown'),
+            'file_type': license_doc.get('file_type', 'Unknown'),
+            'file_size': license_doc.get('file_size', 0),
+            'upload_date': license_doc.get('upload_date'),
+            'supplier_name': supplier.get('business_name', supplier.get('name', 'Unknown')) if supplier else 'Unknown',
+            'supplier_email': supplier.get('email', 'Unknown') if supplier else 'Unknown',
+            'file_content': license_doc.get('file_content'),  # Base64 encoded file content
+            'verification_result': license_doc.get('verification_result', {})
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# Admin API to get license statistics
+@app.route('/api/admin/licenses/stats', methods=['GET'])
+def get_license_stats():
+    """Get license verification statistics for admin dashboard"""
+    try:
+        from datetime import datetime, timedelta
+        
+        # Get today's date
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Count licenses by status
+        pending_count = db['licenses'].count_documents({'status': 'pending'})
+        verified_count = db['licenses'].count_documents({'status': 'verified'})
+        rejected_count = db['licenses'].count_documents({'status': 'rejected'})
+        
+        # Count today's verifications
+        verified_today = db['licenses'].count_documents({
+            'status': 'verified',
+            'admin_verification_date': {'$gte': today}
+        })
+        
+        rejected_today = db['licenses'].count_documents({
+            'status': 'rejected',
+            'admin_verification_date': {'$gte': today}
+        })
+        
+        # Get recent activity (last 10 verifications)
+        recent_activity = list(db['licenses'].find({
+            'admin_verification_date': {'$exists': True}
+        }).sort('admin_verification_date', -1).limit(10))
+        
+        # Add supplier names to recent activity
+        for activity in recent_activity:
+            if 'supplier_id' in activity:
+                supplier = db['suppliers'].find_one({'_id': ObjectId(activity['supplier_id'])})
+                if supplier:
+                    activity['supplier_name'] = supplier.get('business_name', supplier.get('name', 'Unknown'))
+                else:
+                    activity['supplier_name'] = 'Unknown'
+            
+            # Convert ObjectId to string
+            activity['_id'] = str(activity['_id'])
+            if 'supplier_id' in activity:
+                activity['supplier_id'] = str(activity['supplier_id'])
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'pending': pending_count,
+                'verified_total': verified_count,
+                'rejected_total': rejected_count,
+                'verified_today': verified_today,
+                'rejected_today': rejected_today,
+                'recent_activity': recent_activity
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 # Admin API for manual verification (for cases where auto-verification is uncertain)
 @app.route('/api/admin/license/verify/<license_id>', methods=['POST'])
 def admin_verify_license(license_id):
@@ -1547,34 +1890,63 @@ def admin_verify_license(license_id):
         data = request.json
         action = data.get('action')  # 'approve' or 'reject'
         admin_notes = data.get('notes', '')
+        license_number = data.get('license_number', '')
+        business_name = data.get('business_name', '')
+        address = data.get('address', '')
         
         if action not in ['approve', 'reject']:
             return jsonify({'success': False, 'message': 'Invalid action'}), 400
         
-        # Update license status
+        # Update license status and details
         new_status = 'verified' if action == 'approve' else 'rejected'
+        update_data = {
+            'status': new_status,
+            'admin_verification_date': datetime.now(),
+            'admin_notes': admin_notes
+        }
+        
+        # Add extracted details if provided
+        if license_number:
+            update_data['license_number'] = license_number
+        if business_name:
+            update_data['business_name'] = business_name
+        if address:
+            update_data['address'] = address
+        
+        # Update verification result
+        update_data['verification_result'] = {
+            'is_valid': action == 'approve',
+            'message': f'License {action}d by admin',
+            'extracted_data': {
+                'business_name': business_name or 'Verified by admin',
+                'address': address or 'Verified by admin',
+                'license_number': license_number or 'Verified by admin'
+            }
+        }
+        
         db['licenses'].update_one(
             {'_id': ObjectId(license_id)},
-            {
-                '$set': {
-                    'status': new_status,
-                    'admin_verification_date': datetime.now(),
-                    'admin_notes': admin_notes
-                }
-            }
+            {'$set': update_data}
         )
         
         # Get license to update supplier status
         license_doc = db['licenses'].find_one({'_id': ObjectId(license_id)})
         if license_doc:
+            supplier_update = {
+                'license_verification_status': new_status,
+                'license_verification_date': datetime.now()
+            }
+            
+            # Add license details to supplier if approved
+            if action == 'approve':
+                if license_number:
+                    supplier_update['license_number'] = license_number
+                if business_name:
+                    supplier_update['business_name'] = business_name
+            
             db['suppliers'].update_one(
                 {'_id': ObjectId(license_doc['supplier_id'])},
-                {
-                    '$set': {
-                        'license_verification_status': new_status,
-                        'license_verification_date': datetime.now()
-                    }
-                }
+                {'$set': supplier_update}
             )
         
         return jsonify({

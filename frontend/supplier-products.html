@@ -865,6 +865,9 @@
             // Get supplier name from the page
             const supplierName = document.querySelector('.supplier-name').textContent;
             
+            // Get supplier ID from URL parameters
+            const supplierId = getSupplierId();
+            
             // Get product details
             const productCard = button.closest('.product-card');
             const category = productCard.querySelector('.product-category').textContent;
@@ -892,6 +895,7 @@
                     name: productName,
                     price: price,
                     supplierName: supplierName,
+                    supplierId: supplierId, // Add supplier ID for coupon functionality
                     category: category,
                     unit: unit,
                     quantity: quantity,

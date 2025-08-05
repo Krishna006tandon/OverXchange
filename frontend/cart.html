@@ -372,11 +372,11 @@
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-shopping-cart"></i>
-                OverXchange Cart
+                ओवरएक्सचेंज कार्ट
             </div>
             <a href="vendor-dashboard.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                Back to Dashboard
+                Dashboard पर वापस जाएं
             </a>
         </div>
     </header>
@@ -385,7 +385,7 @@
     <main class="main-content">
         <h1 class="page-title">
             <i class="fas fa-shopping-cart"></i>
-            Shopping Cart
+            खरीदारी कार्ट
         </h1>
 
         <div class="cart-container">
@@ -495,7 +495,7 @@
                     Order Summary
                 </div>
                 <div class="summary-item">
-                    <span>Subtotal (${cart.length} items)</span>
+                    <span>उप-Total (${cart.length} आइटम)</span>
                     <span>₹${subtotal.toFixed(2)}</span>
                 </div>
                 <div class="summary-item">
@@ -508,7 +508,7 @@
                 </div>
                 <button class="checkout-btn" onclick="proceedToCheckout()" ${cart.length === 0 ? 'disabled' : ''}>
                     <i class="fas fa-credit-card"></i>
-                    Proceed to Checkout
+                    Checkout करें
                 </button>
             `;
         }
@@ -566,7 +566,7 @@
                 if (existingItem.quantity < maxQuantity) {
                     existingItem.quantity += 1;
                 } else {
-                    alert('Maximum available quantity reached for this item!');
+                    alert('इस आइटम के लिए अधिकतम उपलब्ध मात्रा तक पहुंच गई है!');
                     return;
                 }
             } else {

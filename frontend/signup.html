@@ -215,16 +215,16 @@
         <form id="signupForm">
             <div id="vendorFields">
                 <input type="text" name="business_name" placeholder="Business Name" required>
-                <div style="text-align:left; font-weight:700; color:#3730a3; margin-bottom:6px;">Vendor Type: Food & Beverage</div>
+                <div style="text-align:left; font-weight:700; color:#3730a3; margin-bottom:6px;">Vendor प्रकार: भोजन और पेय</div>
                 <input type="text" name="food_beverage_details" placeholder="Food & Beverage Details" required>
                 <input type="text" name="business_address" placeholder="Business Address" required>
                 <input type="text" name="pincode" placeholder="Pincode" required>
                 <input type="tel" name="phone" placeholder="Phone" required>
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <input type="text" name="gstin" placeholder="GSTIN (Optional)">
+                <input type="text" name="gstin" placeholder="GSTIN (वैकल्पिक)">
                 <input type="text" name="preferred_categories" placeholder="Preferred Product Categories" required>
-                <input type="text" name="invite_code" placeholder="Invite Code (Optional)">
+                <input type="text" name="invite_code" placeholder="Invite Code (वैकल्पिक)">
             </div>
             <div id="supplierFields" style="display:none;">
                 <input type="text" name="business_name" placeholder="Business Name" required>
@@ -234,15 +234,15 @@
                 <input type="tel" name="phone" placeholder="Phone" required>
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <input type="text" name="gstin" placeholder="GSTIN (Mandatory)" required>
-                <input type="text" name="business_proof" placeholder="Business Proof (Mandatory)" required>
+                <input type="text" name="gstin" placeholder="GSTIN (अनिवार्य)" required>
+                <input type="text" name="business_proof" placeholder="Business Proof (अनिवार्य)" required>
                 <input type="number" name="moq" placeholder="Minimum Order Quantity (MOQ)" required>
                 <input type="text" name="logistics_options" placeholder="Available Logistics Options" required>
             </div>
             <button type="submit">Sign Up</button>
         </form>
         <div class="signup-links">
-            Already have an account? <a href="login.html">Login</a>
+            पहले से ही खाता है? <a href="login.html">Login</a>
         </div>
         <div class="message" id="message"></div>
     </div>
@@ -288,7 +288,7 @@
 
         signupForm.onsubmit = async (e) => {
             e.preventDefault();
-            messageDiv.textContent = 'Submitting...';
+            messageDiv.textContent = 'जमा किor जा रहा है...';
             
             // Get current domain for API calls
             const currentDomain = window.location.origin;
@@ -319,7 +319,7 @@
                     messageDiv.textContent = result.message;
                 } else {
                     messageDiv.style.color = '#dc2626';
-                    messageDiv.textContent = result.message || 'Signup failed.';
+                    messageDiv.textContent = result.message || 'Signup विफल।';
                 }
             } catch (err) {
                 messageDiv.style.color = '#dc2626';
