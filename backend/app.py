@@ -36,6 +36,22 @@ CORS(app, resources={
 mongo_client = MongoClient(Config.MONGODB_URI)
 db = mongo_client[Config.DATABASE_NAME]
 
+# Collections
+users_collection = db['users']
+suppliers_collection = db['suppliers']
+stocks_collection = db['stocks']
+coupons_collection = db['coupons']
+admins_collection = db['admins']
+orders_collection = db['orders']
+
+# Vendor-specific collections
+vendor_users = db['vendor_users']
+vendor_listings = db['vendor_listings']
+vendor_transactions = db['vendor_transactions']
+vendor_chats = db['vendor_chats']
+vendor_feedback = db['vendor_feedback']
+vendor_analytics = db['vendor_analytics']
+
 # Setup logging
 logging.basicConfig(
     level=getattr(logging, Config.LOG_LEVEL),
@@ -146,6 +162,9 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/vendor-dashboard')
+def vendor_dashboard():
+    return send_from_directory(FRONTEND_DIR, 'vendor-dashboard.html')
 
 
 @app.route('/api/login', methods=['POST'])
@@ -763,6 +782,319 @@ def validate_coupon(coupon_code):
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+# Vendor-specific routes
+@app.route('/api/vendor/register', methods=['POST'])
+@rate_limit(max_requests=3, window=3600)
+def vendor_register():
+    data = request.get_json()
+    
+    # Check if user already exists
+    if vendor_users.find_one({'email': data['email']}):
+        return jsonify({'message': 'User already exists'}), 400
+    
+    # Hash password
+    hashed_password = generate_password_hash(data['password'])
+    
+    # Create user
+    user = {
+        'name': data['name'],
+        'email': data['email'],
+        'password': hashed_password,
+        'company': data.get('company', ''),
+        'location': data.get('location', ''),
+        'phone': data.get('phone', ''),
+        'trust_score': 5.0,
+        'total_transactions': 0,
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_users.insert_one(user)
+    user['_id'] = str(result.inserted_id)
+    del user['password']
+    
+    return jsonify({'message': 'User registered successfully', 'user': user}), 201
+
+@app.route('/api/vendor/login', methods=['POST'])
+@rate_limit(max_requests=5, window=300)
+def vendor_login():
+    data = request.get_json()
+    
+    user = vendor_users.find_one({'email': data['email']})
+    if not user or not check_password_hash(user['password'], data['password']):
+        return jsonify({'message': 'Invalid credentials'}), 401
+    
+    token = SecurityUtils.generate_jwt_token({
+        'user_id': str(user['_id']),
+        'email': user['email'],
+        'user_type': 'vendor'
+    })
+    
+    user['_id'] = str(user['_id'])
+    del user['password']
+    
+    return jsonify({
+        'message': 'Login successful',
+        'token': token,
+        'user': user
+    })
+
+@app.route('/api/vendor/listings', methods=['GET'])
+def get_vendor_listings():
+    # Get filter parameters
+    product = request.args.get('product', '').lower()
+    city = request.args.get('city', '').lower()
+    pincode = request.args.get('pincode', '')
+    listing_type = request.args.get('type', '')
+    
+    # Build filter query
+    filter_query = {}
+    if product:
+        filter_query['product'] = {'$regex': product, '$options': 'i'}
+    if city:
+        filter_query['city'] = {'$regex': city, '$options': 'i'}
+    if pincode:
+        filter_query['pincode'] = {'$regex': pincode, '$options': 'i'}
+    if listing_type:
+        filter_query['type'] = listing_type
+    
+    # Get listings with user details
+    listings_data = []
+    for listing in vendor_listings.find(filter_query).sort('created_at', -1):
+        listing['_id'] = str(listing['_id'])
+        listing['user_id'] = str(listing['user_id'])
+        
+        # Get user details
+        user = vendor_users.find_one({'_id': ObjectId(listing['user_id'])})
+        if user:
+            listing['vendor_name'] = user['name']
+            listing['vendor_trust_score'] = user['trust_score']
+        
+        listings_data.append(listing)
+    
+    return jsonify({'listings': listings_data})
+
+@app.route('/api/vendor/listings', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
+def create_vendor_listing(current_user):
+    data = request.get_json()
+    
+    listing = {
+        'user_id': ObjectId(current_user['user_id']),
+        'type': data['type'],  # 'Offer' or 'Need'
+        'product': data['product'],
+        'quantity': int(data['quantity']),
+        'location': data['location'],
+        'city': data.get('city', ''),
+        'pincode': data.get('pincode', ''),
+        'collaboration_type': data['collaboration_type'],
+        'validity_time': datetime.fromisoformat(data['validity_time'].replace('Z', '+00:00')),
+        'urgency': data.get('urgency', 'medium'),
+        'description': data.get('description', ''),
+        'status': 'active',
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_listings.insert_one(listing)
+    listing['_id'] = str(result.inserted_id)
+    listing['user_id'] = str(listing['user_id'])
+    
+    # Send notifications to matching vendors
+    send_vendor_notifications(listing)
+    
+    return jsonify({'message': 'Listing created successfully', 'listing': listing}), 201
+
+@app.route('/api/vendor/listings/<listing_id>', methods=['GET'])
+def get_vendor_listing(listing_id):
+    listing = vendor_listings.find_one({'_id': ObjectId(listing_id)})
+    if not listing:
+        return jsonify({'message': 'Listing not found'}), 404
+    
+    listing['_id'] = str(listing['_id'])
+    listing['user_id'] = str(listing['user_id'])
+    
+    # Get user details
+    user = vendor_users.find_one({'_id': ObjectId(listing['user_id'])})
+    if user:
+        listing['vendor_name'] = user['name']
+        listing['vendor_trust_score'] = user['trust_score']
+    
+    return jsonify({'listing': listing})
+
+@app.route('/api/vendor/transactions', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=100, window=3600)
+def create_vendor_transaction(current_user):
+    data = request.get_json()
+    
+    transaction = {
+        'buyer_id': ObjectId(current_user['user_id']),
+        'seller_id': ObjectId(data['seller_id']),
+        'listing_id': ObjectId(data['listing_id']),
+        'type': data['type'],  # 'buy', 'group_buy', 'lend'
+        'quantity': int(data['quantity']),
+        'amount': float(data.get('amount', 0)),
+        'status': 'pending',
+        'payment_method': data.get('payment_method', 'in_app'),
+        'logistics': data.get('logistics', {}),
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_transactions.insert_one(transaction)
+    transaction['_id'] = str(result.inserted_id)
+    
+    return jsonify({'message': 'Transaction created successfully', 'transaction': transaction}), 201
+
+@app.route('/api/vendor/transactions/<transaction_id>/complete', methods=['PUT'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
+def complete_vendor_transaction(current_user, transaction_id):
+    transaction = vendor_transactions.find_one({'_id': ObjectId(transaction_id)})
+    if not transaction:
+        return jsonify({'message': 'Transaction not found'}), 404
+    
+    # Update transaction status
+    vendor_transactions.update_one(
+        {'_id': ObjectId(transaction_id)},
+        {'$set': {'status': 'completed', 'completed_at': datetime.utcnow()}}
+    )
+    
+    # Update user transaction counts
+    vendor_users.update_one(
+        {'_id': transaction['buyer_id']},
+        {'$inc': {'total_transactions': 1}}
+    )
+    vendor_users.update_one(
+        {'_id': transaction['seller_id']},
+        {'$inc': {'total_transactions': 1}}
+    )
+    
+    return jsonify({'message': 'Transaction completed successfully'})
+
+@app.route('/api/vendor/chat', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=200, window=3600)
+def send_vendor_message(current_user):
+    data = request.get_json()
+    
+    message = {
+        'sender_id': ObjectId(current_user['user_id']),
+        'receiver_id': ObjectId(data['receiver_id']),
+        'listing_id': ObjectId(data.get('listing_id')),
+        'message': data['message'],
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_chats.insert_one(message)
+    message['_id'] = str(result.inserted_id)
+    
+    return jsonify({'message': 'Message sent successfully', 'chat': message}), 201
+
+@app.route('/api/vendor/chat/<user_id>', methods=['GET'])
+@require_auth
+@rate_limit(max_requests=100, window=3600)
+def get_vendor_chat_history(current_user, user_id):
+    # Get chat messages between current user and specified user
+    messages = []
+    for msg in vendor_chats.find({
+        '$or': [
+            {'sender_id': ObjectId(current_user['user_id']), 'receiver_id': ObjectId(user_id)},
+            {'sender_id': ObjectId(user_id), 'receiver_id': ObjectId(current_user['user_id'])}
+        ]
+    }).sort('created_at', 1):
+        msg['_id'] = str(msg['_id'])
+        messages.append(msg)
+    
+    return jsonify({'messages': messages})
+
+@app.route('/api/vendor/feedback', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
+def submit_vendor_feedback(current_user):
+    data = request.get_json()
+    
+    feedback_data = {
+        'rater_id': ObjectId(current_user['user_id']),
+        'rated_user_id': ObjectId(data['rated_user_id']),
+        'transaction_id': ObjectId(data.get('transaction_id')),
+        'rating': int(data['rating']),
+        'comment': data.get('comment', ''),
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_feedback.insert_one(feedback_data)
+    
+    # Update user's trust score
+    update_vendor_trust_score(data['rated_user_id'])
+    
+    return jsonify({'message': 'Feedback submitted successfully'}), 201
+
+@app.route('/api/vendor/analytics', methods=['GET'])
+def get_vendor_analytics():
+    # Get top traders
+    top_traders = list(vendor_users.find().sort('total_transactions', -1).limit(5))
+    for trader in top_traders:
+        trader['_id'] = str(trader['_id'])
+    
+    # Get average fulfillment speed (mock data for now)
+    avg_speed = 1.2
+    
+    # Get quality score
+    pipeline = [
+        {'$group': {'_id': None, 'avg_rating': {'$avg': '$rating'}}}
+    ]
+    result = list(vendor_feedback.aggregate(pipeline))
+    quality_score = round(result[0]['avg_rating'], 1) if result else 4.8
+    
+    analytics_data = {
+        'top_traders': top_traders,
+        'avg_fulfillment_speed': avg_speed,
+        'quality_score': quality_score,
+        'total_listings': vendor_listings.count_documents({}),
+        'total_transactions': vendor_transactions.count_documents({'status': 'completed'}),
+        'active_users': vendor_users.count_documents({})
+    }
+    
+    return jsonify(analytics_data)
+
+@app.route('/api/vendor/users/<user_id>', methods=['GET'])
+def get_vendor_user(user_id):
+    user = vendor_users.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    user['_id'] = str(user['_id'])
+    del user['password']
+    
+    return jsonify({'user': user})
+
+def update_vendor_trust_score(user_id):
+    # Calculate average rating for user
+    pipeline = [
+        {'$match': {'rated_user_id': ObjectId(user_id)}},
+        {'$group': {'_id': None, 'avg_rating': {'$avg': '$rating'}}}
+    ]
+    
+    result = list(vendor_feedback.aggregate(pipeline))
+    if result:
+        avg_rating = result[0]['avg_rating']
+        vendor_users.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': {'trust_score': round(avg_rating, 1)}}
+        )
+
+def send_vendor_notifications(listing):
+    # Find vendors with matching criteria
+    matching_vendors = vendor_users.find({
+        'location': {'$regex': listing['city'], '$options': 'i'},
+        '_id': {'$ne': ObjectId(listing['user_id'])}
+    })
+    
+    # In a real app, you would send SMS/Email here
+    # For now, we'll just log the notifications
+    for vendor in matching_vendors:
+        print(f"Notification sent to {vendor['email']} for {listing['product']}")
 
 # License Verification System
 def verify_license_automatically(file_content, file_type):
