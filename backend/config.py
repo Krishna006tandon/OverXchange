@@ -11,7 +11,7 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     
     # Database Settings
-    MONGODB_URI = os.environ.get('MONGODB_URI') or 'mongodb://localhost:27017/'
+    MONGODB_URI = os.environ.get('MONGODB_URI') or 'mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/'
     DATABASE_NAME = os.environ.get('DATABASE_NAME') or 'OverXchange'
     
     # CORS Settings - Restrict to specific origins in production
