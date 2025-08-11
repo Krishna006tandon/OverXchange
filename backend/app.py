@@ -830,6 +830,8 @@ def vendor_login():
         'user_type': 'vendor'
     })
     
+    
+    
     user['_id'] = str(user['_id'])
     del user['password']
     
