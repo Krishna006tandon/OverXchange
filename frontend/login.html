@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - OverXchange</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="modern-styles.css">
     <style>
         /* Login Page Specific Styles */
@@ -166,10 +171,6 @@
             box-shadow: var(--shadow-medium);
         }
 
-        .login-btn:hover::before {
-            left: 100%;
-        }
-
         .login-btn:active {
             transform: translateY(-2px) scale(1.01);
         }
@@ -309,34 +310,6 @@
                 <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
             </div>
         </div>
-<<<<<<< HEAD
-=======
-    </nav>
-    <div class="login-container">
-        <div class="login-avatar">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4.5"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/></svg>
-        </div>
-        <h2>Login</h2>
-        <form id="login-form">
-            <input type="text" id="login-username" placeholder="Phone or Email" required>
-            <input type="password" id="login-password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-        <div class="login-links">
-            New to OverXchange?<br>
-            <a href="signup_vendor.html">Vendor Signup</a> |
-            <a href="signup_supplier.html">Supplier Signup</a>
-        </div>
-        <div style="margin-top: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-radius: 10px; border-left: 4px solid #6366f1;">
-            <h4 style="margin: 0 0 10px 0; color: #6366f1; font-size: 14px;">👨‍💼 Admin Login</h4>
-            <p style="margin: 0; font-size: 12px; color: #6b7280;">
-                Admins can login with their email and password:<br>
-                • admin@overxchange.com / admin123<br>
-                • admin@gmail.com / admin
-            </p>
-        </div>
-        <div id="login-message" style="color:red;margin-top:10px;"></div>
->>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
     </div>
 
     <!-- Enhanced Theme Toggle -->
@@ -350,7 +323,6 @@
     </button>
 
     <script>
-<<<<<<< HEAD
         // Enhanced Theme Toggle Functionality
         function toggleTheme() {
             const body = document.body;
@@ -369,80 +341,6 @@
                 // Update labels
                 symbolLabel.textContent = '☀️ Light Mode';
                 modeIndicator.textContent = '🌙 Dark Mode';
-=======
-    function updateNavbar() {
-        const isLoggedIn = localStorage.getItem('user_type') && localStorage.getItem('user_id');
-        document.getElementById('login-link').style.display = isLoggedIn ? 'none' : 'inline-block';
-        document.getElementById('signup-link').style.display = isLoggedIn ? 'none' : 'inline-block';
-        document.getElementById('profile-link').style.display = isLoggedIn ? 'inline-block' : 'none';
-        document.getElementById('logout-btn').style.display = isLoggedIn ? 'inline-block' : 'none';
-    }
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        localStorage.removeItem('user_type');
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('supplier_name');
-        localStorage.removeItem('business_name');
-        localStorage.removeItem('name');
-        // Clear admin data
-        localStorage.removeItem('admin_name');
-        localStorage.removeItem('admin_role');
-        localStorage.removeItem('admin_email');
-        updateNavbar();
-        window.location.href = 'index.html';
-    });
-    document.addEventListener('DOMContentLoaded', updateNavbar);
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
-        // Get current domain for API calls
-        const currentDomain = window.location.origin;
-        fetch(`${currentDomain}/api/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log('Login response:', data);
-            if (data.success) {
-                // Store user data in localStorage
-                localStorage.setItem('user_type', data.user_type);
-                localStorage.setItem('user_id', data.user_id);
-                
-                // Store supplier-specific data
-                if (data.user_type === 'supplier') {
-                    localStorage.setItem('supplier_name', data.business_name || data.name || 'Unknown Supplier');
-                    localStorage.setItem('business_name', data.business_name || '');
-                    localStorage.setItem('name', data.name || '');
-                }
-                
-                console.log('Stored in localStorage - user_type:', data.user_type, 'user_id:', data.user_id);
-                if (data.user_type === 'supplier') {
-                    console.log('Supplier name stored:', localStorage.getItem('supplier_name'));
-                }
-                
-                updateNavbar(); // Update navbar after successful login
-                
-                // Redirect based on user type
-                if (data.user_type === 'vendor') {
-                    console.log('Redirecting to vendor dashboard...');
-                    window.location.href = 'vendor-dashboard.html'; // Redirect vendors to dashboard
-                } else if (data.user_type === 'supplier') {
-                    console.log('Redirecting to supplier dashboard...');
-                    window.location.href = 'supply-dashboard.html'; // Redirect suppliers to supplier dashboard
-                } else if (data.user_type === 'admin') {
-                    console.log('Redirecting to admin dashboard...');
-                    // Store admin data
-                    localStorage.setItem('admin_name', data.name || '');
-                    localStorage.setItem('admin_role', data.role || 'admin');
-                    localStorage.setItem('admin_email', data.email || '');
-                    window.location.href = 'admin-license-verification.html'; // Redirect admins to admin dashboard
-                } else {
-                    console.log('Redirecting to home page...');
-                    window.location.href = 'index.html'; // Redirect others to home page
-                }
->>>>>>> f2c831acd4b5ab9a30d303462c77dfdd22fea8bb
             } else {
                 body.setAttribute('data-theme', 'dark');
                 // Add toggle animation
@@ -470,13 +368,13 @@
             successMessage.style.display = 'none';
             
             try {
-                const response = await fetch('http://localhost:5000/login', {
+                const response = await fetch('/api/login', { // Use relative path for API
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        email: email,
+                        username: email, // Backend expects 'username'
                         password: password
                     })
                 });
@@ -487,7 +385,7 @@
                     // Store user info
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_type', data.user_type);
-                    localStorage.setItem('user_name', data.name);
+                    localStorage.setItem('user_name', data.name || ''); // Ensure name is stored
                     
                     successMessage.textContent = 'Login successful! Redirecting...';
                     successMessage.style.display = 'block';
@@ -498,12 +396,17 @@
                             window.location.href = 'vendor-dashboard.html';
                         } else if (data.user_type === 'supplier') {
                             window.location.href = 'supply-dashboard.html';
+                        } else if (data.user_type === 'admin') {
+                            localStorage.setItem('admin_name', data.name || '');
+                            localStorage.setItem('admin_role', data.role || 'admin');
+                            localStorage.setItem('admin_email', data.email || '');
+                            window.location.href = 'admin-license-verification.html';
                         } else {
-                            window.location.href = 'profile.html';
+                            window.location.href = 'profile.html'; // Default redirect
                         }
                     }, 1500);
                 } else {
-                    errorMessage.textContent = data.error || 'Login failed. Please try again.';
+                    errorMessage.textContent = data.message || data.error || 'Login failed. Please try again.';
                     errorMessage.style.display = 'block';
                 }
             } catch (error) {
@@ -523,5 +426,7 @@
             });
         });
     </script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>
