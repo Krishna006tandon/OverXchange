@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,11 +8,10 @@ from datetime import datetime
 import os
 from flask import send_from_directory
 import re
-import base64
 import logging
+import json
 from functools import wraps
 # from PIL import Image  # Commented out for now
-import io
 
 # Import security modules
 from config import Config
@@ -229,8 +228,11 @@ def signup_vendor():
         # Sanitize and validate input
         email = SecurityUtils.sanitize_input(data.get('email', ''))
         password = data.get('password', '')
-        name = SecurityUtils.sanitize_input(data.get('name', ''))
+        first_name = SecurityUtils.sanitize_input(data.get('first_name', ''))
+        last_name = SecurityUtils.sanitize_input(data.get('last_name', ''))
+        name = f"{first_name} {last_name}".strip()
         phone = SecurityUtils.sanitize_input(data.get('phone', ''))
+        address = SecurityUtils.sanitize_input(data.get('address', ''))
         
         # Validate required fields
         if not email or not password or not name:
@@ -261,6 +263,7 @@ def signup_vendor():
             'password': hashed_password,
             'name': name,
             'phone': phone,
+            'address': address,
             'created_at': datetime.utcnow(),
             'status': 'active'
         }
@@ -287,8 +290,11 @@ def signup_supplier():
         # Sanitize and validate input
         email = SecurityUtils.sanitize_input(data.get('email', ''))
         password = data.get('password', '')
-        name = SecurityUtils.sanitize_input(data.get('name', ''))
+        first_name = SecurityUtils.sanitize_input(data.get('first_name', ''))
+        last_name = SecurityUtils.sanitize_input(data.get('last_name', ''))
+        name = f"{first_name} {last_name}".strip()
         phone = SecurityUtils.sanitize_input(data.get('phone', ''))
+        address = SecurityUtils.sanitize_input(data.get('address', ''))
         
         # Validate required fields
         if not email or not password or not name:
@@ -319,6 +325,7 @@ def signup_supplier():
             'password': hashed_password,
             'name': name,
             'phone': phone,
+            'address': address,
             'created_at': datetime.utcnow(),
             'status': 'active'
         }
@@ -1110,10 +1117,12 @@ def verify_license_automatically(file_content, file_type):
         if file_type.startswith('image'):
             # For images, we'll use basic text extraction
             # In production, you'd use proper OCR like Tesseract
-            text_content = extract_text_from_image(file_content)
+            # text_content = extract_text_from_image(file_content)
+            pass
         elif file_type == 'application/pdf':
             # For PDFs, extract text
-            text_content = extract_text_from_pdf(file_content)
+            # text_content = extract_text_from_pdf(file_content)
+            pass
         
         # Convert to uppercase for better matching
         text_content = text_content.upper()
