@@ -24,6 +24,9 @@
         .signup-links { margin-top: 18px; font-size: 0.98em; }
         .signup-links a { color: #6366f1; text-decoration: none; margin: 0 8px; font-weight: 500; }
         .signup-links a:hover { text-decoration: underline; }
+        #message { margin-top: 15px; font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
     </style>
 </head>
 <body>
@@ -42,29 +45,64 @@
     </nav>
     <div class="signup-container">
         <h2>Vendor Signup</h2>
-        <form>
-            <input type="text" placeholder="Business Name" required>
-            <select required>
-                <option value="">Select Vendor Type</option>
-                <option>Electronics</option>
-                <option>Apparel</option>
-                <option>General</option>
-                <option>Food & Beverage</option>
-                <option>Other</option>
-            </select>
-            <input type="text" placeholder="Business Address" required>
-            <input type="text" placeholder="Pincode" required>
-            <input type="tel" placeholder="Phone (OTP Verified)" required>
-            <input type="email" placeholder="Email (OTP Verified)" required>
-            <input type="text" placeholder="GSTIN (Optional)">
-            <input type="text" placeholder="Preferred Product Categories" required>
-            <input type="text" placeholder="Invite Code (Optional)">
+        <form id="signup-form">
+            <input type="text" id="first_name" placeholder="First Name" required>
+            <input type="text" id="last_name" placeholder="Last Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="text" id="phone" placeholder="Phone Number" required>
+            <input type="text" id="address" placeholder="Address" required>
             <button type="submit">Sign Up as Vendor</button>
         </form>
+        <div id="message"></div>
         <div class="signup-links">
             Already have an account? <a href="login.html">Login</a><br>
             Want to sell in bulk? <a href="signup_supplier.html">Supplier Signup</a>
         </div>
     </div>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const first_name = document.getElementById('first_name').value;
+            const last_name = document.getElementById('last_name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const messageDiv = document.getElementById('message');
+
+            try {
+                const response = await fetch('/api/signup/vendor', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        first_name,
+                        last_name,
+                        email,
+                        password,
+                        phone,
+                        address
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.textContent = 'Signup successful!';
+                    messageDiv.className = 'success';
+                } else {
+                    messageDiv.textContent = data.message || 'Signup failed';
+                    messageDiv.className = 'error';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.className = 'error';
+            }
+        });
+    </script>
 </body>
-</html> 
+</html>

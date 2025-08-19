@@ -222,6 +222,7 @@ def login():
 def signup_vendor():
     try:
         data = request.json
+        logger.info(f"Received vendor signup request with data: {data}")
         if not data:
             return jsonify({"success": False, "message": "Invalid request data"}), 400
         
