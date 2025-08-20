@@ -184,10 +184,17 @@ def login():
         if not SecurityUtils.validate_email(username):
             return jsonify({'success': False, 'message': 'Invalid email format'}), 400
         
-        # Try vendor first
-        user = db['vendors'].find_one({'email': username})
-        user_type = 'vendor'
+        # Try admin first
+        user = db['admins'].find_one({'email': username})
+        user_type = 'admin'
+        
         if not user:
+            # Try vendor
+            user = db['vendors'].find_one({'email': username})
+            user_type = 'vendor'
+        
+        if not user:
+            # Try supplier
             user = db['suppliers'].find_one({'email': username})
             user_type = 'supplier' if user else None
         
