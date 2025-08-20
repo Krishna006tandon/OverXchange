@@ -16,10 +16,10 @@
                 Vendor<span>Net</span>
             </div>
             <ul>
-                <li><a href="#" class="active">Dashboard</a></li>
-                <li><a href="#" onclick="showListings()">Marketplace</a></li>
-                <li><a href="#" onclick="showAnalytics()">Analytics</a></li>
-                <li><a href="#" onclick="showChat()">Messages</a></li>
+                <li><a href="#" class="nav-link active" data-section="dashboardContainer">Dashboard</a></li>
+                <li><a href="#" class="nav-link" data-section="v2vContainer">Vendor 2 Vendor</a></li>
+                <li><a href="#" class="nav-link" data-section="analyticsContainer">Analytics</a></li>
+                <li><a href="#" class="nav-link" data-section="messagesContainer">Messages</a></li>
             </ul>
             <div class="user-menu">
                 <span class="user-name" id="userName">Guest</span>
@@ -31,177 +31,188 @@
 
     <main>
         <div class="container">
-            <div class="page-header">
-                <h1><i class="fas fa-handshake"></i> V2V Collaboration</h1>
-                <p>Connect with other vendors to share resources, fulfill needs, and grow together</p>
+            <div id="dashboardContainer" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-handshake"></i> V2V Collaboration</h1>
+                    <p>Connect with other vendors to share resources, fulfill needs, and grow together</p>
+                </div>
+
+                <div class="collaboration-flow">
+                    <div class="flow-step active">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Post Request or Offer</h3>
+                            <p>Share your surplus or request what you need</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Match & Connect</h3>
+                            <p>Find compatible vendors</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Collaborate</h3>
+                            <p>Execute the partnership</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="collaboration-flow">
-                <div class="flow-step active">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Post Request or Offer</h3>
-                        <p>Share your surplus or request what you need</p>
+            <div id="v2vContainer" class="content-section" style="display: none;">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2><i class="fas fa-plus-circle"></i> Create New Post</h2>
+                        <p>Choose your collaboration type and provide details</p>
                     </div>
+
+                    <form class="collaboration-form" id="collaborationForm">
+                        <div class="form-section">
+                            <h3><i class="fas fa-tag"></i> Post Type</h3>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="postType" value="offer" checked>
+                                    <div class="radio-custom">
+                                        <i class="fas fa-gift"></i>
+                                        <span>Offer Stock</span>
+                                        <small>Share or sell your surplus inventory</small>
+                                    </div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="postType" value="need">
+                                    <div class="radio-custom">
+                                        <i class="fas fa-hand-holding-heart"></i>
+                                        <span>Need Stock</span>
+                                        <small>Request urgent items or joint orders</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-info-circle"></i> Product Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productName">Product Name *</label>
+                                    <input type="text" id="productName" name="productName" required placeholder="Enter product name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="quantity">Quantity *</label>
+                                    <input type="number" id="quantity" name="quantity" required placeholder="Enter quantity">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="location">Location *</label>
+                                    <input type="text" id="location" name="location" required placeholder="Enter location">
+                                </div>
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" name="city" placeholder="Enter city">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pincode">Pincode</label>
+                                    <input type="text" id="pincode" name="pincode" placeholder="Enter pincode">
+                                </div>
+                                <div class="form-group">
+                                    <label for="urgency">Urgency</label>
+                                    <select id="urgency" name="urgency">
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea id="description" name="description" placeholder="Provide additional details about your request or offer"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-handshake"></i> Collaboration Type</h3>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="collaborationType" value="buy" checked>
+                                    <div class="radio-custom">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <span>Buy</span>
+                                        <small>Direct purchase</small>
+                                    </div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="collaborationType" value="group_buy">
+                                    <div class="radio-custom">
+                                        <i class="fas fa-users"></i>
+                                        <span>Group Buy</span>
+                                        <small>Bulk purchase with others</small>
+                                    </div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="collaborationType" value="lend">
+                                    <div class="radio-custom">
+                                        <i class="fas fa-exchange-alt"></i>
+                                        <span>Lend/Share</span>
+                                        <small>Temporary sharing</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-clock"></i> Validity</h3>
+                            <div class="form-group">
+                                <label for="validityTime">Valid Until *</label>
+                                <input type="datetime-local" id="validityTime" name="validityTime" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-paper-plane"></i> Create Post
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="resetForm()">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="flow-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Match & Connect</h3>
-                        <p>Find compatible vendors</p>
+
+                <div class="listings-container" id="listingsContainer">
+                    <div class="listings-header">
+                        <h2><i class="fas fa-store"></i> Marketplace</h2>
+                        <div class="filters">
+                            <input type="text" id="productFilter" placeholder="Search products...">
+                            <input type="text" id="cityFilter" placeholder="Filter by city...">
+                            <select id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="offer">Offers</option>
+                                <option value="need">Needs</option>
+                            </select>
+                            <button onclick="applyFilters()" class="btn-primary">Apply Filters</button>
+                        </div>
                     </div>
-                </div>
-                <div class="flow-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Collaborate</h3>
-                        <p>Execute the partnership</p>
-                    </div>
+                    <div class="listings-grid" id="listingsGrid"></div>
                 </div>
             </div>
 
-            <div class="form-container">
-                <div class="form-header">
-                    <h2><i class="fas fa-plus-circle"></i> Create New Post</h2>
-                    <p>Choose your collaboration type and provide details</p>
-                </div>
-
-                <form class="collaboration-form" id="collaborationForm">
-                    <div class="form-section">
-                        <h3><i class="fas fa-tag"></i> Post Type</h3>
-                        <div class="radio-group">
-                            <label class="radio-option">
-                                <input type="radio" name="postType" value="offer" checked>
-                                <div class="radio-custom">
-                                    <i class="fas fa-gift"></i>
-                                    <span>Offer Stock</span>
-                                    <small>Share or sell your surplus inventory</small>
-                                </div>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="postType" value="need">
-                                <div class="radio-custom">
-                                    <i class="fas fa-hand-holding-heart"></i>
-                                    <span>Need Stock</span>
-                                    <small>Request urgent items or joint orders</small>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3><i class="fas fa-info-circle"></i> Product Details</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="productName">Product Name *</label>
-                                <input type="text" id="productName" name="productName" required placeholder="Enter product name">
-                            </div>
-                            <div class="form-group">
-                                <label for="quantity">Quantity *</label>
-                                <input type="number" id="quantity" name="quantity" required placeholder="Enter quantity">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="location">Location *</label>
-                                <input type="text" id="location" name="location" required placeholder="Enter location">
-                            </div>
-                            <div class="form-group">
-                                <label for="city">City</label>
-                                <input type="text" id="city" name="city" placeholder="Enter city">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="pincode">Pincode</label>
-                                <input type="text" id="pincode" name="pincode" placeholder="Enter pincode">
-                            </div>
-                            <div class="form-group">
-                                <label for="urgency">Urgency</label>
-                                <select id="urgency" name="urgency">
-                                    <option value="low">Low</option>
-                                    <option value="medium" selected>Medium</option>
-                                    <option value="high">High</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" placeholder="Provide additional details about your request or offer"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3><i class="fas fa-handshake"></i> Collaboration Type</h3>
-                        <div class="radio-group">
-                            <label class="radio-option">
-                                <input type="radio" name="collaborationType" value="buy" checked>
-                                <div class="radio-custom">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <span>Buy</span>
-                                    <small>Direct purchase</small>
-                                </div>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="collaborationType" value="group_buy">
-                                <div class="radio-custom">
-                                    <i class="fas fa-users"></i>
-                                    <span>Group Buy</span>
-                                    <small>Bulk purchase with others</small>
-                                </div>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="collaborationType" value="lend">
-                                <div class="radio-custom">
-                                    <i class="fas fa-exchange-alt"></i>
-                                    <span>Lend/Share</span>
-                                    <small>Temporary sharing</small>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3><i class="fas fa-clock"></i> Validity</h3>
-                        <div class="form-group">
-                            <label for="validityTime">Valid Until *</label>
-                            <input type="datetime-local" id="validityTime" name="validityTime" required>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-paper-plane"></i> Create Post
-                        </button>
-                        <button type="button" class="btn-secondary" onclick="resetForm()">
-                            <i class="fas fa-redo"></i> Reset
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="listings-container" id="listingsContainer" style="display: none;">
-                <div class="listings-header">
-                    <h2><i class="fas fa-store"></i> Marketplace</h2>
-                    <div class="filters">
-                        <input type="text" id="productFilter" placeholder="Search products...">
-                        <input type="text" id="cityFilter" placeholder="Filter by city...">
-                        <select id="typeFilter">
-                            <option value="">All Types</option>
-                            <option value="offer">Offers</option>
-                            <option value="need">Needs</option>
-                        </select>
-                        <button onclick="applyFilters()" class="btn-primary">Apply Filters</button>
-                    </div>
-                </div>
-                <div class="listings-grid" id="listingsGrid"></div>
-            </div>
-
-            <div class="analytics-container" id="analyticsContainer" style="display: none;">
+            <div id="analyticsContainer" class="content-section" style="display: none;">
                 <div class="analytics-header">
                     <h2><i class="fas fa-chart-line"></i> Analytics</h2>
                 </div>
                 <div class="analytics-grid" id="analyticsGrid"></div>
+            </div>
+
+            <div id="messagesContainer" class="content-section" style="display: none;">
+                <div class="messages-header">
+                    <h2><i class="fas fa-comments"></i> Messages</h2>
+                </div>
+                <p>Chat functionality will be implemented here.</p>
             </div>
         </div>
     </main>
@@ -270,7 +281,42 @@
         document.addEventListener('DOMContentLoaded', function() {
             setValidityTime();
             checkAuthStatus();
-            loadListings();
+            showSection('dashboardContainer'); // Show dashboard by default
+            loadListings(); // Load listings for V2V section
+        });
+
+        function showSection(sectionId) {
+            // Hide all content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show the selected section
+            document.getElementById(sectionId).style.display = 'block';
+
+            // Update active navigation link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            // Special handling for V2V section to load listings
+            if (sectionId === 'v2vContainer') {
+                loadListings();
+            }
+            // Special handling for Analytics section to load analytics
+            if (sectionId === 'analyticsContainer') {
+                loadAnalytics();
+            }
+        }
+
+        // Event listeners for navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.dataset.section;
+                showSection(sectionId);
+            });
         });
 
         function setValidityTime() {
@@ -493,16 +539,8 @@
             });
         }
 
-        function showListings() {
-            document.getElementById('listingsContainer').style.display = 'block';
-            document.getElementById('analyticsContainer').style.display = 'none';
-            loadListings();
-        }
-
         function showAnalytics() {
-            document.getElementById('listingsContainer').style.display = 'none';
-            document.getElementById('analyticsContainer').style.display = 'block';
-            loadAnalytics();
+            showSection('analyticsContainer');
         }
 
         function loadAnalytics() {
@@ -593,7 +631,10 @@
             fetch(`/api/vendor/listings/${listingId}`)
             .then(response => response.json())
             .then(data => {
-                alert(`Details for ${data.listing.product}\nQuantity: ${data.listing.quantity}\nLocation: ${data.listing.location}\nDescription: ${data.listing.description}`);
+                alert(`Details for ${data.listing.product}
+Quantity: ${data.listing.quantity}
+Location: ${data.listing.location}
+Description: ${data.listing.description}`);
             })
             .catch(error => {
                 console.error('View details error:', error);
@@ -601,8 +642,8 @@
         }
 
         function showChat() {
-            alert('Chat functionality coming soon!');
+            showSection('messagesContainer');
         }
     </script>
 </body>
-</html> 
+</html>
