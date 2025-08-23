@@ -1086,6 +1086,34 @@ def get_vendor_user(user_id):
     
     return jsonify({'user': user})
 
+@app.route('/api/vendor/check_user_exists', methods=['POST'])
+def check_vendor_user_exists():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({'message': 'Email is required'}), 400
+    
+    user = vendor_users.find_one({'email': email})
+    if user:
+        return jsonify({'exists': True, 'message': 'User exists'}), 200
+    else:
+        return jsonify({'exists': False, 'message': 'User does not exist'}), 200
+
+@app.route('/api/vendor/me', methods=['GET'])
+@require_auth
+def get_current_vendor_user(current_user):
+    # current_user is populated by the @require_auth decorator
+    # It contains user_id and user_type
+    user_id = current_user['user_id']
+    user = vendor_users.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    user['_id'] = str(user['_id'])
+    del user['password']
+    
+    return jsonify({'user': user})
+
 def update_vendor_trust_score(user_id):
     # Calculate average rating for user
     pipeline = [

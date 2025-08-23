@@ -5,8 +5,8 @@ class Config:
     """Secure configuration for the application"""
     
     # Security Settings
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-super-secret-key-change-in-production'
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'your-jwt-secret-key-change-in-production'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'a_very_strong_random_secret_key_for_overxchange_2025_august_23_cli_agent_generated_1234567890'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'another_super_strong_jwt_secret_key_for_overxchange_2025_august_23_cli_agent_generated_0987654321'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     
