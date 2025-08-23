@@ -326,23 +326,28 @@
         }
 
         function checkAuthStatus() {
-            if (authToken) {
+            const storedUserId = localStorage.getItem('user_id');
+            const storedUserType = localStorage.getItem('user_type');
+
+            if (authToken && storedUserId && storedUserType === 'vendor') {
                 // Verify token and get user info
-                fetch('/api/vendor/users/me', {
+                fetch(`/api/profile/vendor/${storedUserId}`, {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.user) {
-                        currentUser = data.user;
+                    if (data.user_id) { // Check for user_id from the /api/profile/vendor/ endpoint
+                        currentUser = data; // The /api/profile/vendor/ endpoint returns the user object directly
                         updateUIForLoggedInUser();
                     } else {
                         logout();
                     }
                 })
                 .catch(() => logout());
+            } else {
+                logout(); // If no token or user_id/user_type, log out
             }
         }
 
@@ -382,15 +387,18 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ username: email, password: password }) // Use username for email
             })
             .then(response => response.json())
             .then(data => {
                 if (data.token) {
                     authToken = data.token;
-                    currentUser = data.user;
-                    localStorage.setItem('vendorToken', authToken);
-                    updateUIForLoggedInUser();
+                    // The /api/login endpoint does not return the full user object directly
+                    // It returns token, user_id, user_type
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('user_id', data.user_id); // Store user_id
+                    localStorage.setItem('user_type', data.user_type); // Store user_type
+                    checkAuthStatus(); // Re-check auth status to get full user object
                     closeLoginModal();
                     alert('Login successful!');
                 } else {
@@ -425,7 +433,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.user) {
+                if (data.success) { // Check for success from /api/signup/vendor
                     alert('Registration successful! Please login.');
                     closeRegisterModal();
                     showLoginModal();
@@ -442,7 +450,9 @@
         function logout() {
             currentUser = null;
             authToken = null;
-            localStorage.removeItem('vendorToken');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_type');
             document.getElementById('userName').textContent = 'Guest';
             document.getElementById('loginBtn').style.display = 'inline-block';
             document.getElementById('logoutBtn').style.display = 'none';
