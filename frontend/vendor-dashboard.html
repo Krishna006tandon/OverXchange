@@ -275,7 +275,7 @@
 
     <script>
         let currentUser = null;
-        let authToken = localStorage.getItem('vendorToken');
+        let authToken = localStorage.getItem('authToken');
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
@@ -376,7 +376,7 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            fetch('/api/vendor/login', {
+            fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -415,7 +415,7 @@
                 phone: document.getElementById('registerPhone').value
             };
 
-            fetch('/api/vendor/register', {
+            fetch('/api/signup/vendor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
