@@ -897,8 +897,16 @@ def get_vendor_listings():
 def create_vendor_listing(current_user):
     data = request.get_json()
     
+    logger.info(f"create_vendor_listing: current_user payload: {current_user}")
+    
+    try:
+        user_obj_id = ObjectId(current_user['user_id'])
+    except Exception as e:
+        logger.error(f"Invalid user_id in token: {current_user.get('user_id')} - Error: {e}")
+        return jsonify({'message': 'Invalid user ID in authentication token'}), 400
+
     listing = {
-        'user_id': ObjectId(current_user['user_id']),
+        'user_id': user_obj_id,
         'type': data['type'],  # 'Offer' or 'Need'
         'product': data['product'],
         'quantity': int(data['quantity']),
