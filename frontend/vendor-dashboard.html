@@ -376,6 +376,7 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
+            console.log('Attempting login with:', { email, password });
             fetch('/api/login', {
                 method: 'POST',
                 headers: {
