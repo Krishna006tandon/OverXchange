@@ -116,7 +116,7 @@ def require_auth(f):
             return jsonify({'error': 'Invalid or expired token'}), 401
         
         request.user = payload
-        return f(*args, **kwargs)
+        return f(request.user, *args, **kwargs)
     return decorated_function
 
 # Rate limiting decorator
