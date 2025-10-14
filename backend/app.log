@@ -377,3 +377,5 @@
 2025-10-14 21:46:21,113 - werkzeug - INFO -  * Restarting with stat
 2025-10-14 21:46:23,845 - werkzeug - WARNING -  * Debugger is active!
 2025-10-14 21:46:23,859 - werkzeug - INFO -  * Debugger PIN: 232-726-958
+2025-10-14 21:58:30,060 - werkzeug - INFO -  * Detected change in 'F:\\Projects\\OverXchange\\backend\\app.py', reloading
+2025-10-14 21:58:30,681 - werkzeug - INFO -  * Restarting with stat
