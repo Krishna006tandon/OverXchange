@@ -7,6 +7,10 @@ This script launches the Flask application from the correct directory.
 import os
 import sys
 import subprocess
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), 'backend', '.env'))
 
 def main():
     # Change to backend directory

@@ -1831,7 +1831,11 @@ def verify_license_by_state(license_number):
 
 
 # Google Sign-In Handlers
-GOOGLE_CLIENT_ID = "576296977091-cggcs1ios7ndrbbbgsjdfghv2c6ut3av.apps.googleusercontent.com"
+@app.route('/api/config/google-client-id', methods=['GET'])
+def get_google_client_id():
+    return jsonify({'client_id': app.config['GOOGLE_CLIENT_ID']})
+
+
 
 @app.route('/api/auth/google', methods=['POST'])
 @rate_limit(max_requests=10, window=300)
@@ -1843,8 +1847,7 @@ def google_auth():
             return jsonify({'success': False, 'message': 'No token provided'}), 400
 
         try:
-            # Verify the token
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), GOOGLE_CLIENT_ID)
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
             email = idinfo['email']
             name = idinfo.get('name', '')
 
@@ -1905,7 +1908,7 @@ def google_auth_complete():
 
         try:
             # Verify the token again for security
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), GOOGLE_CLIENT_ID)
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
             email = idinfo['email']
             name = idinfo.get('name', '')
         except ValueError:

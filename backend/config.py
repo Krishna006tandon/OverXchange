@@ -56,6 +56,10 @@ class Config:
     
     # Development vs Production
     DEBUG = os.environ.get('FLASK_ENV') == 'development'
+
+    # Google OAuth Settings
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
     
     @staticmethod
     def init_app(app):

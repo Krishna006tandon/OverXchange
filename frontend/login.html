@@ -423,15 +423,32 @@
         }
 
         // Google Sign-In
-        window.onload = function () {
-            google.accounts.id.initialize({
-                client_id: "576296977091-cggcs1ios7ndrbbbgsjdfghv2c6ut3av.apps.googleusercontent.com",
-                callback: handleCredentialResponse
-            });
+        window.onload = async function () {
+            try {
+                const response = await fetch('/api/config/google-client-id');
+                const config = await response.json();
+                const clientId = config.client_id;
 
-            document.getElementById('google-signin-btn').addEventListener('click', () => {
-                google.accounts.id.prompt();
-            });
+                if (!clientId) {
+                    console.error('Google Client ID not found.');
+                    document.getElementById('error-message').textContent = 'Google Sign-In is not configured.';
+                    document.getElementById('error-message').style.display = 'block';
+                    return;
+                }
+
+                google.accounts.id.initialize({
+                    client_id: clientId,
+                    callback: handleCredentialResponse
+                });
+
+                document.getElementById('google-signin-btn').addEventListener('click', () => {
+                    google.accounts.id.prompt();
+                });
+            } catch (error) {
+                console.error('Error fetching Google Client ID:', error);
+                document.getElementById('error-message').textContent = 'Could not initialize Google Sign-In.';
+                document.getElementById('error-message').style.display = 'block';
+            }
         }
 
         async function handleCredentialResponse(response) {
