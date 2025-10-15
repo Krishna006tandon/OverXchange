@@ -60,6 +60,35 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- All Supplier Products for Vendors -->
+                <div class="page-header" style="margin-top: 24px;">
+                    <h1><i class="fas fa-store"></i> All Supplier Products</h1>
+                    <p>Browse inventory from verified suppliers and add to your cart</p>
+                </div>
+                <div class="listings-container">
+                    <div class="listings-header" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+                        <h2 style="margin:0;display:flex;align-items:center;gap:8px;"><i class="fas fa-boxes"></i> Products</h2>
+                        <div class="filters" style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <input type="text" id="productSearch" placeholder="Search products...">
+                            <select id="categorySearch">
+                                <option value="">All Categories</option>
+                                <option value="Vegetables">Vegetables</option>
+                                <option value="Spices">Spices</option>
+                                <option value="Dairy">Dairy</option>
+                                <option value="Grains">Grains</option>
+                                <option value="Meat">Meat</option>
+                                <option value="Seafood">Seafood</option>
+                            </select>
+                            <button class="btn-primary" onclick="filterVendorProducts()"><i class="fas fa-filter"></i> Apply</button>
+                        </div>
+                    </div>
+                    <div class="listings-grid" id="vendorProductsGrid"></div>
+                    <div id="vendorProductsEmpty" style="display:none;text-align:center;padding:40px;color:#64748b;">
+                        <i class="fas fa-box-open" style="font-size:42px;margin-bottom:8px;"></i>
+                        <div>No products found</div>
+                    </div>
+                </div>
             </div>
 
             <div id="v2vContainer" class="content-section" style="display: none;">
@@ -283,6 +312,7 @@
             checkAuthStatus();
             showSection('dashboardContainer'); // Show dashboard by default
             loadListings(); // Load listings for V2V section
+            loadVendorProducts(); // Load supplier products for dashboard
         });
 
         function showSection(sectionId) {
@@ -316,8 +346,119 @@
                 e.preventDefault();
                 const sectionId = this.dataset.section;
                 showSection(sectionId);
+
+                // Load products when navigating to dashboard
+                if (sectionId === 'dashboardContainer') {
+                    loadVendorProducts();
+                }
+                // Load listings when navigating to V2V
+                if (sectionId === 'v2vContainer') {
+                    loadListings();
+                }
+                // Load analytics when navigating to Analytics
+                if (sectionId === 'analyticsContainer') {
+                    loadAnalytics();
+                }
             });
         });
+
+        // ---------------- Vendor View: All Supplier Products ----------------
+        let allSupplierProducts = [];
+
+        function loadVendorProducts() {
+            // Backend endpoint expected to return all stocks across suppliers
+            // Fallback: aggregate by calling /api/stocks/supplier for known suppliers if available
+            fetch('/api/stocks')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && Array.isArray(data.stocks)) {
+                        allSupplierProducts = data.stocks;
+                        renderVendorProducts(allSupplierProducts);
+                    } else if (Array.isArray(data)) { // in case backend returns raw array
+                        allSupplierProducts = data;
+                        renderVendorProducts(allSupplierProducts);
+                    } else {
+                        renderVendorProducts([]);
+                    }
+                })
+                .catch(() => renderVendorProducts([]));
+        }
+
+        function renderVendorProducts(products) {
+            const grid = document.getElementById('vendorProductsGrid');
+            const empty = document.getElementById('vendorProductsEmpty');
+            if (!grid || !empty) return;
+
+            const searchText = (document.getElementById('productSearch')?.value || '').toLowerCase();
+            const category = document.getElementById('categorySearch')?.value || '';
+
+            const filtered = products.filter(p => {
+                const nameMatch = (p.product_name || '').toLowerCase().includes(searchText);
+                const categoryMatch = category ? (p.category === category) : true;
+                return nameMatch && categoryMatch;
+            });
+
+            grid.innerHTML = '';
+            if (filtered.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'listing-card';
+                card.innerHTML = `
+                    <div class="listing-header">
+                        <h3>${p.product_name || 'Product'}</h3>
+                        <span class="listing-type" style="text-transform:uppercase;font-size:12px;opacity:0.8;">${p.category || 'General'}</span>
+                    </div>
+                    <div class="listing-details">
+                        <p><strong>Price:</strong> ₹${(p.price_per_unit || 0)}</p>
+                        <p><strong>Available:</strong> ${p.quantity_available || 0} ${p.unit || ''}</p>
+                        <p><strong>Supplier:</strong> ${p.supplier_name || p.supplierId || p.supplier_id || 'Unknown'}</p>
+                        ${p.description ? `<p><strong>Description:</strong> ${p.description}</p>` : ''}
+                    </div>
+                    <div class="listing-actions">
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="number" min="1" value="1" max="${p.quantity_available || 1}" style="width:90px;padding:8px;border:1px solid #e2e8f0;border-radius:8px;" id="qty-${p._id || p.id}">
+                            <button class="btn-primary" onclick="vendorAddToCart('${p._id || p.id}','${(p.product_name || '').replace(/'/g, "\'")}',${p.price_per_unit || 0},'${p.unit || ''}','${p.supplier_id || ''}', ${p.quantity_available || 0})">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterVendorProducts() {
+            renderVendorProducts(allSupplierProducts);
+        }
+
+        function vendorAddToCart(productId, productName, price, unit, supplierId, maxQty) {
+            const qtyInput = document.getElementById(`qty-${productId}`);
+            const quantity = Math.max(1, Math.min(parseInt(qtyInput?.value || '1', 10), maxQty || 9999));
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existing = cart.find(i => i.id === productId);
+            if (existing) {
+                const newQty = Math.min((existing.quantity || 0) + quantity, maxQty || 9999);
+                existing.quantity = newQty;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: price,
+                    unit: unit,
+                    supplierId: supplierId || 'unknown',
+                    quantity: quantity,
+                    maxQuantity: maxQty || 9999
+                });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${quantity} x ${productName} added to cart!`);
+        }
 
         function setValidityTime() {
             const now = new Date();
