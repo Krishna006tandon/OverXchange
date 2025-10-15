@@ -11,6 +11,8 @@ import re
 import logging
 import json
 from functools import wraps
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 # from PIL import Image  # Commented out for now
 
 # Import security modules
@@ -1826,6 +1828,123 @@ def verify_license_by_state(license_number):
     except Exception as e:
         print(f"State verification failed: {e}")
         return {'is_valid': False, 'message': 'State-level verification failed.'}
+
+
+# Google Sign-In Handlers
+GOOGLE_CLIENT_ID = "576296977091-cggcs1ios7ndrbbbgsjdfghv2c6ut3av.apps.googleusercontent.com"
+
+@app.route('/api/auth/google', methods=['POST'])
+@rate_limit(max_requests=10, window=300)
+def google_auth():
+    try:
+        data = request.json
+        token = data.get('token')
+        if not token:
+            return jsonify({'success': False, 'message': 'No token provided'}), 400
+
+        try:
+            # Verify the token
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), GOOGLE_CLIENT_ID)
+            email = idinfo['email']
+            name = idinfo.get('name', '')
+
+        except ValueError:
+            # Invalid token
+            return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+
+        # Check if user exists as a vendor or supplier
+        user = db.vendors.find_one({'email': email})
+        user_type = 'vendor'
+        if not user:
+            user = db.suppliers.find_one({'email': email})
+            user_type = 'supplier'
+
+        if user:
+            # User exists, log them in
+            # Note: This flow bypasses password check for Google-authenticated users
+            jwt_token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
+            SecurityUtils.log_security_event('GOOGLE_LOGIN_SUCCESS', user_id=str(user['_id']))
+            return jsonify({
+                'success': True,
+                'message': 'Login successful',
+                'user_type': user_type,
+                'user_id': str(user['_id']),
+                'name': user.get('name'),
+                'token': jwt_token
+            })
+        else:
+            # New user, needs to select a role
+            SecurityUtils.log_security_event('GOOGLE_SIGNUP_INITIATED', details=f'Email: {email}')
+            return jsonify({
+                'success': True, # Important: Use success=True to indicate a valid Google login, but action is needed
+                'action': 'select_role',
+                'message': 'New user. Please select a role to complete registration.',
+                'email': email,
+                'name': name,
+                'google_token': token # Pass the token back to be used in the next step
+            })
+
+    except Exception as e:
+        logger.error(f"Google auth error: {str(e)}")
+        SecurityUtils.log_security_event('GOOGLE_AUTH_ERROR', details=str(e))
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/auth/google/complete', methods=['POST'])
+@rate_limit(max_requests=5, window=300)
+def google_auth_complete():
+    try:
+        data = request.json
+        token = data.get('token')
+        role = data.get('role')
+
+        if not token or not role:
+            return jsonify({'success': False, 'message': 'Token and role are required'}), 400
+
+        if role not in ['vendor', 'supplier']:
+            return jsonify({'success': False, 'message': 'Invalid role specified'}), 400
+
+        try:
+            # Verify the token again for security
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), GOOGLE_CLIENT_ID)
+            email = idinfo['email']
+            name = idinfo.get('name', '')
+        except ValueError:
+            return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+
+        # Double-check that user doesn't exist to prevent race conditions
+        if db.vendors.find_one({'email': email}) or db.suppliers.find_one({'email': email}):
+             return jsonify({'success': False, 'message': 'User already exists.'}), 409
+
+        # Create new user in the correct collection
+        collection = db.vendors if role == 'vendor' else db.suppliers
+        user_data = {
+            'email': email,
+            'name': name,
+            'created_at': datetime.utcnow(),
+            'status': 'active',
+            'auth_method': 'google' # To indicate the user was created via Google
+        }
+        result = collection.insert_one(user_data)
+        user_id = result.inserted_id
+
+        # Log them in by generating a JWT
+        jwt_token = SecurityUtils.generate_jwt_token(str(user_id), role)
+        SecurityUtils.log_security_event('GOOGLE_SIGNUP_SUCCESS', user_id=str(user_id), details=f'Role: {role}')
+
+        return jsonify({
+            'success': True,
+            'message': 'Registration complete. Login successful.',
+            'user_type': role,
+            'user_id': str(user_id),
+            'name': name,
+            'token': jwt_token
+        })
+
+    except Exception as e:
+        logger.error(f"Google auth completion error: {str(e)}")
+        SecurityUtils.log_security_event('GOOGLE_AUTH_COMPLETE_ERROR', details=str(e))
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
 
 if __name__ == '__main__':
     # Use environment variables for host and port
