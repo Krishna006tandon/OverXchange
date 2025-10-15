@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup - OverXchange</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" onload="initGoogleSignIn()" async defer></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -463,7 +463,7 @@
             }, 1500);
         }
 
-        window.onload = function () {
+        async function initGoogleSignIn() {
             google.accounts.id.initialize({
                 client_id: "576296977091-cggcs1ios7ndrbbbgsjdfghv2c6ut3av.apps.googleusercontent.com",
                 callback: handleCredentialResponse
