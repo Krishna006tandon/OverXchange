@@ -7,12 +7,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendornet.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .logo-svg {
+            width: 24px;
+            height: 24px;
+        }
+        .radio-custom .svg-icon {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <header>
         <nav>
             <div class="logo">
-                <i class="fas fa-network-wired"></i>
+                <svg class="logo-svg" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8 12v1c0 1.1.9 2 2 2h2v2.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                 Vendor<span>Net</span>
             </div>
             <ul>
@@ -73,7 +84,7 @@
                             <label class="radio-option">
                                 <input type="radio" name="postType" value="offer" checked>
                                 <div class="radio-custom">
-                                    <i class="fas fa-gift"></i>
+                                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9.5V14.5L12 17L7 14.5V9.5L12 7L17 9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 12L12 17L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     <span>Offer Stock</span>
                                     <small>Share or sell your surplus inventory</small>
                                 </div>
@@ -81,7 +92,7 @@
                             <label class="radio-option">
                                 <input type="radio" name="postType" value="need">
                                 <div class="radio-custom">
-                                    <i class="fas fa-hand-holding-heart"></i>
+                                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9.5V14.5L12 17L7 14.5V9.5L12 7L17 9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 12L12 17L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 18L12 21L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     <span>Need Stock</span>
                                     <small>Request urgent items or joint orders</small>
                                 </div>
