@@ -11,8 +11,8 @@ import re
 import logging
 import json
 from functools import wraps
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
+# from google.oauth2 import id_token
+# from google.auth.transport import requests as google_requests
 # from PIL import Image  # Commented out for now
 
 # Import security modules
@@ -177,6 +177,7 @@ def login():
         
         username = SecurityUtils.sanitize_input(data.get('username', ''))
         password = data.get('password', '')
+        logger.info(f"Login attempt for user: {username}")
         
         # Validate input
         if not username or not password:
@@ -201,6 +202,7 @@ def login():
         
         if not user:
             SecurityUtils.log_security_event('LOGIN_FAILED', details=f'User not found: {username}')
+            logger.warning(f"Login failed: User not found for {username}")
             return jsonify({'success': False, 'message': 'User not found'}), 404
         
         if not SecurityUtils.verify_password(password, user['password']):
@@ -444,6 +446,7 @@ def get_stocks():
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
+        stock['image_url'] = stock.get('image_url', f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}")
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks/supplier/<supplier_id>', methods=['GET'])
@@ -526,6 +529,104 @@ def delete_stock(stock_id):
         return jsonify({'success': False, 'message': 'Stock not found'}), 404
     return jsonify({'success': True, 'message': 'Stock deleted successfully!'})
 
+@app.route('/api/orders', methods=['POST'])
+@require_auth
+def create_order(current_user):
+    """Create a new order from a vendor"""
+    try:
+        data = request.json
+        vendor_id = current_user['user_id']
+
+        # Basic validation
+        if not data.get('items') or not data.get('shipping_address'):
+            return jsonify({'success': False, 'message': 'Missing order data'}), 400
+
+        # Group items by supplier
+        supplier_orders = {}
+        for item in data['items']:
+            supplier_id = item.get('supplierId')
+            if supplier_id not in supplier_orders:
+                supplier_orders[supplier_id] = {
+                    'supplier_id': supplier_id,
+                    'items': [],
+                    'subtotal': 0,
+                    'status': 'pending'
+                }
+            supplier_orders[supplier_id]['items'].append(item)
+            supplier_orders[supplier_id]['subtotal'] += item['price'] * item['quantity']
+
+        # Create the main order document
+        order_doc = {
+            'vendor_id': ObjectId(vendor_id),
+            'shipping_address': data['shipping_address'],
+            'total_amount': data['total_amount'],
+            'subtotal': data['subtotal'],
+            'tax': data['tax'],
+            'shipping_cost': data.get('shipping_cost', 0),
+            'discount': data.get('discount', 0),
+            'coupon_code': data.get('coupon_code'),
+            'status': 'pending', # Overall order status
+            'created_at': datetime.utcnow(),
+            'supplier_orders': list(supplier_orders.values()) # Embed supplier-specific orders
+        }
+
+        result = orders_collection.insert_one(order_doc)
+        
+        # Could potentially trigger stock deduction here in a real scenario
+
+        return jsonify({'success': True, 'message': 'Order placed successfully!', 'order_id': str(result.inserted_id)})
+
+    except Exception as e:
+        logger.error(f"Order creation error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/vendor/orders', methods=['GET'])
+@require_auth
+def get_vendor_orders(current_user):
+    """Get all orders for the currently logged-in vendor"""
+    try:
+        vendor_id = current_user['user_id']
+        orders = list(orders_collection.find({'vendor_id': ObjectId(vendor_id)}).sort('created_at', -1))
+
+        for order in orders:
+            order['_id'] = str(order['_id'])
+            order['vendor_id'] = str(order['vendor_id'])
+            # Convert ObjectId in supplier_orders items as well
+            for supplier_order in order.get('supplier_orders', []):
+                supplier_order['supplier_id'] = str(supplier_order['supplier_id'])
+                for item in supplier_order.get('items', []):
+                    item['id'] = str(item['id'])
+
+        return jsonify({'success': True, 'orders': orders})
+
+    except Exception as e:
+        logger.error(f"Get vendor orders error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/supplier/orders', methods=['GET'])
+@require_auth
+def get_supplier_orders(current_user):
+    """Get all orders for the currently logged-in supplier"""
+    try:
+        supplier_id = current_user['user_id']
+        
+        # Find orders where this supplier is part of the supplier_orders array
+        orders = list(orders_collection.find({'supplier_orders.supplier_id': supplier_id}).sort('created_at', -1))
+
+        for order in orders:
+            order['_id'] = str(order['_id'])
+            order['vendor_id'] = str(order['vendor_id'])
+            # Convert ObjectId in supplier_orders items as well
+            for supplier_order in order.get('supplier_orders', []):
+                supplier_order['supplier_id'] = str(supplier_order['supplier_id'])
+                for item in supplier_order.get('items', []):
+                    item['id'] = str(item['id'])
+
+        return jsonify({'success': True, 'orders': orders})
+
+    except Exception as e:
+        logger.error(f"Get supplier orders error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 @app.route('/api/dashboard/<supplier_id>', methods=['GET'])
 def get_dashboard_data(supplier_id):
     """Get dashboard analytics for a supplier"""
@@ -1831,122 +1932,122 @@ def verify_license_by_state(license_number):
 
 
 # Google Sign-In Handlers
-@app.route('/api/config/google-client-id', methods=['GET'])
-def get_google_client_id():
-    return jsonify({'client_id': app.config['GOOGLE_CLIENT_ID']})
-
-
-
-@app.route('/api/auth/google', methods=['POST'])
-@rate_limit(max_requests=10, window=300)
-def google_auth():
-    try:
-        data = request.json
-        token = data.get('token')
-        if not token:
-            return jsonify({'success': False, 'message': 'No token provided'}), 400
-
-        try:
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
-            email = idinfo['email']
-            name = idinfo.get('name', '')
-
-        except ValueError:
-            # Invalid token
-            return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
-
-        # Check if user exists as a vendor or supplier
-        user = db.vendors.find_one({'email': email})
-        user_type = 'vendor'
-        if not user:
-            user = db.suppliers.find_one({'email': email})
-            user_type = 'supplier'
-
-        if user:
-            # User exists, log them in
-            # Note: This flow bypasses password check for Google-authenticated users
-            jwt_token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
-            SecurityUtils.log_security_event('GOOGLE_LOGIN_SUCCESS', user_id=str(user['_id']))
-            return jsonify({
-                'success': True,
-                'message': 'Login successful',
-                'user_type': user_type,
-                'user_id': str(user['_id']),
-                'name': user.get('name'),
-                'token': jwt_token
-            })
-        else:
-            # New user, needs to select a role
-            SecurityUtils.log_security_event('GOOGLE_SIGNUP_INITIATED', details=f'Email: {email}')
-            return jsonify({
-                'success': True, # Important: Use success=True to indicate a valid Google login, but action is needed
-                'action': 'select_role',
-                'message': 'New user. Please select a role to complete registration.',
-                'email': email,
-                'name': name,
-                'google_token': token # Pass the token back to be used in the next step
-            })
-
-    except Exception as e:
-        logger.error(f"Google auth error: {str(e)}")
-        SecurityUtils.log_security_event('GOOGLE_AUTH_ERROR', details=str(e))
-        return jsonify({'success': False, 'message': 'Internal server error'}), 500
-
-@app.route('/api/auth/google/complete', methods=['POST'])
-@rate_limit(max_requests=5, window=300)
-def google_auth_complete():
-    try:
-        data = request.json
-        token = data.get('token')
-        role = data.get('role')
-
-        if not token or not role:
-            return jsonify({'success': False, 'message': 'Token and role are required'}), 400
-
-        if role not in ['vendor', 'supplier']:
-            return jsonify({'success': False, 'message': 'Invalid role specified'}), 400
-
-        try:
-            # Verify the token again for security
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
-            email = idinfo['email']
-            name = idinfo.get('name', '')
-        except ValueError:
-            return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
-
-        # Double-check that user doesn't exist to prevent race conditions
-        if db.vendors.find_one({'email': email}) or db.suppliers.find_one({'email': email}):
-             return jsonify({'success': False, 'message': 'User already exists.'}), 409
-
-        # Create new user in the correct collection
-        collection = db.vendors if role == 'vendor' else db.suppliers
-        user_data = {
-            'email': email,
-            'name': name,
-            'created_at': datetime.utcnow(),
-            'status': 'active',
-            'auth_method': 'google' # To indicate the user was created via Google
-        }
-        result = collection.insert_one(user_data)
-        user_id = result.inserted_id
-
-        # Log them in by generating a JWT
-        jwt_token = SecurityUtils.generate_jwt_token(str(user_id), role)
-        SecurityUtils.log_security_event('GOOGLE_SIGNUP_SUCCESS', user_id=str(user_id), details=f'Role: {role}')
-
-        return jsonify({
-            'success': True,
-            'message': 'Registration complete. Login successful.',
-            'user_type': role,
-            'user_id': str(user_id),
-            'name': name,
-            'token': jwt_token
-        })
-
-    except Exception as e:
-        logger.error(f"Google auth completion error: {str(e)}")
-        SecurityUtils.log_security_event('GOOGLE_AUTH_COMPLETE_ERROR', details=str(e))
-        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+# @app.route('/api/config/google-client-id', methods=['GET'])
+# def get_google_client_id():
+#     return jsonify({'client_id': app.config['GOOGLE_CLIENT_ID']})
+#
+#
+#
+# @app.route('/api/auth/google', methods=['POST'])
+# @rate_limit(max_requests=10, window=300)
+# def google_auth():
+#     try:
+#         data = request.json
+#         token = data.get('token')
+#         if not token:
+#             return jsonify({'success': False, 'message': 'No token provided'}), 400
+#
+#         try:
+#             idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+#             email = idinfo['email']
+#             name = idinfo.get('name', '')
+#
+#         except ValueError:
+#             # Invalid token
+#             return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+#
+#         # Check if user exists as a vendor or supplier
+#         user = db.vendors.find_one({'email': email})
+#         user_type = 'vendor'
+#         if not user:
+#             user = db.suppliers.find_one({'email': email})
+#             user_type = 'supplier'
+#
+#         if user:
+#             # User exists, log them in
+#             # Note: This flow bypasses password check for Google-authenticated users
+#             jwt_token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
+#             SecurityUtils.log_security_event('GOOGLE_LOGIN_SUCCESS', user_id=str(user['_id']))
+#             return jsonify({
+#                 'success': True,
+#                 'message': 'Login successful',
+#                 'user_type': user_type,
+#                 'user_id': str(user['_id']),
+#                 'name': user.get('name'),
+#                 'token': jwt_token
+#             })
+#         else:
+#             # New user, needs to select a role
+#             SecurityUtils.log_security_event('GOOGLE_SIGNUP_INITIATED', details=f'Email: {email}')
+#             return jsonify({
+#                 'success': True, # Important: Use success=True to indicate a valid Google login, but action is needed
+#                 'action': 'select_role',
+#                 'message': 'New user. Please select a role to complete registration.',
+#                 'email': email,
+#                 'name': name,
+#                 'google_token': token # Pass the token back to be used in the next step
+#             })
+#
+#     except Exception as e:
+#         logger.error(f"Google auth error: {str(e)}")
+#         SecurityUtils.log_security_event('GOOGLE_AUTH_ERROR', details=str(e))
+#         return jsonify({'success': False, 'message': 'Internal server error'}), 500
+#
+# @app.route('/api/auth/google/complete', methods=['POST'])
+# @rate_limit(max_requests=5, window=300)
+# def google_auth_complete():
+#     try:
+#         data = request.json
+#         token = data.get('token')
+#         role = data.get('role')
+#
+#         if not token or not role:
+#             return jsonify({'success': False, 'message': 'Token and role are required'}), 400
+#
+#         if role not in ['vendor', 'supplier']:
+#             return jsonify({'success': False, 'message': 'Invalid role specified'}), 400
+#
+#         try:
+#             # Verify the token again for security
+#             idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+#             email = idinfo['email']
+#             name = idinfo.get('name', '')
+#         except ValueError:
+#             return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+#
+#         # Double-check that user doesn't exist to prevent race conditions
+#         if db.vendors.find_one({'email': email}) or db.suppliers.find_one({'email': email}):
+#              return jsonify({'success': False, 'message': 'User already exists.'}), 409
+#
+#         # Create new user in the correct collection
+#         collection = db.vendors if role == 'vendor' else db.suppliers
+#         user_data = {
+#             'email': email,
+#             'name': name,
+#             'created_at': datetime.utcnow(),
+#             'status': 'active',
+#             'auth_method': 'google' # To indicate the user was created via Google
+#         }
+#         result = collection.insert_one(user_data)
+#         user_id = result.inserted_id
+#
+#         # Log them in by generating a JWT
+#         jwt_token = SecurityUtils.generate_jwt_token(str(user_id), role)
+#         SecurityUtils.log_security_event('GOOGLE_SIGNUP_SUCCESS', user_id=str(user_id), details=f'Role: {role}')
+#
+#         return jsonify({
+#             'success': True,
+#             'message': 'Registration complete. Login successful.',
+#             'user_type': role,
+#             'user_id': str(user_id),
+#             'name': name,
+#             'token': jwt_token
+#         })
+#
+#     except Exception as e:
+#         logger.error(f"Google auth completion error: {str(e)}")
+#         SecurityUtils.log_security_event('GOOGLE_AUTH_COMPLETE_ERROR', details=str(e))
+#         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 
 if __name__ == '__main__':

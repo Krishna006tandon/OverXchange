@@ -88,6 +88,87 @@
         .product-actions .add-to-cart-btn {
             flex-grow: 1;
         }
+
+        .product-image-container {
+            height: 150px;
+            background-color: #f0f2f5;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            overflow: hidden; /* Ensures the image respects the border radius */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* This makes the image cover the container without distortion */
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .cart-link .badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+        }
+
+        .order-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .order-card p {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+        }
+
+        .order-items-list {
+            margin-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1rem;
+        }
+
+        .order-items-list h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        .order-items-list h5 {
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            margin-bottom: 0.25rem;
+            color: #667eea;
+        }
+
+        .order-items-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .order-items-list li {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 0.2rem;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +183,8 @@
                 <li><a href="#" class="nav-link" data-section="v2vContainer">Vendor 2 Vendor</a></li>
                 <li><a href="#" class="nav-link" data-section="analyticsContainer">Analytics</a></li>
                 <li><a href="#" class="nav-link" data-section="messagesContainer">Messages</a></li>
+                <li><a href="#" class="nav-link" data-section="ordersContainer">Your Orders</a></li>
+                <li><a href="cart.html" class="nav-link cart-link"><i class="fas fa-shopping-cart"></i> Cart <span class="badge" id="cartItemCount">0</span></a></li>
             </ul>
             <div class="user-menu">
                 <span class="user-name" id="userName">Guest</span>
@@ -114,37 +197,8 @@
     <main>
         <div class="container">
             <div id="dashboardContainer" class="content-section">
-                <div class="page-header">
-                    <h1><i class="fas fa-handshake"></i> V2V Collaboration</h1>
-                    <p>Connect with other vendors to share resources, fulfill needs, and grow together</p>
-                </div>
-
-                <div class="collaboration-flow">
-                    <div class="flow-step active">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>Post Request or Offer</h3>
-                            <p>Share your surplus or request what you need</p>
-                        </div>
-                    </div>
-                    <div class="flow-step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>Match & Connect</h3>
-                            <p>Find compatible vendors</p>
-                        </div>
-                    </div>
-                    <div class="flow-step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>Collaborate</h3>
-                            <p>Execute the partnership</p>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- All Supplier Products for Vendors -->
-                <div class="page-header" style="margin-top: 24px;">
+                <div class="page-header">
                     <h1><i class="fas fa-store"></i> All Supplier Products</h1>
                     <p>Browse inventory from verified suppliers and add to your cart</p>
                 </div>
@@ -174,6 +228,35 @@
             </div>
 
             <div id="v2vContainer" class="content-section" style="display: none;">
+                <div class="page-header">
+                    <h1><i class="fas fa-handshake"></i> V2V Collaboration</h1>
+                    <p>Connect with other vendors to share resources, fulfill needs, and grow together</p>
+                </div>
+
+                <div class="collaboration-flow">
+                    <div class="flow-step active">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Post Request or Offer</h3>
+                            <p>Share your surplus or request what you need</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Match & Connect</h3>
+                            <p>Find compatible vendors</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Collaborate</h3>
+                            <p>Execute the partnership</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-container">
                     <div class="form-header">
                         <h2><i class="fas fa-plus-circle"></i> Create New Post</h2>
@@ -325,6 +408,17 @@
                 </div>
                 <p>Chat functionality will be implemented here.</p>
             </div>
+
+            <div id="ordersContainer" class="content-section" style="display: none;">
+                <div class="orders-header">
+                    <h2><i class="fas fa-box-open"></i> Your Orders</h2>
+                </div>
+                <div class="orders-grid" id="ordersGrid"></div>
+                <div id="ordersEmpty" style="display:none;text-align:center;padding:40px;color:#64748b;">
+                    <i class="fas fa-box-open" style="font-size:42px;margin-bottom:8px;"></i>
+                    <div>No orders found</div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -395,7 +489,17 @@
             showSection('dashboardContainer'); // Show dashboard by default
             loadListings(); // Load listings for V2V section
             loadVendorProducts(); // Load supplier products for dashboard
+            updateCartCount(); // Initial cart count update
         });
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCountElement = document.getElementById('cartItemCount');
+            if (cartCountElement) {
+                cartCountElement.textContent = cartCount;
+            }
+        }
 
         function showSection(sectionId) {
             // Hide all content sections
@@ -420,10 +524,14 @@
             if (sectionId === 'analyticsContainer') {
                 loadAnalytics();
             }
+            // Special handling for Orders section to load orders
+            if (sectionId === 'ordersContainer') {
+                loadOrders();
+            }
         }
 
         // Event listeners for navigation links
-        document.querySelectorAll('.nav-link').forEach(link => {
+        document.querySelectorAll('.nav-link[data-section]').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const sectionId = this.dataset.section;
@@ -443,6 +551,67 @@
                 }
             });
         });
+
+        // ---------------- Vendor View: Your Orders ----------------
+        async function loadOrders() {
+            console.log('loadOrders function called.');
+            const ordersGrid = document.getElementById('ordersGrid');
+            const ordersEmpty = document.getElementById('ordersEmpty');
+            if (!ordersGrid || !ordersEmpty) return;
+
+            ordersGrid.innerHTML = '';
+            ordersEmpty.style.display = 'none';
+
+            const currentAuthToken = localStorage.getItem('token'); // Get token directly from localStorage
+
+            if (!currentAuthToken) {
+                ordersEmpty.innerHTML = '<i class="fas fa-user-lock" style="font-size:42px;margin-bottom:8px;"></i><div>Please log in to view your orders</div>';
+                ordersEmpty.style.display = 'block';
+                console.log('Not authenticated. Showing login message.');
+                return;
+            }
+
+            try {
+                console.log('Attempting to fetch orders from /api/vendor/orders...');
+                const response = await fetch('/api/vendor/orders', {
+                    headers: {
+                        'Authorization': `Bearer ${currentAuthToken}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success && Array.isArray(data.orders) && data.orders.length > 0) {
+                    data.orders.forEach(order => {
+                        const orderCard = document.createElement('div');
+                        orderCard.className = 'order-card'; // You'll need to define this CSS class
+                        orderCard.innerHTML = `
+                            <h3>Order ID: ${order._id}</h3>
+                            <p>Total: ₹${order.total_amount.toFixed(2)}</p>
+                            <p>Status: ${order.status}</p>
+                            <p>Date: ${new Date(order.created_at).toLocaleDateString()}</p>
+                            <div class="order-items-list">
+                                <h4>Items:</h4>
+                                ${order.supplier_orders.map(sOrder => `
+                                    <h5>Supplier: ${sOrder.supplier_id}</h5>
+                                    <ul>
+                                        ${sOrder.items.map(item => `
+                                            <li>${item.name} (x${item.quantity}) - ₹${(item.price * item.quantity).toFixed(2)}</li>
+                                        `).join('')}
+                                    </ul>
+                                `).join('')}
+                            </div>
+                        `;
+                        ordersGrid.appendChild(orderCard);
+                    });
+                } else {
+                    ordersEmpty.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                ordersEmpty.innerHTML = '<i class="fas fa-exclamation-circle" style="font-size:42px;margin-bottom:8px;"></i><div>Error loading orders. Please try again.</div>';
+                ordersEmpty.style.display = 'block';
+            }
+        }
 
         // ---------------- Vendor View: All Supplier Products ----------------
         let allSupplierProducts = [];
@@ -490,9 +659,10 @@
             filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
+                const imageUrl = p.image_url || `https://via.placeholder.com/150/f0f2f5/a0aec0?text=No+Image`;
                 card.innerHTML = `
-                    <div class="product-image-placeholder">
-                        <i class="fas fa-image"></i>
+                    <div class="product-image-container">
+                        <img src="${imageUrl}" alt="${p.product_name || 'Product'}" class="product-image">
                     </div>
                     <div class="product-content">
                         <h3 class="product-title">${p.product_name || 'Product'}</h3>
@@ -503,7 +673,7 @@
                         </div>
                         <div class="product-actions">
                             <input type="number" min="1" value="1" max="${p.quantity_available || 1}" class="quantity-input" id="qty-${p._id || p.id}">
-                            <button class="btn-primary add-to-cart-btn" onclick="vendorAddToCart('${p._id || p.id}','${(p.product_name || '').replace(/'/g, "\'")}',${p.price_per_unit || 0},'${p.unit || ''}','${p.supplier_id || ''}', ${p.quantity_available || 0})">
+                            <button class="btn-primary add-to-cart-btn" onclick="vendorAddToCart('${p._id || p.id}','${(p.product_name || '').replace(/'/g, "\\'")}',${p.price_per_unit || 0},'${p.unit || ''}','${p.supplier_id || ''}', ${p.quantity_available || 0}, '${p.supplier_name || 'Unknown Supplier'}', '${p.image_url || ''}')">
                                 <i class="fas fa-cart-plus"></i> Add
                             </button>
                         </div>
@@ -517,7 +687,7 @@
             renderVendorProducts(allSupplierProducts);
         }
 
-        function vendorAddToCart(productId, productName, price, unit, supplierId, maxQty) {
+        function vendorAddToCart(productId, productName, price, unit, supplierId, maxQty, supplierName, imageUrl) {
             const qtyInput = document.getElementById(`qty-${productId}`);
             const quantity = Math.max(1, Math.min(parseInt(qtyInput?.value || '1', 10), maxQty || 9999));
 
@@ -534,11 +704,14 @@
                     unit: unit,
                     supplierId: supplierId || 'unknown',
                     quantity: quantity,
-                    maxQuantity: maxQty || 9999
+                    maxQuantity: maxQty || 9999,
+                    supplierName: supplierName, // Add supplier name
+                    imageUrl: imageUrl // Add image URL
                 });
             }
             localStorage.setItem('cart', JSON.stringify(cart));
             alert(`${quantity} x ${productName} added to cart!`);
+            updateCartCount(); // Update cart count in header
         }
 
         function setValidityTime() {
@@ -550,12 +723,13 @@
         function checkAuthStatus() {
             const storedUserId = localStorage.getItem('user_id');
             const storedUserType = localStorage.getItem('user_type');
+            const currentAuthToken = localStorage.getItem('token');
 
-            if (authToken && storedUserId && storedUserType === 'vendor') {
+            if (currentAuthToken && storedUserId && storedUserType === 'vendor') {
                 // Verify token and get user info
                 fetch(`/api/profile/vendor/${storedUserId}`, {
                     headers: {
-                        'Authorization': `Bearer ${authToken}`
+                        'Authorization': `Bearer ${currentAuthToken}`
                     }
                 })
                 .then(response => response.json())
@@ -580,6 +754,7 @@
         }
 
         function showLoginModal() {
+            if (currentUser) return; // Do not show if already logged in
             document.getElementById('loginModal').style.display = 'block';
         }
 
@@ -588,6 +763,7 @@
         }
 
         function showRegisterModal() {
+            if (currentUser) return; // Do not show if already logged in
             closeLoginModal();
             document.getElementById('registerModal').style.display = 'block';
         }

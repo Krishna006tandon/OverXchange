@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup - OverXchange</title>
-    <script src="https://accounts.google.com/gsi/client" onload="initGoogleSignIn()" async defer></script>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -416,11 +416,7 @@
                 </button>
             </form>
 
-            <div style="text-align: center; margin: 20px 0; color: var(--text-secondary);">OR</div>
 
-            <button type="button" id="google-signin-btn" class="signup-btn google-btn">
-                <i class="fab fa-google"></i> Sign Up with Google
-            </button>
 
             <div class="signup-footer">
                 <p>Already have an account? <a href="login.html">Sign in here</a></p>
@@ -439,118 +435,76 @@
     </button>
 
     <script>
-        // --- Existing scripts from login.html for Google Sign-In ---
-        function handleSuccessfulLogin(data) {
-            const successMessage = document.getElementById('success-message');
-            localStorage.setItem('user_id', data.user_id);
-            localStorage.setItem('user_type', data.user_type);
-            localStorage.setItem('user_name', data.name || '');
-            localStorage.setItem('token', data.token);
 
-            successMessage.textContent = 'Login successful! Redirecting...';
-            successMessage.style.display = 'block';
+        
+        // This function will be called after the DOM is loaded
+        function setupPage() {
+            // User Type Selector
+            const userTypeBtns = document.querySelectorAll('.user-type-btn');
+            let selectedUserType = 'vendor';
 
-            setTimeout(() => {
-                if (data.user_type === 'vendor') {
-                    window.location.href = 'vendor-dashboard.html';
-                } else if (data.user_type === 'supplier') {
-                    window.location.href = 'supply-dashboard.html';
-                } else if (data.user_type === 'admin') {
-                    window.location.href = 'admin-license-verification.html';
-                } else {
-                    window.location.href = 'profile.html';
-                }
-            }, 1500);
-        }
+            userTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    userTypeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedUserType = this.dataset.type;
+                });
+            });
 
-        async function initGoogleSignIn() {
-            try {
-                const response = await fetch('/api/config/google-client-id');
-                const config = await response.json();
-                const clientId = config.client_id;
+            // Signup Form Handling
+            document.getElementById('signup-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-                if (!clientId) {
-                    console.error('Google Client ID not found.');
-                    document.getElementById('error-message').textContent = 'Google Sign-In is not configured.';
-                    document.getElementById('error-message').style.display = 'block';
+                const errorMessage = document.getElementById('error-message');
+                const successMessage = document.getElementById('success-message');
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (password !== confirmPassword) {
+                    errorMessage.textContent = 'Passwords do not match.';
+                    errorMessage.style.display = 'block';
                     return;
                 }
 
-                google.accounts.id.initialize({
-                    client_id: clientId,
-                    callback: handleCredentialResponse
-                });
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+                
+                const endpoint = selectedUserType === 'vendor' ? '/api/signup/vendor' : '/api/signup/supplier';
 
-                document.getElementById('google-signin-btn').addEventListener('click', () => {
-                    google.accounts.id.prompt();
-                });
-            } catch (error) {
-                console.error('Error fetching Google Client ID:', error);
-                document.getElementById('error-message').textContent = 'Could not initialize Google Sign-In.';
-                document.getElementById('error-message').style.display = 'block';
-            }
-        }
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
 
-        async function handleCredentialResponse(response) {
-            const errorMessage = document.getElementById('error-message');
-            try {
-                const res = await fetch('/api/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
-                });
+                    const result = await response.json();
 
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    if (data.action === 'select_role') {
-                        const params = new URLSearchParams({
-                            name: data.name,
-                            email: data.email,
-                            token: data.google_token
-                        });
-                        window.location.href = `role_selection.html?${params.toString()}`;
+                    if (response.ok && result.success) {
+                        successMessage.textContent = 'Signup successful! Redirecting to login...';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
                     } else {
-                        handleSuccessfulLogin(data);
+                        errorMessage.textContent = result.message || 'Signup failed. Please try again.';
+                        errorMessage.style.display = 'block';
                     }
-                } else {
-                    errorMessage.textContent = data.message || 'Google Sign-In failed.';
+                } catch (error) {
+                    errorMessage.textContent = 'An error occurred. Please check your connection and try again.';
                     errorMessage.style.display = 'block';
                 }
-            } catch (error) {
-                errorMessage.textContent = 'Error during Google Sign-In. Please try again.';
-                errorMessage.style.display = 'block';
-            }
-        }
-        
-        // --- Original signup.html scripts ---
-        function toggleTheme() {
-            // ... (theme toggle logic is duplicated but will work)
-        }
-        // User Type Selector
-        const userTypeBtns = document.querySelectorAll('.user-type-btn');
-        let selectedUserType = 'vendor';
-
-        userTypeBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                userTypeBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                selectedUserType = this.dataset.type;
             });
-        });
+        }
 
-        // Signup Form Handling
-        document.getElementById('signup-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            // ... (rest of the original signup form handling)
-        });
+        // Add event listener to run setupPage when the DOM is ready
+        document.addEventListener('DOMContentLoaded', setupPage);
 
-        // Input focus effects
-        document.querySelectorAll('.input-3d').forEach(input => {
-            // ... (rest of the original input focus effects)
-        });
     </script>
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+</head>
 </html>

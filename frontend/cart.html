@@ -295,6 +295,55 @@
             box-shadow: var(--shadow-lg);
         }
 
+        .coupon-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .coupon-area input {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .coupon-area button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .coupon-area button:hover {
+            background: #5a3d8a;
+        }
+
+        .coupon-message {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .coupon-message.success {
+            color: #28a745;
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .coupon-message.error {
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
         @media (max-width: 992px) {
             .cart-container {
                 grid-template-columns: 1fr;
@@ -334,7 +383,34 @@
         <h1 class="page-title">Your Shopping Cart</h1>
 
         <div class="cart-container" id="cartContainer">
-            <!-- Cart content will be loaded here -->
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-summary" id="cartSummary">
+                <div class="summary-title">Order Summary</div>
+                <div class="summary-item">
+                    <span>Subtotal</span>
+                    <span id="subtotalAmount">₹0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>GST (18%)</span>
+                    <span id="taxAmount">₹0.00</span>
+                </div>
+                <div class="summary-item" id="discountRow" style="display: none;">
+                    <span>Discount</span>
+                    <span id="discountAmount">- ₹0.00</span>
+                </div>
+                <div class="summary-item total">
+                     <span>Total</span>
+                     <span id="totalAmount">₹0.00</span>
+                </div>
+                <div class="coupon-area">
+                    <input type="text" id="couponCode" placeholder="Enter Coupon Code">
+                    <button onclick="applyCoupon()">Apply</button>
+                </div>
+                <div id="couponMessage" class="coupon-message"></div>
+                <button class="checkout-btn" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                </button>
+            </div>
         </div>
     </main>
 
@@ -359,10 +435,6 @@
                     </div>
                 `;
             } else {
-                cartContainer.innerHTML = `
-                    <div class="cart-items" id="cartItems"></div>
-                    <div class="cart-summary" id="cartSummary"></div>
-                `;
                 renderCartItems(cart);
                 renderCartSummary(cart);
             }
@@ -373,9 +445,12 @@
             let itemsHTML = '<div class="cart-header">Your Items</div>';
 
             cart.forEach((item, index) => {
+                const imageUrl = item.imageUrl || `https://via.placeholder.com/80/f0f2f5/a0aec0?text=No+Image`;
                 itemsHTML += `
                     <div class="cart-item">
-                        <div class="item-image"><i class="fas fa-box-open"></i></div>
+                        <div class="item-image">
+                            <img src="${imageUrl}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
                         <div class="item-info">
                             <h3>${item.name}</h3>
                             <p>by ${item.supplierName || 'Unknown Supplier'}</p>
@@ -395,30 +470,33 @@
             cartItemsContainer.innerHTML = itemsHTML;
         }
 
+        let appliedCoupon = null;
+
         function renderCartSummary(cart) {
-            const cartSummaryContainer = document.getElementById('cartSummary');
             const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
             const tax = subtotal * 0.18; // 18% GST
-            const total = subtotal + tax;
+            
+            let discount = 0;
+            if (appliedCoupon) {
+                if (appliedCoupon.discount_type === 'percentage') {
+                    discount = (subtotal * appliedCoupon.discount_value) / 100;
+                    if (appliedCoupon.max_discount) {
+                        discount = Math.min(discount, appliedCoupon.max_discount);
+                    }
+                } else {
+                    discount = appliedCoupon.discount_value;
+                }
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountAmount').textContent = `- ₹${discount.toFixed(2)}`;
+            } else {
+                 document.getElementById('discountRow').style.display = 'none';
+            }
 
-            cartSummaryContainer.innerHTML = `
-                <div class="summary-title">Order Summary</div>
-                <div class="summary-item">
-                    <span>Subtotal</span>
-                    <span>₹${subtotal.toFixed(2)}</span>
-                </div>
-                <div class="summary-item">
-                    <span>GST (18%)</span>
-                    <span>₹${tax.toFixed(2)}</span>
-                </div>
-                <div class="summary-item total">
-                    <span>Total</span>
-                    <span>₹${total.toFixed(2)}</span>
-                </div>
-                <button class="checkout-btn" onclick="proceedToCheckout()">
-                    Proceed to Checkout
-                </button>
-            `;
+            const total = subtotal + tax - discount;
+
+            document.getElementById('subtotalAmount').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('taxAmount').textContent = `₹${tax.toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
         }
 
         function updateQuantity(index, change) {
@@ -435,10 +513,75 @@
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             cart.splice(index, 1);
             localStorage.setItem('cart', JSON.stringify(cart));
+            appliedCoupon = null; // Reset coupon if cart changes
             loadCart();
         }
 
+        async function applyCoupon() {
+            const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+            const messageEl = document.getElementById('couponMessage');
+            if (!couponCode) {
+                messageEl.textContent = 'Please enter a coupon code.';
+                messageEl.className = 'coupon-message error';
+                return;
+            }
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                messageEl.textContent = 'Your cart is empty.';
+                messageEl.className = 'coupon-message error';
+                return;
+            }
+
+            // Check if all items are from the same supplier
+            const firstSupplierId = cart[0].supplierId;
+            const allSameSupplier = cart.every(item => item.supplierId === firstSupplierId);
+
+            if (!allSameSupplier) {
+                messageEl.textContent = 'Coupons only apply to orders from a single supplier.';
+                messageEl.className = 'coupon-message error';
+                appliedCoupon = null;
+                loadCart();
+                return;
+            }
+
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+            try {
+                const response = await fetch(`/api/coupons/validate/${couponCode}` , {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        supplier_id: firstSupplierId,
+                        order_amount: subtotal
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageEl.textContent = `Coupon '${result.coupon.code}' applied!`;
+                    messageEl.className = 'coupon-message success';
+                    appliedCoupon = result.coupon;
+                } else {
+                    messageEl.textContent = result.message || 'Invalid coupon code.';
+                    messageEl.className = 'coupon-message error';
+                    appliedCoupon = null;
+                }
+            } catch (err) {
+                messageEl.textContent = 'Could not validate coupon. Please try again.';
+                messageEl.className = 'coupon-message error';
+                appliedCoupon = null;
+            }
+            loadCart(); // Re-render summary with or without coupon
+        }
+
         function proceedToCheckout() {
+            if (appliedCoupon) {
+                localStorage.setItem('appliedCoupon', JSON.stringify(appliedCoupon));
+            } else {
+                localStorage.removeItem('appliedCoupon');
+            }
             window.location.href = 'checkout.html';
         }
     </script>
