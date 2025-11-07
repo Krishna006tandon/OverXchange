@@ -3305,7 +3305,18 @@
                 if (result.success) {
                     closeStockModal();
                     loadStocks(); // Reload stocks
-                    alert(editingStockId ? 'Stock updated successfully!' : 'Stock added successfully!');
+                    const supplierName = getCurrentSupplierName() || 'Supplier';
+                    const successMessage = editingStockId ? 'Stock updated successfully!' : 'Stock added successfully!';
+                    
+                    const imageUploadMessage = `Dear ${supplierName}, please upload high-quality images for your product to ensure it looks attractive to buyers.
+
+Recommended:
+• High-resolution (at least 1000x1000 pixels)
+• Plain white or neutral background
+• Multiple angles
+• JPEG, PNG, or WebP format.`;
+
+                    alert(successMessage + '\n\n' + imageUploadMessage);
                 } else {
                     alert('Error: ' + result.message);
                 }
