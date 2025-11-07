@@ -3326,6 +3326,22 @@ Recommended:
             }
         });
 
+        // Image preview function
+        function previewImage(event) {
+            const reader = new FileReader();
+            const imagePreview = document.getElementById('imagePreview');
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+            reader.onload = function(){
+                imagePreview.src = reader.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+
         async function editStock(stockId) {
             openStockModal(stockId);
         }
