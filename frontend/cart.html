@@ -11,14 +11,13 @@
             --secondary-color: #764ba2;
             --success-color: #28a745;
             --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --text-color: #333;
-            --text-light: #666;
-            --bg-color: #f8f9fa;
+            --text-color: #2d3748;
+            --text-light: #718096;
+            --bg-color: #f7fafc;
             --card-bg: #ffffff;
-            --border-color: #e9ecef;
-            --shadow: 0 2px 10px rgba(0,0,0,0.1);
-            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
@@ -29,24 +28,24 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
         }
 
-        /* Header */
         .header {
-            background: var(--gradient-primary);
-            color: white;
-            padding: 1rem 0;
+            background: var(--card-bg);
             box-shadow: var(--shadow);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -54,16 +53,20 @@
 
         .logo {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 700;
+            color: var(--primary-color);
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
+        .logo span {
+            color: var(--secondary-color);
+        }
 
         .back-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             padding: 0.5rem 1rem;
             border-radius: 8px;
             cursor: pointer;
@@ -75,11 +78,11 @@
         }
 
         .back-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
         }
 
-        /* Main Content */
         .main-content {
             max-width: 1200px;
             margin: 2rem auto;
@@ -87,28 +90,19 @@
         }
 
         .page-title {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 2rem;
             color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
         }
 
-        .page-title i {
-            color: var(--primary-color);
-        }
-
-        /* Cart Container */
         .cart-container {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr 380px;
             gap: 2rem;
             align-items: start;
         }
 
-        /* Cart Items */
         .cart-items {
             background: var(--card-bg);
             border-radius: 16px;
@@ -117,156 +111,138 @@
         }
 
         .cart-header {
-            background: var(--gradient-primary);
-            color: white;
             padding: 1.5rem;
             font-size: 1.2rem;
             font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .cart-item {
-            display: grid;
-            grid-template-columns: 100px 1fr auto auto auto;
-            gap: 1rem;
+            display: flex;
+            gap: 1.5rem;
             padding: 1.5rem;
             border-bottom: 1px solid var(--border-color);
             align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .cart-item:hover {
-            background: var(--bg-color);
-        }
-
-        .cart-item:last-child {
-            border-bottom: none;
         }
 
         .item-image {
             width: 80px;
             height: 80px;
-            background: var(--gradient-primary);
+            background: #f0f2f5;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #a0aec0;
             font-size: 2rem;
+            flex-shrink: 0;
         }
 
-        .item-details h3 {
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-info h3 {
             font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
-        }
-
-        .item-details p {
-            color: var(--text-light);
-            font-size: 0.9rem;
             margin-bottom: 0.25rem;
         }
 
+        .item-info p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .item-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
         .item-price {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--success-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
         }
 
         .quantity-controls {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: var(--bg-color);
-            border-radius: 8px;
-            padding: 0.5rem;
         }
 
         .quantity-btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
             width: 30px;
             height: 30px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .quantity-btn:hover {
-            background: var(--secondary-color);
-            transform: scale(1.1);
-        }
-
-        .quantity-btn:disabled {
-            background: var(--text-light);
-            cursor: not-allowed;
-            transform: none;
+            background: var(--primary-color);
+            color: white;
         }
 
         .quantity-input {
-            width: 50px;
+            width: 40px;
             text-align: center;
             border: none;
             background: transparent;
             font-weight: 600;
-            color: var(--text-color);
-        }
-
-        .quantity-input:focus {
-            outline: none;
         }
 
         .remove-btn {
-            background: var(--danger-color);
-            color: white;
+            color: var(--danger-color);
+            background: transparent;
             border: none;
-            padding: 0.5rem;
-            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
         }
-
         .remove-btn:hover {
-            background: #c82333;
-            transform: scale(1.05);
+            color: #a02331;
         }
 
-        /* Cart Summary */
         .cart-summary {
             background: var(--card-bg);
             border-radius: 16px;
             box-shadow: var(--shadow);
-            padding: 1.5rem;
+            padding: 2rem;
             position: sticky;
-            top: 2rem;
+            top: 100px;
         }
 
         .summary-title {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 1.5rem;
-            color: var(--text-color);
-            border-bottom: 2px solid var(--border-color);
             padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .summary-item {
             display: flex;
             justify-content: space-between;
             margin-bottom: 1rem;
-            padding: 0.5rem 0;
+            color: var(--text-light);
+        }
+
+        .summary-item span:last-child {
+            font-weight: 600;
+            color: var(--text-color);
         }
 
         .summary-item.total {
-            border-top: 2px solid var(--border-color);
-            padding-top: 1rem;
             font-size: 1.2rem;
             font-weight: 700;
-            color: var(--primary-color);
+            color: var(--text-color);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            margin-top: 1rem;
         }
 
         .checkout-btn {
@@ -284,307 +260,329 @@
         }
 
         .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
+            box-shadow: var(--shadow-lg);
         }
 
-        .checkout-btn:disabled {
-            background: var(--text-light);
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Empty Cart */
         .empty-cart {
             text-align: center;
             padding: 4rem 2rem;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
         }
 
         .empty-cart-icon {
-            font-size: 4rem;
-            color: var(--text-light);
-            margin-bottom: 1rem;
+            font-size: 5rem;
+            color: var(--primary-color);
+            opacity: 0.5;
+            margin-bottom: 1.5rem;
         }
 
         .empty-cart h2 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             margin-bottom: 1rem;
-            color: var(--text-color);
-        }
-
-        .empty-cart p {
-            color: var(--text-light);
-            margin-bottom: 2rem;
         }
 
         .continue-shopping-btn {
             background: var(--gradient-primary);
             color: white;
-            border: none;
             padding: 1rem 2rem;
             border-radius: 12px;
             font-size: 1rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            transition: all 0.3s ease;
         }
-
         .continue-shopping-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
+            box-shadow: var(--shadow-lg);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
+        .coupon-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .coupon-area input {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .coupon-area button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .coupon-area button:hover {
+            background: #5a3d8a;
+        }
+
+        .coupon-message {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .coupon-message.success {
+            color: #28a745;
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .coupon-message.error {
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        @media (max-width: 992px) {
             .cart-container {
                 grid-template-columns: 1fr;
             }
-            
+        }
+
+        @media (max-width: 576px) {
             .cart-item {
-                grid-template-columns: 80px 1fr;
-                gap: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
             }
-            
-            .item-price, .quantity-controls, .remove-btn {
-                grid-column: 2;
-                justify-self: start;
-                margin-top: 0.5rem;
-            }
-            
-            .header-content {
-                padding: 0 1rem;
-            }
-            
-            .main-content {
-                padding: 0 1rem;
+            .item-actions {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
-                <i class="fas fa-shopping-cart"></i>
-                ओवरएक्सचेंज कार्ट
+                <svg class="logo-svg" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8 12v1c0 1.1.9 2 2 2h2v2.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                Over<span>Xchange</span>
             </div>
             <a href="vendor-dashboard.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                Dashboard पर वापस जाएं
+                Continue Shopping
             </a>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <h1 class="page-title">
-            <i class="fas fa-shopping-cart"></i>
-            खरीदारी कार्ट
-        </h1>
+        <h1 class="page-title">Your Shopping Cart</h1>
 
-        <div class="cart-container">
-            <!-- Cart Items -->
-            <div class="cart-items" id="cartItems">
-                <!-- Cart items will be loaded here -->
-            </div>
-
-            <!-- Cart Summary -->
+        <div class="cart-container" id="cartContainer">
+            <div class="cart-items" id="cartItems"></div>
             <div class="cart-summary" id="cartSummary">
-                <!-- Cart summary will be loaded here -->
+                <div class="summary-title">Order Summary</div>
+                <div class="summary-item">
+                    <span>Subtotal</span>
+                    <span id="subtotalAmount">₹0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>GST (18%)</span>
+                    <span id="taxAmount">₹0.00</span>
+                </div>
+                <div class="summary-item" id="discountRow" style="display: none;">
+                    <span>Discount</span>
+                    <span id="discountAmount">- ₹0.00</span>
+                </div>
+                <div class="summary-item total">
+                     <span>Total</span>
+                     <span id="totalAmount">₹0.00</span>
+                </div>
+                <div class="coupon-area">
+                    <input type="text" id="couponCode" placeholder="Enter Coupon Code">
+                    <button onclick="applyCoupon()">Apply</button>
+                </div>
+                <div id="couponMessage" class="coupon-message"></div>
+                <button class="checkout-btn" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                </button>
             </div>
         </div>
     </main>
 
     <script>
-        // Cart functionality
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-        // Load cart on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadCart();
         });
 
         function loadCart() {
-            const cartItemsContainer = document.getElementById('cartItems');
-            const cartSummaryContainer = document.getElementById('cartSummary');
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartContainer = document.getElementById('cartContainer');
 
             if (cart.length === 0) {
-                // Show empty cart
-                cartItemsContainer.innerHTML = `
+                cartContainer.innerHTML = `
                     <div class="empty-cart">
-                        <div class="empty-cart-icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
+                        <div class="empty-cart-icon"><i class="fas fa-shopping-basket"></i></div>
                         <h2>Your cart is empty</h2>
-                        <p>Add some products to your cart to get started!</p>
+                        <p>Looks like you haven't added any products yet. Start browsing to find what you need!</p>
                         <a href="vendor-dashboard.html" class="continue-shopping-btn">
-                            <i class="fas fa-arrow-left"></i>
-                            Continue Shopping
+                            Browse Products
                         </a>
                     </div>
                 `;
-                cartSummaryContainer.innerHTML = '';
-                return;
+            } else {
+                renderCartItems(cart);
+                renderCartSummary(cart);
             }
-
-            // Load cart items
-            loadCartItems();
-            loadCartSummary();
         }
 
-        function loadCartItems() {
+        function renderCartItems(cart) {
             const cartItemsContainer = document.getElementById('cartItems');
-            
-            let itemsHTML = `
-                <div class="cart-header">
-                    <i class="fas fa-shopping-cart"></i>
-                    Cart Items (${cart.length})
-                </div>
-            `;
+            let itemsHTML = '<div class="cart-header">Your Items</div>';
 
             cart.forEach((item, index) => {
-                const totalPrice = (item.price * item.quantity).toFixed(2);
-                
+                const imageUrl = item.imageUrl || `https://via.placeholder.com/80/f0f2f5/a0aec0?text=No+Image`;
                 itemsHTML += `
                     <div class="cart-item">
                         <div class="item-image">
-                            <i class="fas fa-box"></i>
+                            <img src="${imageUrl}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                        <div class="item-details">
+                        <div class="item-info">
                             <h3>${item.name}</h3>
-                            <p><strong>Category:</strong> ${item.category}</p>
-                            <p><strong>Supplier:</strong> ${item.supplierName}</p>
-                            <p><strong>Unit:</strong> ${item.unit}</p>
+                            <p>by ${item.supplierName || 'Unknown Supplier'}</p>
                         </div>
-                        <div class="item-price">₹${item.price}</div>
-                        <div class="quantity-controls">
-                            <button class="quantity-btn" onclick="updateQuantity(${index}, -1)" ${item.quantity <= 1 ? 'disabled' : ''}>
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${item.maxQuantity}" onchange="updateQuantityInput(${index}, this.value)">
-                            <button class="quantity-btn" onclick="updateQuantity(${index}, 1)" ${item.quantity >= item.maxQuantity ? 'disabled' : ''}>
-                                <i class="fas fa-plus"></i>
-                            </button>
+                        <div class="item-actions">
+                            <div class="item-price">₹${(item.price * item.quantity).toFixed(2)}</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="updateQuantity(${index}, -1)" ${item.quantity <= 1 ? 'disabled' : ''}><i class="fas fa-minus"></i></button>
+                                <input type="text" class="quantity-input" value="${item.quantity}" readonly>
+                                <button class="quantity-btn" onclick="updateQuantity(${index}, 1)" ${item.quantity >= item.maxQuantity ? 'disabled' : ''}><i class="fas fa-plus"></i></button>
+                            </div>
+                             <button class="remove-btn" onclick="removeItem(${index})"><i class="fas fa-trash-alt"></i> Remove</button>
                         </div>
-                        <button class="remove-btn" onclick="removeItem(${index})">
-                            <i class="fas fa-trash"></i>
-                        </button>
                     </div>
                 `;
             });
-
             cartItemsContainer.innerHTML = itemsHTML;
         }
 
-        function loadCartSummary() {
-            const cartSummaryContainer = document.getElementById('cartSummary');
-            
+        let appliedCoupon = null;
+
+        function renderCartSummary(cart) {
             const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
             const tax = subtotal * 0.18; // 18% GST
-            const total = subtotal + tax;
+            
+            let discount = 0;
+            if (appliedCoupon) {
+                if (appliedCoupon.discount_type === 'percentage') {
+                    discount = (subtotal * appliedCoupon.discount_value) / 100;
+                    if (appliedCoupon.max_discount) {
+                        discount = Math.min(discount, appliedCoupon.max_discount);
+                    }
+                } else {
+                    discount = appliedCoupon.discount_value;
+                }
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountAmount').textContent = `- ₹${discount.toFixed(2)}`;
+            } else {
+                 document.getElementById('discountRow').style.display = 'none';
+            }
 
-            cartSummaryContainer.innerHTML = `
-                <div class="summary-title">
-                    <i class="fas fa-receipt"></i>
-                    Order Summary
-                </div>
-                <div class="summary-item">
-                    <span>उप-Total (${cart.length} आइटम)</span>
-                    <span>₹${subtotal.toFixed(2)}</span>
-                </div>
-                <div class="summary-item">
-                    <span>GST (18%)</span>
-                    <span>₹${tax.toFixed(2)}</span>
-                </div>
-                <div class="summary-item total">
-                    <span>Total</span>
-                    <span>₹${total.toFixed(2)}</span>
-                </div>
-                <button class="checkout-btn" onclick="proceedToCheckout()" ${cart.length === 0 ? 'disabled' : ''}>
-                    <i class="fas fa-credit-card"></i>
-                    Checkout करें
-                </button>
-            `;
+            const total = subtotal + tax - discount;
+
+            document.getElementById('subtotalAmount').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('taxAmount').textContent = `₹${tax.toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
         }
 
         function updateQuantity(index, change) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
             const newQuantity = cart[index].quantity + change;
-            
             if (newQuantity >= 1 && newQuantity <= cart[index].maxQuantity) {
                 cart[index].quantity = newQuantity;
-                saveCart();
-                loadCart();
-            }
-        }
-
-        function updateQuantityInput(index, value) {
-            const newQuantity = parseInt(value);
-            
-            if (newQuantity >= 1 && newQuantity <= cart[index].maxQuantity) {
-                cart[index].quantity = newQuantity;
-                saveCart();
-                loadCart();
-            } else {
-                // Reset to current value if invalid
+                localStorage.setItem('cart', JSON.stringify(cart));
                 loadCart();
             }
         }
 
         function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
             cart.splice(index, 1);
-            saveCart();
+            localStorage.setItem('cart', JSON.stringify(cart));
+            appliedCoupon = null; // Reset coupon if cart changes
             loadCart();
         }
 
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
+        async function applyCoupon() {
+            const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+            const messageEl = document.getElementById('couponMessage');
+            if (!couponCode) {
+                messageEl.textContent = 'Please enter a coupon code.';
+                messageEl.className = 'coupon-message error';
+                return;
+            }
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                messageEl.textContent = 'Your cart is empty.';
+                messageEl.className = 'coupon-message error';
+                return;
+            }
+
+            // Check if all items are from the same supplier
+            const firstSupplierId = cart[0].supplierId;
+            const allSameSupplier = cart.every(item => item.supplierId === firstSupplierId);
+
+            if (!allSameSupplier) {
+                messageEl.textContent = 'Coupons only apply to orders from a single supplier.';
+                messageEl.className = 'coupon-message error';
+                appliedCoupon = null;
+                loadCart();
+                return;
+            }
+
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+            try {
+                const response = await fetch(`/api/coupons/validate/${couponCode}` , {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        supplier_id: firstSupplierId,
+                        order_amount: subtotal
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageEl.textContent = `Coupon '${result.coupon.code}' applied!`;
+                    messageEl.className = 'coupon-message success';
+                    appliedCoupon = result.coupon;
+                } else {
+                    messageEl.textContent = result.message || 'Invalid coupon code.';
+                    messageEl.className = 'coupon-message error';
+                    appliedCoupon = null;
+                }
+            } catch (err) {
+                messageEl.textContent = 'Could not validate coupon. Please try again.';
+                messageEl.className = 'coupon-message error';
+                appliedCoupon = null;
+            }
+            loadCart(); // Re-render summary with or without coupon
         }
 
         function proceedToCheckout() {
-            if (cart.length === 0) {
-                alert('Your cart is empty!');
-                return;
-            }
-            
-            // Redirect to checkout page
-            window.location.href = 'checkout.html';
-        }
-
-        // Function to add item to cart (called from other pages)
-        function addToCart(productId, productName, price, supplierName, category, unit, maxQuantity) {
-            // Check if item already exists in cart
-            const existingItem = cart.find(item => item.id === productId);
-            
-            if (existingItem) {
-                // Update quantity if not exceeding max
-                if (existingItem.quantity < maxQuantity) {
-                    existingItem.quantity += 1;
-                } else {
-                    alert('इस आइटम के लिए अधिकतम उपलब्ध मात्रा तक पहुंच गई है!');
-                    return;
-                }
+            if (appliedCoupon) {
+                localStorage.setItem('appliedCoupon', JSON.stringify(appliedCoupon));
             } else {
-                // Add new item
-                cart.push({
-                    id: productId,
-                    name: productName,
-                    price: price,
-                    supplierName: supplierName,
-                    category: category,
-                    unit: unit,
-                    quantity: 1,
-                    maxQuantity: maxQuantity
-                });
+                localStorage.removeItem('appliedCoupon');
             }
-            
-            saveCart();
-            alert(`${productName} added to cart!`);
+            window.location.href = 'checkout.html';
         }
     </script>
 </body>

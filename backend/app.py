@@ -1,30 +1,67 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
 from flask import abort
-from werkzeug.security import check_password_hash
 from datetime import datetime
 import os
 from flask import send_from_directory
 import re
-import base64
+import logging
+import json
+from functools import wraps
+# from google.oauth2 import id_token
+# from google.auth.transport import requests as google_requests
 # from PIL import Image  # Commented out for now
-import io
+
+# Import security modules
+from config import Config
+from security import SecurityUtils
 
 app = Flask(__name__)
+app.config.from_object(Config)
+Config.init_app(app)
+
+# Secure CORS configuration
 CORS(app, resources={
-    r"/*": {
-        "origins": ["*"],
+    r"/api/*": {
+        "origins": Config.ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+        "allow_headers": ["Content-Type", "Authorization", "X-API-Key"],
+        "supports_credentials": True
     }
 })
 
-# MongoDB setup
-mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')
-db = mongo_client['OverXchange']
+# MongoDB setup with environment variable
+mongo_client = MongoClient(Config.MONGODB_URI)
+db = mongo_client[Config.DATABASE_NAME]
+
+# Collections
+users_collection = db['users']
+suppliers_collection = db['suppliers']
+stocks_collection = db['stocks']
+coupons_collection = db['coupons']
+admins_collection = db['admins']
+orders_collection = db['orders']
+
+# Vendor-specific collections
+vendor_users = db['vendor_users']
+vendor_listings = db['vendor_listings']
+vendor_transactions = db['vendor_transactions']
+vendor_chats = db['vendor_chats']
+vendor_feedback = db['vendor_feedback']
+vendor_analytics = db['vendor_analytics']
+
+# Setup logging
+logging.basicConfig(
+    level=getattr(logging, Config.LOG_LEVEL),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Initialize admin collection with default admin if not exists
 def initialize_admin():
@@ -66,234 +103,253 @@ initialize_admin()
 # Serve frontend static files
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
 
+# Authentication decorator
+def require_auth(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authentication required'}), 401
+        
+        token = auth_header.split(' ')[1]
+        payload = SecurityUtils.verify_jwt_token(token)
+        if not payload:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        
+        request.user = payload
+        return f(request.user, *args, **kwargs)
+    return decorated_function
+
+# Rate limiting decorator
+def rate_limit(max_requests=100, window=3600):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            client_ip = request.remote_addr
+            key = f"rate_limit:{client_ip}:{f.__name__}"
+            
+            # Simple in-memory rate limiting (use Redis in production)
+            if not hasattr(app, 'rate_limit_store'):
+                app.rate_limit_store = {}
+            
+            current_time = datetime.utcnow()
+            if key in app.rate_limit_store:
+                requests, timestamp = app.rate_limit_store[key]
+                if (current_time - timestamp).seconds < window:
+                    if requests >= max_requests:
+                        SecurityUtils.log_security_event('RATE_LIMIT_EXCEEDED', details=f'IP: {client_ip}')
+                        return jsonify({'error': 'Rate limit exceeded'}), 429
+                    app.rate_limit_store[key] = (requests + 1, timestamp)
+                else:
+                    app.rate_limit_store[key] = (1, current_time)
+            else:
+                app.rate_limit_store[key] = (1, current_time)
+            
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path != "" and os.path.exists(os.path.join(FRONTEND_DIR, path)):
+        return send_from_directory(FRONTEND_DIR, path)
+    else:
+        return send_from_directory(FRONTEND_DIR, 'index.html')
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/vendor-dashboard')
+def vendor_dashboard():
+    return send_from_directory(FRONTEND_DIR, 'vendor-dashboard.html')
 
 
 @app.route('/api/login', methods=['POST'])
+@rate_limit(max_requests=5, window=300)  # 5 attempts per 5 minutes
 def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    
-    # Try vendor first
-    user = db['vendors'].find_one({'email': username})
-    user_type = 'vendor'
-    
-    if not user:
-        # Try supplier
-        user = db['suppliers'].find_one({'email': username})
-        user_type = 'supplier' if user else None
-    
-    if not user:
-        # Try admin
-        user = db['admins'].find_one({'email': username, 'is_active': True})
-        user_type = 'admin' if user else None
-    
-    if not user:
-        return jsonify({'success': False, 'message': 'User not found'}), 404
-    
-    if not check_password_hash(user['password'], password):
-        return jsonify({'success': False, 'message': 'Incorrect password'}), 401
-    
-    response_data = {
-        'success': True,
-        'message': 'Login successful',
-        'user_type': user_type,
-        'user_id': str(user['_id'])
-    }
-    
-    # Add supplier-specific data for suppliers
-    if user_type == 'supplier':
-        response_data['business_name'] = user.get('business_name', user.get('name', ''))
-        response_data['name'] = user.get('name', '')
-    
-    # Add admin-specific data for admins
-    if user_type == 'admin':
-        response_data['name'] = user.get('name', '')
-        response_data['role'] = user.get('role', 'admin')
-        response_data['email'] = user.get('email', '')
-    
-    return jsonify(response_data)
-
-@app.route('/api/admin/login', methods=['POST'])
-def admin_login():
-    """Admin login with email and password"""
-    try:
-        data = request.json
-        email = data.get('email')
-        password = data.get('password')
-        
-        if not email or not password:
-            return jsonify({'success': False, 'message': 'Email and password are required'}), 400
-        
-        # Find admin by email
-        admin = db['admins'].find_one({'email': email, 'is_active': True})
-        
-        if not admin:
-            return jsonify({'success': False, 'message': 'Admin account not found or inactive'}), 404
-        
-        # Check password
-        if not check_password_hash(admin['password'], password):
-            return jsonify({'success': False, 'message': 'Incorrect password'}), 401
-        
-        # Return admin data (without password)
-        response_data = {
-            'success': True,
-            'message': 'Admin login successful',
-            'admin_id': str(admin['_id']),
-            'email': admin['email'],
-            'name': admin['name'],
-            'role': admin['role'],
-            'login_time': datetime.utcnow().isoformat()
-        }
-        
-        return jsonify(response_data)
-        
-    except Exception as e:
-        print(f"Admin login error: {str(e)}")
-        return jsonify({'success': False, 'message': 'Internal server error'}), 500
-
-@app.route('/api/admin/signup', methods=['POST'])
-def admin_signup():
-    """Create new admin account (only super admin can create other admins)"""
-    try:
-        data = request.json
-        email = data.get('email')
-        password = data.get('password')
-        name = data.get('name')
-        role = data.get('role', 'admin')  # Default role is admin
-        
-        if not email or not password or not name:
-            return jsonify({'success': False, 'message': 'Email, password, and name are required'}), 400
-        
-        # Check if admin already exists
-        existing_admin = db['admins'].find_one({'email': email})
-        if existing_admin:
-            return jsonify({'success': False, 'message': 'Admin with this email already exists'}), 409
-        
-        # Create new admin
-        admin_data = {
-            'email': email,
-            'password': generate_password_hash(password),
-            'name': name,
-            'role': role,
-            'created_at': datetime.utcnow(),
-            'is_active': True
-        }
-        
-        result = db['admins'].insert_one(admin_data)
-        
-        return jsonify({
-            'success': True,
-            'message': 'Admin account created successfully',
-            'admin_id': str(result.inserted_id)
-        }), 201
-        
-    except Exception as e:
-        print(f"Admin signup error: {str(e)}")
-        return jsonify({'success': False, 'message': 'Internal server error'}), 500
-
-@app.route('/api/admin/create', methods=['POST'])
-def create_admin_manual():
-    """Manually create admin account (for development/testing)"""
-    try:
-        data = request.json
-        email = data.get('email')
-        password = data.get('password')
-        name = data.get('name', 'Admin User')
-        role = data.get('role', 'admin')
-        
-        if not email or not password:
-            return jsonify({'success': False, 'message': 'Email and password are required'}), 400
-        
-        # Check if admin already exists
-        existing_admin = db['admins'].find_one({'email': email})
-        if existing_admin:
-            return jsonify({'success': False, 'message': 'Admin with this email already exists'}), 409
-        
-        # Create new admin
-        admin_data = {
-            'email': email,
-            'password': generate_password_hash(password),
-            'name': name,
-            'role': role,
-            'created_at': datetime.utcnow(),
-            'is_active': True
-        }
-        
-        result = db['admins'].insert_one(admin_data)
-        
-        return jsonify({
-            'success': True,
-            'message': f'Admin account created successfully: {email}',
-            'admin_id': str(result.inserted_id),
-            'email': email,
-            'name': name,
-            'role': role
-        }), 201
-        
-    except Exception as e:
-        print(f"Manual admin creation error: {str(e)}")
-        return jsonify({'success': False, 'message': 'Internal server error'}), 500
-
-@app.route('/api/signup/vendor', methods=['POST'])
-def signup_vendor():
     try:
         data = request.json
         if not data:
-            return jsonify({"success": False, "message": "No data provided"}), 400
+            return jsonify({'success': False, 'message': 'Invalid request data'}), 400
+        
+        username = SecurityUtils.sanitize_input(data.get('username', ''))
+        password = data.get('password', '')
+        logger.info(f"Login attempt for user: {username}")
+        
+        # Validate input
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Username and password are required'}), 400
+        
+        if not SecurityUtils.validate_email(username):
+            return jsonify({'success': False, 'message': 'Invalid email format'}), 400
+        
+        # Try admin first
+        user = db['admins'].find_one({'email': username})
+        user_type = 'admin'
+        
+        if not user:
+            # Try vendor
+            user = db['vendors'].find_one({'email': username})
+            user_type = 'vendor'
+        
+        if not user:
+            # Try supplier
+            user = db['suppliers'].find_one({'email': username})
+            user_type = 'supplier' if user else None
+        
+        if not user:
+            SecurityUtils.log_security_event('LOGIN_FAILED', details=f'User not found: {username}')
+            logger.warning(f"Login failed: User not found for {username}")
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+        
+        if not SecurityUtils.verify_password(password, user['password']):
+            SecurityUtils.log_security_event('LOGIN_FAILED', user_id=str(user['_id']), details='Incorrect password')
+            return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+        
+        # Generate JWT token
+        token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
+        
+        SecurityUtils.log_security_event('LOGIN_SUCCESS', user_id=str(user['_id']))
+        
+        return jsonify({
+            'success': True,
+            'message': 'Login successful',
+            'user_type': user_type,
+            'user_id': str(user['_id']),
+            'token': token
+        })
+    
+    except Exception as e:
+        logger.error(f"Login error: {str(e)}")
+        SecurityUtils.log_security_event('LOGIN_ERROR', details=str(e))
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/signup/vendor', methods=['POST'])
+@rate_limit(max_requests=3, window=3600)  # 3 signups per hour
+def signup_vendor():
+    try:
+        data = request.json
+        logger.info(f"Received vendor signup request with data: {data}")
+        if not data:
+            return jsonify({"success": False, "message": "Invalid request data"}), 400
+        
+        # Sanitize and validate input
+        email = SecurityUtils.sanitize_input(data.get('email', ''))
+        password = data.get('password', '')
+        first_name = SecurityUtils.sanitize_input(data.get('first_name', ''))
+        last_name = SecurityUtils.sanitize_input(data.get('last_name', ''))
+        name = f"{first_name} {last_name}".strip()
+        phone = SecurityUtils.sanitize_input(data.get('phone', ''))
+        address = SecurityUtils.sanitize_input(data.get('address', ''))
+        
+        # Validate required fields
+        if not email or not password or not name:
+            return jsonify({"success": False, "message": "Email, password, and name are required"}), 400
+        
+        # Validate email format
+        if not SecurityUtils.validate_email(email):
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
+        
+        # Validate password strength
+        password_validation = SecurityUtils.validate_password(password)
+        if not password_validation['valid']:
+            return jsonify({"success": False, "message": "Password validation failed", "errors": password_validation['errors']}), 400
+        
+        # Validate phone number if provided
+        if phone and not SecurityUtils.validate_phone_number(phone):
+            return jsonify({"success": False, "message": "Invalid phone number format"}), 400
         
         # Check if user already exists
-        existing_user = db['vendors'].find_one({'email': data.get('email')})
+        existing_user = db['vendors'].find_one({'email': email})
         if existing_user:
-            return jsonify({"success": False, "message": "User already exists with this email"}), 409
+            return jsonify({"success": False, "message": "Email already registered"}), 409
         
-        if 'password' in data:
-            data['password'] = generate_password_hash(data['password'])
+        # Hash password and create user
+        hashed_password = SecurityUtils.hash_password(password)
+        user_data = {
+            'email': email,
+            'password': hashed_password,
+            'name': name,
+            'phone': phone,
+            'address': address,
+            'created_at': datetime.utcnow(),
+            'status': 'active'
+        }
         
-        # Add timestamp
-        data['created_at'] = datetime.utcnow()
+        result = db['vendors'].insert_one(user_data)
         
-        result = db['vendors'].insert_one(data)
-        return jsonify({
-            "success": True, 
-            "message": "Vendor signup successful!", 
-            "id": str(result.inserted_id)
-        }), 201
+        SecurityUtils.log_security_event('SIGNUP_SUCCESS', user_id=str(result.inserted_id), details='Vendor signup')
+        
+        return jsonify({"success": True, "message": "Vendor signup successful!", "id": str(result.inserted_id)})
+    
     except Exception as e:
-        print(f"Vendor signup error: {str(e)}")
+        logger.error(f"Vendor signup error: {str(e)}")
+        SecurityUtils.log_security_event('SIGNUP_ERROR', details=f'Vendor signup error: {str(e)}')
         return jsonify({"success": False, "message": "Internal server error"}), 500
 
 @app.route('/api/signup/supplier', methods=['POST'])
+@rate_limit(max_requests=3, window=3600)  # 3 signups per hour
 def signup_supplier():
     try:
         data = request.json
         if not data:
-            return jsonify({"success": False, "message": "No data provided"}), 400
+            return jsonify({"success": False, "message": "Invalid request data"}), 400
+        
+        # Sanitize and validate input
+        email = SecurityUtils.sanitize_input(data.get('email', ''))
+        password = data.get('password', '')
+        first_name = SecurityUtils.sanitize_input(data.get('first_name', ''))
+        last_name = SecurityUtils.sanitize_input(data.get('last_name', ''))
+        name = f"{first_name} {last_name}".strip()
+        phone = SecurityUtils.sanitize_input(data.get('phone', ''))
+        address = SecurityUtils.sanitize_input(data.get('address', ''))
+        
+        # Validate required fields
+        if not email or not password or not name:
+            return jsonify({"success": False, "message": "Email, password, and name are required"}), 400
+        
+        # Validate email format
+        if not SecurityUtils.validate_email(email):
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
+        
+        # Validate password strength
+        password_validation = SecurityUtils.validate_password(password)
+        if not password_validation['valid']:
+            return jsonify({"success": False, "message": "Password validation failed", "errors": password_validation['errors']}), 400
+        
+        # Validate phone number if provided
+        if phone and not SecurityUtils.validate_phone_number(phone):
+            return jsonify({"success": False, "message": "Invalid phone number format"}), 400
         
         # Check if user already exists
-        existing_user = db['suppliers'].find_one({'email': data.get('email')})
+        existing_user = db['suppliers'].find_one({'email': email})
         if existing_user:
-            return jsonify({"success": False, "message": "User already exists with this email"}), 409
+            return jsonify({"success": False, "message": "Email already registered"}), 409
         
-        if 'password' in data:
-            data['password'] = generate_password_hash(data['password'])
+        # Hash password and create user
+        hashed_password = SecurityUtils.hash_password(password)
+        user_data = {
+            'email': email,
+            'password': hashed_password,
+            'name': name,
+            'phone': phone,
+            'address': address,
+            'created_at': datetime.utcnow(),
+            'status': 'active'
+        }
         
-        # Add timestamp
-        data['created_at'] = datetime.utcnow()
+        result = db['suppliers'].insert_one(user_data)
         
-        result = db['suppliers'].insert_one(data)
-        return jsonify({
-            "success": True, 
-            "message": "Supplier signup successful!", 
-            "id": str(result.inserted_id)
-        }), 201
+        SecurityUtils.log_security_event('SIGNUP_SUCCESS', user_id=str(result.inserted_id), details='Supplier signup')
+        
+        return jsonify({"success": True, "message": "Supplier signup successful!", "id": str(result.inserted_id)})
+    
     except Exception as e:
-        print(f"Supplier signup error: {str(e)}")
+        logger.error(f"Supplier signup error: {str(e)}")
+        SecurityUtils.log_security_event('SIGNUP_ERROR', details=f'Supplier signup error: {str(e)}')
         return jsonify({"success": False, "message": "Internal server error"}), 500
 
 def get_user_collection(user_type):
@@ -305,26 +361,75 @@ def get_user_collection(user_type):
         abort(400, 'Invalid user type')
 
 @app.route('/api/profile/<user_type>/<user_id>', methods=['GET'])
+@require_auth
+@rate_limit(max_requests=100, window=3600)
 def get_profile(user_type, user_id):
-    collection = get_user_collection(user_type)
-    user = collection.find_one({'_id': ObjectId(user_id)})
-    if not user:
-        abort(404, 'User not found')
-    user.pop('password', None)  # Never send password
-    user['user_type'] = user_type
-    user['user_id'] = str(user['_id'])
-    user['_id'] = str(user['_id'])
-    return jsonify(user)
+    try:
+        # Verify user can access this profile
+        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
+            return jsonify({'error': 'Unauthorized access'}), 403
+        
+        collection = get_user_collection(user_type)
+        user = collection.find_one({'_id': ObjectId(user_id)})
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Remove sensitive data
+        user.pop('password', None)
+        user['user_type'] = user_type
+        user['user_id'] = str(user['_id'])
+        user['_id'] = str(user['_id'])
+        
+        return jsonify(user)
+    
+    except Exception as e:
+        logger.error(f"Get profile error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/profile/<user_type>/<user_id>', methods=['PUT'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
 def update_profile(user_type, user_id):
-    collection = get_user_collection(user_type)
-    data = request.json
-    update_fields = {k: v for k, v in data.items() if k in ['name', 'email', 'bio', 'shop_name', 'company_name']}
-    result = collection.update_one({'_id': ObjectId(user_id)}, {'$set': update_fields})
-    if result.matched_count == 0:
-        abort(404, 'User not found')
-    return jsonify({'success': True, 'message': 'Profile updated!'})
+    try:
+        # Verify user can update this profile
+        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
+            return jsonify({'error': 'Unauthorized access'}), 403
+        
+        collection = get_user_collection(user_type)
+        data = request.json
+        
+        if not data:
+            return jsonify({'error': 'Invalid request data'}), 400
+        
+        # Sanitize input data
+        sanitized_data = {}
+        allowed_fields = ['name', 'phone', 'address', 'company_name', 'business_type']
+        
+        for field in allowed_fields:
+            if field in data:
+                sanitized_data[field] = SecurityUtils.sanitize_input(str(data[field]))
+        
+        if not sanitized_data:
+            return jsonify({'error': 'No valid fields to update'}), 400
+        
+        # Update user profile
+        result = collection.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': sanitized_data}
+        )
+        
+        if result.modified_count == 0:
+            return jsonify({'error': 'User not found or no changes made'}), 404
+        
+        SecurityUtils.log_security_event('PROFILE_UPDATED', user_id=user_id)
+        
+        return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    
+    except Exception as e:
+        logger.error(f"Update profile error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/suppliers', methods=['GET'])
 def get_suppliers():
@@ -341,6 +446,7 @@ def get_stocks():
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
+        stock['image_url'] = stock.get('image_url', f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}")
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks/supplier/<supplier_id>', methods=['GET'])
@@ -423,6 +529,104 @@ def delete_stock(stock_id):
         return jsonify({'success': False, 'message': 'Stock not found'}), 404
     return jsonify({'success': True, 'message': 'Stock deleted successfully!'})
 
+@app.route('/api/orders', methods=['POST'])
+@require_auth
+def create_order(current_user):
+    """Create a new order from a vendor"""
+    try:
+        data = request.json
+        vendor_id = current_user['user_id']
+
+        # Basic validation
+        if not data.get('items') or not data.get('shipping_address'):
+            return jsonify({'success': False, 'message': 'Missing order data'}), 400
+
+        # Group items by supplier
+        supplier_orders = {}
+        for item in data['items']:
+            supplier_id = item.get('supplierId')
+            if supplier_id not in supplier_orders:
+                supplier_orders[supplier_id] = {
+                    'supplier_id': supplier_id,
+                    'items': [],
+                    'subtotal': 0,
+                    'status': 'pending'
+                }
+            supplier_orders[supplier_id]['items'].append(item)
+            supplier_orders[supplier_id]['subtotal'] += item['price'] * item['quantity']
+
+        # Create the main order document
+        order_doc = {
+            'vendor_id': ObjectId(vendor_id),
+            'shipping_address': data['shipping_address'],
+            'total_amount': data['total_amount'],
+            'subtotal': data['subtotal'],
+            'tax': data['tax'],
+            'shipping_cost': data.get('shipping_cost', 0),
+            'discount': data.get('discount', 0),
+            'coupon_code': data.get('coupon_code'),
+            'status': 'pending', # Overall order status
+            'created_at': datetime.utcnow(),
+            'supplier_orders': list(supplier_orders.values()) # Embed supplier-specific orders
+        }
+
+        result = orders_collection.insert_one(order_doc)
+        
+        # Could potentially trigger stock deduction here in a real scenario
+
+        return jsonify({'success': True, 'message': 'Order placed successfully!', 'order_id': str(result.inserted_id)})
+
+    except Exception as e:
+        logger.error(f"Order creation error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/vendor/orders', methods=['GET'])
+@require_auth
+def get_vendor_orders(current_user):
+    """Get all orders for the currently logged-in vendor"""
+    try:
+        vendor_id = current_user['user_id']
+        orders = list(orders_collection.find({'vendor_id': ObjectId(vendor_id)}).sort('created_at', -1))
+
+        for order in orders:
+            order['_id'] = str(order['_id'])
+            order['vendor_id'] = str(order['vendor_id'])
+            # Convert ObjectId in supplier_orders items as well
+            for supplier_order in order.get('supplier_orders', []):
+                supplier_order['supplier_id'] = str(supplier_order['supplier_id'])
+                for item in supplier_order.get('items', []):
+                    item['id'] = str(item['id'])
+
+        return jsonify({'success': True, 'orders': orders})
+
+    except Exception as e:
+        logger.error(f"Get vendor orders error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/supplier/orders', methods=['GET'])
+@require_auth
+def get_supplier_orders(current_user):
+    """Get all orders for the currently logged-in supplier"""
+    try:
+        supplier_id = current_user['user_id']
+        
+        # Find orders where this supplier is part of the supplier_orders array
+        orders = list(orders_collection.find({'supplier_orders.supplier_id': supplier_id}).sort('created_at', -1))
+
+        for order in orders:
+            order['_id'] = str(order['_id'])
+            order['vendor_id'] = str(order['vendor_id'])
+            # Convert ObjectId in supplier_orders items as well
+            for supplier_order in order.get('supplier_orders', []):
+                supplier_order['supplier_id'] = str(supplier_order['supplier_id'])
+                for item in supplier_order.get('items', []):
+                    item['id'] = str(item['id'])
+
+        return jsonify({'success': True, 'orders': orders})
+
+    except Exception as e:
+        logger.error(f"Get supplier orders error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 @app.route('/api/dashboard/<supplier_id>', methods=['GET'])
 def get_dashboard_data(supplier_id):
     """Get dashboard analytics for a supplier"""
@@ -696,6 +900,357 @@ def validate_coupon(coupon_code):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+# Vendor-specific routes
+@app.route('/api/vendor/register', methods=['POST'])
+@rate_limit(max_requests=3, window=3600)
+def vendor_register():
+    data = request.get_json()
+    
+    # Check if user already exists
+    if vendor_users.find_one({'email': data['email']}):
+        return jsonify({'message': 'User already exists'}), 400
+    
+    # Hash password
+    hashed_password = generate_password_hash(data['password'])
+    
+    # Create user
+    user = {
+        'name': data['name'],
+        'email': data['email'],
+        'password': hashed_password,
+        'company': data.get('company', ''),
+        'location': data.get('location', ''),
+        'phone': data.get('phone', ''),
+        'trust_score': 5.0,
+        'total_transactions': 0,
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_users.insert_one(user)
+    user['_id'] = str(result.inserted_id)
+    del user['password']
+    
+    return jsonify({'message': 'User registered successfully', 'user': user}), 201
+
+@app.route('/api/vendor/login', methods=['POST'])
+@rate_limit(max_requests=5, window=300)
+def vendor_login():
+    data = request.get_json()
+    
+    user = vendor_users.find_one({'email': data['email']})
+    if not user or not check_password_hash(user['password'], data['password']):
+        return jsonify({'message': 'Invalid credentials'}), 401
+    
+    token = SecurityUtils.generate_jwt_token({
+        'user_id': str(user['_id']),
+        'email': user['email'],
+        'user_type': 'vendor'
+    })
+    
+    
+    
+    user['_id'] = str(user['_id'])
+    del user['password']
+    
+    return jsonify({
+        'message': 'Login successful',
+        'token': token,
+        'user': user
+    })
+
+@app.route('/api/vendor/listings', methods=['GET'])
+def get_vendor_listings():
+    # Get filter parameters
+    product = request.args.get('product', '').lower()
+    city = request.args.get('city', '').lower()
+    pincode = request.args.get('pincode', '')
+    listing_type = request.args.get('type', '')
+    
+    # Build filter query
+    filter_query = {}
+    if product:
+        filter_query['product'] = {'$regex': product, '$options': 'i'}
+    if city:
+        filter_query['city'] = {'$regex': city, '$options': 'i'}
+    if pincode:
+        filter_query['pincode'] = {'$regex': pincode, '$options': 'i'}
+    if listing_type:
+        filter_query['type'] = listing_type
+    
+    # Get listings with user details
+    listings_data = []
+    for listing in vendor_listings.find(filter_query).sort('created_at', -1):
+        listing['_id'] = str(listing['_id'])
+        listing['user_id'] = str(listing['user_id'])
+        
+        # Get user details
+        user = vendor_users.find_one({'_id': ObjectId(listing['user_id'])})
+        if user:
+            listing['vendor_name'] = user['name']
+            listing['vendor_trust_score'] = user['trust_score']
+        
+        listings_data.append(listing)
+    
+    return jsonify({'listings': listings_data})
+
+@app.route('/api/vendor/listings', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
+def create_vendor_listing(current_user):
+    data = request.get_json()
+    
+    logger.info(f"create_vendor_listing: current_user payload: {current_user}")
+    
+    try:
+        user_obj_id = ObjectId(current_user['user_id'])
+    except Exception as e:
+        logger.error(f"Invalid user_id in token: {current_user.get('user_id')} - Error: {e}")
+        return jsonify({'message': 'Invalid user ID in authentication token'}), 400
+
+    listing = {
+        'user_id': user_obj_id,
+        'type': data['type'],  # 'Offer' or 'Need'
+        'product': data['product'],
+        'quantity': int(data['quantity']),
+        'location': data['location'],
+        'city': data.get('city', ''),
+        'pincode': data.get('pincode', ''),
+        'collaboration_type': data['collaboration_type'],
+        'validity_time': datetime.fromisoformat(data['validity_time'].replace('Z', '+00:00')),
+        'urgency': data.get('urgency', 'medium'),
+        'description': data.get('description', ''),
+        'status': 'active',
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_listings.insert_one(listing)
+    listing['_id'] = str(result.inserted_id)
+    listing['user_id'] = str(listing['user_id'])
+    
+    # Send notifications to matching vendors
+    send_vendor_notifications(listing)
+    
+    return jsonify({'message': 'Listing created successfully', 'listing': listing}), 201
+
+@app.route('/api/vendor/listings/<listing_id>', methods=['GET'])
+def get_vendor_listing(listing_id):
+    listing = vendor_listings.find_one({'_id': ObjectId(listing_id)})
+    if not listing:
+        return jsonify({'message': 'Listing not found'}), 404
+    
+    listing['_id'] = str(listing['_id'])
+    listing['user_id'] = str(listing['user_id'])
+    
+    # Get user details
+    user = vendor_users.find_one({'_id': ObjectId(listing['user_id'])})
+    if user:
+        listing['vendor_name'] = user['name']
+        listing['vendor_trust_score'] = user['trust_score']
+    
+    return jsonify({'listing': listing})
+
+@app.route('/api/vendor/transactions', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=100, window=3600)
+def create_vendor_transaction(current_user):
+    data = request.get_json()
+    
+    transaction = {
+        'buyer_id': ObjectId(current_user['user_id']),
+        'seller_id': ObjectId(data['seller_id']),
+        'listing_id': ObjectId(data['listing_id']),
+        'type': data['type'],  # 'buy', 'group_buy', 'lend'
+        'quantity': int(data['quantity']),
+        'amount': float(data.get('amount', 0)),
+        'status': 'pending',
+        'payment_method': data.get('payment_method', 'in_app'),
+        'logistics': data.get('logistics', {}),
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_transactions.insert_one(transaction)
+    transaction['_id'] = str(result.inserted_id)
+    
+    return jsonify({'message': 'Transaction created successfully', 'transaction': transaction}), 201
+
+@app.route('/api/vendor/transactions/<transaction_id>/complete', methods=['PUT'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
+def complete_vendor_transaction(current_user, transaction_id):
+    transaction = vendor_transactions.find_one({'_id': ObjectId(transaction_id)})
+    if not transaction:
+        return jsonify({'message': 'Transaction not found'}), 404
+    
+    # Update transaction status
+    vendor_transactions.update_one(
+        {'_id': ObjectId(transaction_id)},
+        {'$set': {'status': 'completed', 'completed_at': datetime.utcnow()}}
+    )
+    
+    # Update user transaction counts
+    vendor_users.update_one(
+        {'_id': transaction['buyer_id']},
+        {'$inc': {'total_transactions': 1}}
+    )
+    vendor_users.update_one(
+        {'_id': transaction['seller_id']},
+        {'$inc': {'total_transactions': 1}}
+    )
+    
+    return jsonify({'message': 'Transaction completed successfully'})
+
+@app.route('/api/vendor/chat', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=200, window=3600)
+def send_vendor_message(current_user):
+    data = request.get_json()
+    
+    message = {
+        'sender_id': ObjectId(current_user['user_id']),
+        'receiver_id': ObjectId(data['receiver_id']),
+        'listing_id': ObjectId(data.get('listing_id')),
+        'message': data['message'],
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_chats.insert_one(message)
+    message['_id'] = str(result.inserted_id)
+    
+    return jsonify({'message': 'Message sent successfully', 'chat': message}), 201
+
+@app.route('/api/vendor/chat/<user_id>', methods=['GET'])
+@require_auth
+@rate_limit(max_requests=100, window=3600)
+def get_vendor_chat_history(current_user, user_id):
+    # Get chat messages between current user and specified user
+    messages = []
+    for msg in vendor_chats.find({
+        '$or': [
+            {'sender_id': ObjectId(current_user['user_id']), 'receiver_id': ObjectId(user_id)},
+            {'sender_id': ObjectId(user_id), 'receiver_id': ObjectId(current_user['user_id'])}
+        ]
+    }).sort('created_at', 1):
+        msg['_id'] = str(msg['_id'])
+        messages.append(msg)
+    
+    return jsonify({'messages': messages})
+
+@app.route('/api/vendor/feedback', methods=['POST'])
+@require_auth
+@rate_limit(max_requests=50, window=3600)
+def submit_vendor_feedback(current_user):
+    data = request.get_json()
+    
+    feedback_data = {
+        'rater_id': ObjectId(current_user['user_id']),
+        'rated_user_id': ObjectId(data['rated_user_id']),
+        'transaction_id': ObjectId(data.get('transaction_id')),
+        'rating': int(data['rating']),
+        'comment': data.get('comment', ''),
+        'created_at': datetime.utcnow()
+    }
+    
+    result = vendor_feedback.insert_one(feedback_data)
+    
+    # Update user's trust score
+    update_vendor_trust_score(data['rated_user_id'])
+    
+    return jsonify({'message': 'Feedback submitted successfully'}), 201
+
+@app.route('/api/vendor/analytics', methods=['GET'])
+def get_vendor_analytics():
+    # Get top traders
+    top_traders = list(vendor_users.find().sort('total_transactions', -1).limit(5))
+    for trader in top_traders:
+        trader['_id'] = str(trader['_id'])
+    
+    # Get average fulfillment speed (mock data for now)
+    avg_speed = 1.2
+    
+    # Get quality score
+    pipeline = [
+        {'$group': {'_id': None, 'avg_rating': {'$avg': '$rating'}}}
+    ]
+    result = list(vendor_feedback.aggregate(pipeline))
+    quality_score = round(result[0]['avg_rating'], 1) if result else 4.8
+    
+    analytics_data = {
+        'top_traders': top_traders,
+        'avg_fulfillment_speed': avg_speed,
+        'quality_score': quality_score,
+        'total_listings': vendor_listings.count_documents({}),
+        'total_transactions': vendor_transactions.count_documents({'status': 'completed'}),
+        'active_users': vendor_users.count_documents({})
+    }
+    
+    return jsonify(analytics_data)
+
+@app.route('/api/vendor/users/<user_id>', methods=['GET'])
+def get_vendor_user(user_id):
+    user = vendor_users.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    user['_id'] = str(user['_id'])
+    del user['password']
+    
+    return jsonify({'user': user})
+
+@app.route('/api/vendor/check_user_exists', methods=['POST'])
+def check_vendor_user_exists():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({'message': 'Email is required'}), 400
+    
+    user = vendor_users.find_one({'email': email})
+    if user:
+        return jsonify({'exists': True, 'message': 'User exists'}), 200
+    else:
+        return jsonify({'exists': False, 'message': 'User does not exist'}), 200
+
+@app.route('/api/vendor/me', methods=['GET'])
+@require_auth
+def get_current_vendor_user(current_user):
+    # current_user is populated by the @require_auth decorator
+    # It contains user_id and user_type
+    user_id = current_user['user_id']
+    user = vendor_users.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    user['_id'] = str(user['_id'])
+    del user['password']
+    
+    return jsonify({'user': user})
+
+def update_vendor_trust_score(user_id):
+    # Calculate average rating for user
+    pipeline = [
+        {'$match': {'rated_user_id': ObjectId(user_id)}},
+        {'$group': {'_id': None, 'avg_rating': {'$avg': '$rating'}}}
+    ]
+    
+    result = list(vendor_feedback.aggregate(pipeline))
+    if result:
+        avg_rating = result[0]['avg_rating']
+        vendor_users.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': {'trust_score': round(avg_rating, 1)}}
+        )
+
+def send_vendor_notifications(listing):
+    # Find vendors with matching criteria
+    matching_vendors = vendor_users.find({
+        'location': {'$regex': listing['city'], '$options': 'i'},
+        '_id': {'$ne': ObjectId(listing['user_id'])}
+    })
+    
+    # In a real app, you would send SMS/Email here
+    # For now, we'll just log the notifications
+    for vendor in matching_vendors:
+        print(f"Notification sent to {vendor['email']} for {listing['product']}")
+
 # License Verification System
 def verify_license_automatically(file_content, file_type):
     """
@@ -708,10 +1263,12 @@ def verify_license_automatically(file_content, file_type):
         if file_type.startswith('image'):
             # For images, we'll use basic text extraction
             # In production, you'd use proper OCR like Tesseract
-            text_content = extract_text_from_image(file_content)
+            # text_content = extract_text_from_image(file_content)
+            pass
         elif file_type == 'application/pdf':
             # For PDFs, extract text
-            text_content = extract_text_from_pdf(file_content)
+            # text_content = extract_text_from_pdf(file_content)
+            pass
         
         # Convert to uppercase for better matching
         text_content = text_content.upper()
@@ -853,13 +1410,13 @@ def verify_license_automatically(file_content, file_type):
         
         # Add missing elements for improvement
         missing_elements = []
-        if not has_fssai_keywords:
+        if not found_keywords:
             missing_elements.append('FSSAI license keywords not found')
-        if not has_government_authority:
+        if not found_authorities:
             missing_elements.append('Government authority not found')
-        if not has_license_number:
+        if not found_license_numbers:
             missing_elements.append('License number not found')
-        if not has_validity_dates:
+        if not found_dates:
             missing_elements.append('Validity dates not found')
         
         verification_details['missing_elements'] = missing_elements
@@ -1337,1696 +1894,169 @@ def verify_license_by_state(license_number):
         
         session = requests.Session()
         
-        for state, api_info in state_portals.items():
+        for state, config in state_portals.items():
             try:
-                print(f"Trying {state} state API: {api_info['url']}")
+                print(f"Trying {state} state portal...")
                 
-                # Make API call to state government
-                if api_info['method'] == 'POST':
-                    response = session.post(
-                        api_info['url'],
-                        json=api_info['data'],
-                        headers={**headers, **api_info['headers']},
-                        timeout=30
-                    )
+                if config['method'] == 'GET':
+                    response = session.get(config['url'], params=config['params'], headers=headers, timeout=20)
                 else:
-                    response = session.get(
-                        api_info['url'],
-                        params=api_info['params'],
-                        headers={**headers, **api_info['headers']},
-                        timeout=30
-                    )
+                    response = session.post(config['url'], data=config['params'], headers=headers, timeout=20)
                 
                 if response.status_code == 200:
                     try:
                         data = response.json()
-                        if data.get('success') or data.get('license_found') or data.get('verified'):
-                            print(f"License {license_number} verified from {state} state API!")
-                            
+                        if data.get('is_valid') or (data.get('records') and len(data['records']) > 0):
                             return {
                                 'is_valid': True,
-                                'license_info': {
-                                    'business_name': data.get('business_name', f'Verified from {state.title()} State'),
-                                    'address': data.get('address', f'Address from {state.title()} Government'),
-                                    'business_type': data.get('business_type', 'Food Business'),
-                                    'valid_from': data.get('valid_from', 'Date from State Database'),
-                                    'valid_until': data.get('valid_until', 'Date from State Database'),
-                                    'status': data.get('status', 'active'),
-                                    'source': f'{state.title()} State Government API'
-                                },
-                                'message': f'License verified from {state.title()} state government API'
+                                'message': f'License verified from {state.title()} government portal',
+                                'license_info': data.get('license_info') or data['records'][0]
                             }
                     except json.JSONDecodeError:
-                        # If response is not JSON, check if license number is in response text
                         if license_number in response.text:
-                            print(f"License {license_number} found in {state} state response!")
-                            
-                            return {
+                             return {
                                 'is_valid': True,
-                                'license_info': {
-                                    'business_name': f'Verified from {state.title()} State Database',
-                                    'address': f'Address from {state.title()} Government Records',
-                                    'business_type': 'Food Business',
-                                    'valid_from': 'Date from State Database',
-                                    'valid_until': 'Date from State Database',
-                                    'status': 'active',
-                                    'source': f'{state.title()} State Government Database'
-                                },
-                                'message': f'License found in {state.title()} state government database'
+                                'message': f'License verified from {state.title()} government portal',
+                                'license_info': {'source': f'{state.title()} Portal'}
                             }
-                            
+
             except Exception as e:
-                print(f"Error calling {state} state API: {e}")
+                print(f"State portal for {state} failed: {e}")
                 continue
         
-        # If no state portal works, return failure
-        return {
-            'is_valid': False,
-            'message': 'License not found on any state government portal',
-            'license_info': None
-        }
+        return {'is_valid': False, 'message': 'State-level verification failed.'}
         
     except Exception as e:
         print(f"State verification failed: {e}")
-        return {
-            'is_valid': False,
-            'message': f'Error in state verification: {str(e)}',
-            'license_info': None
-        }
+        return {'is_valid': False, 'message': 'State-level verification failed.'}
 
-def verify_license_demo(license_number):
-    """
-    Real government API verification - no fake data
-    """
-    try:
-        import requests
-        import json
-        
-        # Real working government APIs
-        working_apis = [
-            {
-                'url': 'https://api.data.gov.in/resource/fssai-licenses',
-                'method': 'GET',
-                'headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                },
-                'params': {'api-key': '579b464db66ec23bdd000001', 'format': 'json', 'filters[license_number]': license_number}
-            },
-            {
-                'url': 'https://data.gov.in/api/fssai-license-verification',
-                'method': 'POST',
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                },
-                'data': {'license_number': license_number}
-            },
-            {
-                'url': 'https://www.fssai.gov.in/cms/license-search.php',
-                'method': 'POST',
-                'headers': {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                },
-                'data': f'license_no={license_number}&search=Search'
-            }
-        ]
-        
-        session = requests.Session()
-        
-        for api in working_apis:
-            try:
-                print(f"Trying real FSSAI API: {api['url']}")
-                
-                if api['method'] == 'POST':
-                    response = session.post(
-                        api['url'], 
-                        json=api['data'], 
-                        headers=api['headers'], 
-                        timeout=30
-                    )
-                else:
-                    response = session.get(
-                        api['url'], 
-                        params=api['params'], 
-                        headers=api['headers'], 
-                        timeout=30
-                    )
-                
-                if response.status_code == 200:
-                    try:
-                        data = response.json()
-                        if data.get('success') or data.get('license_found'):
-                            return {
-                                'is_valid': True,
-                                'license_info': {
-                                    'business_name': data.get('business_name', 'Verified Business'),
-                                    'address': data.get('address', 'Address from FSSAI Database'),
-                                    'business_type': data.get('business_type', 'Food Business'),
-                                    'valid_from': data.get('valid_from', 'Date from Database'),
-                                    'valid_until': data.get('valid_until', 'Date from Database'),
-                                    'status': data.get('status', 'active'),
-                                    'source': 'FSSAI Official API'
-                                },
-                                'message': 'License verified from FSSAI official API'
-                            }
-                    except json.JSONDecodeError:
-                        # If response is not JSON, check if license number is in response text
-                        if license_number in response.text:
-                            return {
-                                'is_valid': True,
-                                'license_info': {
-                                    'business_name': 'Verified from FSSAI Database',
-                                    'address': 'Address from FSSAI Records',
-                                    'business_type': 'Food Business',
-                                    'valid_from': 'Date from FSSAI',
-                                    'valid_until': 'Date from FSSAI',
-                                    'status': 'active',
-                                    'source': 'FSSAI Official Database'
-                                },
-                                'message': 'License found in FSSAI official database'
-                            }
-                            
-            except Exception as e:
-                print(f"API call failed for {api['url']}: {e}")
-                continue
-        
-        # If all APIs fail, return proper error
-        return {
-            'is_valid': False,
-            'message': 'FSSAI APIs are currently not accessible. Please try again later or contact FSSAI directly.',
-            'license_info': None
-        }
-        
-    except Exception as e:
-        print(f"Real API verification failed: {e}")
-        return {
-            'is_valid': False,
-            'message': f'Error in real API verification: {str(e)}',
-            'license_info': None
-        }
 
-def extract_text_from_image(image_content):
-    """
-    Extract text from image (simplified version)
-    In production, use proper OCR like Tesseract
-    """
-    try:
-        # For demo: Return empty text to simulate real OCR
-        # This means most images will fail verification (as they should)
-        # Only specific FSSAI licenses would pass in real implementation
-        return ""
-        
-        # Uncomment below only for testing with specific FSSAI license
-        # if len(image_content) > 50000:  # If file is larger than 50KB
-        #     # Simulate finding FSSAI license text
-        #     return """REGISTRATION CERTIFICATE FOOD SAFETY AND STANDARDS AUTHORITY OF INDIA FSSAI 
-        #     REGISTRATION NO 22119005000732 GOVERNMENT OF WEST BENGAL DEPARTMENT OF HEALTH FAMILY WELFARE 
-        #     FOOD BUSINESS SUJOY ENTERPRISE ADDRESS ATTENTION BUILDING MANGOURTREE COMPLEX POST KHARBAMCHAK 
-        #     MALDA MUNICIPALITY PURBA MADINIPUR WEST BENGAL 721002 KIND OF BUSINESS DISTRIBUTOR TEMPORARY STALL HOLDER 
-        #     VALID FROM 13/12/2019 VALID UNTIL 12/12/2020 PERIOD OF VALIDITY 1 YEAR LICENSE NUMBER 22119005000732"""
-        # else:
-        #     # Small files are likely not proper license documents
-        #     return ""
-    except Exception as e:
-        return ""
+# Google Sign-In Handlers
+# @app.route('/api/config/google-client-id', methods=['GET'])
+# def get_google_client_id():
+#     return jsonify({'client_id': app.config['GOOGLE_CLIENT_ID']})
+#
+#
+#
+# @app.route('/api/auth/google', methods=['POST'])
+# @rate_limit(max_requests=10, window=300)
+# def google_auth():
+#     try:
+#         data = request.json
+#         token = data.get('token')
+#         if not token:
+#             return jsonify({'success': False, 'message': 'No token provided'}), 400
+#
+#         try:
+#             idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+#             email = idinfo['email']
+#             name = idinfo.get('name', '')
+#
+#         except ValueError:
+#             # Invalid token
+#             return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+#
+#         # Check if user exists as a vendor or supplier
+#         user = db.vendors.find_one({'email': email})
+#         user_type = 'vendor'
+#         if not user:
+#             user = db.suppliers.find_one({'email': email})
+#             user_type = 'supplier'
+#
+#         if user:
+#             # User exists, log them in
+#             # Note: This flow bypasses password check for Google-authenticated users
+#             jwt_token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
+#             SecurityUtils.log_security_event('GOOGLE_LOGIN_SUCCESS', user_id=str(user['_id']))
+#             return jsonify({
+#                 'success': True,
+#                 'message': 'Login successful',
+#                 'user_type': user_type,
+#                 'user_id': str(user['_id']),
+#                 'name': user.get('name'),
+#                 'token': jwt_token
+#             })
+#         else:
+#             # New user, needs to select a role
+#             SecurityUtils.log_security_event('GOOGLE_SIGNUP_INITIATED', details=f'Email: {email}')
+#             return jsonify({
+#                 'success': True, # Important: Use success=True to indicate a valid Google login, but action is needed
+#                 'action': 'select_role',
+#                 'message': 'New user. Please select a role to complete registration.',
+#                 'email': email,
+#                 'name': name,
+#                 'google_token': token # Pass the token back to be used in the next step
+#             })
+#
+#     except Exception as e:
+#         logger.error(f"Google auth error: {str(e)}")
+#         SecurityUtils.log_security_event('GOOGLE_AUTH_ERROR', details=str(e))
+#         return jsonify({'success': False, 'message': 'Internal server error'}), 500
+#
+# @app.route('/api/auth/google/complete', methods=['POST'])
+# @rate_limit(max_requests=5, window=300)
+# def google_auth_complete():
+#     try:
+#         data = request.json
+#         token = data.get('token')
+#         role = data.get('role')
+#
+#         if not token or not role:
+#             return jsonify({'success': False, 'message': 'Token and role are required'}), 400
+#
+#         if role not in ['vendor', 'supplier']:
+#             return jsonify({'success': False, 'message': 'Invalid role specified'}), 400
+#
+#         try:
+#             # Verify the token again for security
+#             idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+#             email = idinfo['email']
+#             name = idinfo.get('name', '')
+#         except ValueError:
+#             return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+#
+#         # Double-check that user doesn't exist to prevent race conditions
+#         if db.vendors.find_one({'email': email}) or db.suppliers.find_one({'email': email}):
+#              return jsonify({'success': False, 'message': 'User already exists.'}), 409
+#
+#         # Create new user in the correct collection
+#         collection = db.vendors if role == 'vendor' else db.suppliers
+#         user_data = {
+#             'email': email,
+#             'name': name,
+#             'created_at': datetime.utcnow(),
+#             'status': 'active',
+#             'auth_method': 'google' # To indicate the user was created via Google
+#         }
+#         result = collection.insert_one(user_data)
+#         user_id = result.inserted_id
+#
+#         # Log them in by generating a JWT
+#         jwt_token = SecurityUtils.generate_jwt_token(str(user_id), role)
+#         SecurityUtils.log_security_event('GOOGLE_SIGNUP_SUCCESS', user_id=str(user_id), details=f'Role: {role}')
+#
+#         return jsonify({
+#             'success': True,
+#             'message': 'Registration complete. Login successful.',
+#             'user_type': role,
+#             'user_id': str(user_id),
+#             'name': name,
+#             'token': jwt_token
+#         })
+#
+#     except Exception as e:
+#         logger.error(f"Google auth completion error: {str(e)}")
+#         SecurityUtils.log_security_event('GOOGLE_AUTH_COMPLETE_ERROR', details=str(e))
+#         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
-def extract_text_from_pdf(pdf_content):
-    """
-    Extract text from PDF (simplified version)
-    In production, use proper PDF text extraction
-    """
-    try:
-        # For demo: Simulate PDF text extraction based on file characteristics
-        # In production, you'd use:
-        # import PyPDF2 or pdfplumber
-        
-        # For now, return empty text to simulate real PDF extraction
-        # This means most PDFs will fail verification (as they should)
-        # Only specific FSSAI license PDFs would pass in real implementation
-        return ""
-        
-        # Uncomment below only for testing with specific FSSAI license
-        # if len(pdf_content) > 100000:  # If PDF is larger than 100KB
-        #     # Simulate finding FSSAI license text in PDF
-        #     return """REGISTRATION CERTIFICATE FOOD SAFETY AND STANDARDS AUTHORITY OF INDIA FSSAI 
-        #     REGISTRATION NO 22119005000732 GOVERNMENT OF WEST BENGAL DEPARTMENT OF HEALTH FAMILY WELFARE 
-        #     FOOD BUSINESS SUJOY ENTERPRISE ADDRESS ATTENTION BUILDING MANGOURTREE COMPLEX POST KHARBAMCHAK 
-        #     MALDA MUNICIPALITY PURBA MADINIPUR WEST BENGAL 721002 KIND OF BUSINESS DISTRIBUTOR TEMPORARY STALL HOLDER 
-        #     VALID FROM 13/12/2019 VALID UNTIL 12/12/2020 PERIOD OF VALIDITY 1 YEAR LICENSE NUMBER 22119005000732"""
-        # else:
-        #     # Small PDFs are likely not proper license documents
-        #     return ""
-    except Exception as e:
-        return ""
-
-# License upload and verification API
-@app.route('/api/license/verify-number', methods=['POST'])
-def verify_license_by_number():
-    """Verify FSSAI license by license number"""
-    try:
-        data = request.json
-        license_number = data.get('license_number')
-        supplier_id = data.get('supplier_id')
-        
-        if not license_number or not supplier_id:
-            return jsonify({'success': False, 'message': 'License number and supplier ID required'}), 400
-        
-        # Validate license number format (14 digits)
-        if not license_number.isdigit() or len(license_number) != 14:
-            return jsonify({'success': False, 'message': 'Invalid license number format. Must be 14 digits.'}), 400
-        
-        # Verify license number
-        verification_result = verify_license_number(license_number)
-        
-        if verification_result.get('is_valid', False):
-            # Save verification to database
-            license_data = {
-                'supplier_id': supplier_id,
-                'license_number': license_number,
-                'verification_method': 'license_number',
-                'verification_result': verification_result,
-                'verification_date': datetime.now(),
-                'status': 'verified'
-            }
-            
-            # Save to database
-            result = db['licenses'].insert_one(license_data)
-            license_data['_id'] = str(result.inserted_id)
-            
-            # Update supplier verification status
-            db['suppliers'].update_one(
-                {'_id': ObjectId(supplier_id)},
-                {
-                    '$set': {
-                        'license_verification_status': 'verified',
-                        'license_verification_date': datetime.now(),
-                        'license_id': str(result.inserted_id),
-                        'license_number': license_number
-                    }
-                }
-            )
-            
-            return jsonify({
-                'success': True,
-                'message': 'License verified successfully!',
-                'verification_result': verification_result,
-                'license_data': license_data
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'message': verification_result['message']
-            }), 400
-            
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/license/upload', methods=['POST'])
-def upload_license():
-    """Upload and automatically verify food license"""
-    try:
-        if 'license_file' not in request.files:
-            return jsonify({'success': False, 'message': 'No file uploaded'}), 400
-        
-        file = request.files['license_file']
-        supplier_id = request.form.get('supplier_id')
-        
-        if not file or not supplier_id:
-            return jsonify({'success': False, 'message': 'File and supplier ID required'}), 400
-        
-        # Validate file type
-        allowed_types = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
-        if file.content_type not in allowed_types:
-            return jsonify({'success': False, 'message': 'Invalid file type'}), 400
-        
-        # Validate file size (5MB)
-        file.seek(0, 2)  # Seek to end
-        file_size = file.tell()
-        file.seek(0)  # Reset to beginning
-        
-        if file_size > 5 * 1024 * 1024:  # 5MB
-            return jsonify({'success': False, 'message': 'File too large'}), 400
-        
-        # Read file content
-        file_content = file.read()
-        
-        # For manual admin verification workflow, always set status to pending
-        # Admin will manually verify the license
-        verification_result = {
-            'is_valid': 'manual_review',
-            'message': 'License uploaded successfully. Awaiting admin verification.',
-            'extracted_data': {
-                'business_name': 'To be verified by admin',
-                'address': 'To be verified by admin',
-                'license_number': 'To be verified by admin'
-            }
-        }
-        
-        # Save license document to database with pending status
-        license_data = {
-            'supplier_id': supplier_id,
-            'file_name': file.filename,
-            'file_type': file.content_type,
-            'file_size': file_size,
-            'upload_date': datetime.now(),
-            'verification_result': verification_result,
-            'status': 'pending',  # Always pending for admin verification
-            'file_content': base64.b64encode(file_content).decode('utf-8'),  # Store file content for admin review
-            'admin_verification_required': True
-        }
-        
-        # Save to database
-        result = db['licenses'].insert_one(license_data)
-        license_data['_id'] = str(result.inserted_id)
-        
-        # Update supplier verification status
-        db['suppliers'].update_one(
-            {'_id': ObjectId(supplier_id)},
-            {
-                '$set': {
-                    'license_verification_status': license_data['status'],
-                    'license_verification_date': datetime.now(),
-                    'license_id': str(result.inserted_id)
-                }
-            }
-        )
-        
-        return jsonify({
-            'success': True,
-            'message': 'License uploaded successfully! Admin will review and verify your license shortly.',
-            'verification_result': verification_result,
-            'license_data': license_data,
-            'next_step': 'Admin verification required'
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/license/status/<supplier_id>', methods=['GET'])
-def get_license_status(supplier_id):
-    """Get license verification status for a supplier"""
-    try:
-        supplier = db['suppliers'].find_one({'_id': ObjectId(supplier_id)})
-        
-        if not supplier:
-            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
-        
-        status = supplier.get('license_verification_status', 'not_verified')
-        verification_date = supplier.get('license_verification_date')
-        license_id = supplier.get('license_id')
-        
-        # Get detailed verification result if available
-        verification_details = None
-        if license_id:
-            license_doc = db['licenses'].find_one({'_id': ObjectId(license_id)})
-            if license_doc:
-                verification_details = license_doc.get('verification_result')
-        
-        return jsonify({
-            'success': True,
-            'status': status,
-            'verification_date': verification_date.isoformat() if verification_date else None,
-            'verification_details': verification_details
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# Admin API to get all pending licenses
-@app.route('/api/admin/licenses/pending', methods=['GET'])
-def get_pending_licenses():
-    """Get all pending licenses for admin review"""
-    try:
-        # Get all licenses with pending status
-        pending_licenses = list(db['licenses'].find({'status': 'pending'}))
-        
-        # Get supplier information for each license
-        for license_doc in pending_licenses:
-            if 'supplier_id' in license_doc:
-                supplier = db['suppliers'].find_one({'_id': ObjectId(license_doc['supplier_id'])})
-                if supplier:
-                    license_doc['supplier_name'] = supplier.get('business_name', supplier.get('name', 'Unknown'))
-                    license_doc['supplier_email'] = supplier.get('email', 'Unknown')
-                else:
-                    license_doc['supplier_name'] = 'Unknown'
-                    license_doc['supplier_email'] = 'Unknown'
-            
-            # Convert ObjectId to string for JSON serialization
-            license_doc['_id'] = str(license_doc['_id'])
-            if 'supplier_id' in license_doc:
-                license_doc['supplier_id'] = str(license_doc['supplier_id'])
-            
-            # Remove file content from list view (too large for JSON)
-            if 'file_content' in license_doc:
-                del license_doc['file_content']
-        
-        return jsonify({
-            'success': True,
-            'licenses': pending_licenses
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# Admin API to get license file content for review
-@app.route('/api/admin/license/file/<license_id>', methods=['GET'])
-def get_license_file(license_id):
-    """Get license file content for admin review"""
-    try:
-        license_doc = db['licenses'].find_one({'_id': ObjectId(license_id)})
-        
-        if not license_doc:
-            return jsonify({'success': False, 'message': 'License not found'}), 404
-        
-        # Get supplier information
-        supplier = None
-        if 'supplier_id' in license_doc:
-            supplier = db['suppliers'].find_one({'_id': ObjectId(license_doc['supplier_id'])})
-        
-        response_data = {
-            'success': True,
-            'license_id': str(license_doc['_id']),
-            'file_name': license_doc.get('file_name', 'Unknown'),
-            'file_type': license_doc.get('file_type', 'Unknown'),
-            'file_size': license_doc.get('file_size', 0),
-            'upload_date': license_doc.get('upload_date'),
-            'supplier_name': supplier.get('business_name', supplier.get('name', 'Unknown')) if supplier else 'Unknown',
-            'supplier_email': supplier.get('email', 'Unknown') if supplier else 'Unknown',
-            'file_content': license_doc.get('file_content'),  # Base64 encoded file content
-            'verification_result': license_doc.get('verification_result', {})
-        }
-        
-        return jsonify(response_data)
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# Admin API to get license statistics
-@app.route('/api/admin/licenses/stats', methods=['GET'])
-def get_license_stats():
-    """Get license verification statistics for admin dashboard"""
-    try:
-        from datetime import datetime, timedelta
-        
-        # Get today's date
-        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        
-        # Count licenses by status
-        pending_count = db['licenses'].count_documents({'status': 'pending'})
-        verified_count = db['licenses'].count_documents({'status': 'verified'})
-        rejected_count = db['licenses'].count_documents({'status': 'rejected'})
-        
-        # Count today's verifications
-        verified_today = db['licenses'].count_documents({
-            'status': 'verified',
-            'admin_verification_date': {'$gte': today}
-        })
-        
-        rejected_today = db['licenses'].count_documents({
-            'status': 'rejected',
-            'admin_verification_date': {'$gte': today}
-        })
-        
-        # Get recent activity (last 10 verifications)
-        recent_activity = list(db['licenses'].find({
-            'admin_verification_date': {'$exists': True}
-        }).sort('admin_verification_date', -1).limit(10))
-        
-        # Add supplier names to recent activity
-        for activity in recent_activity:
-            if 'supplier_id' in activity:
-                supplier = db['suppliers'].find_one({'_id': ObjectId(activity['supplier_id'])})
-                if supplier:
-                    activity['supplier_name'] = supplier.get('business_name', supplier.get('name', 'Unknown'))
-                else:
-                    activity['supplier_name'] = 'Unknown'
-            
-            # Convert ObjectId to string
-            activity['_id'] = str(activity['_id'])
-            if 'supplier_id' in activity:
-                activity['supplier_id'] = str(activity['supplier_id'])
-        
-        return jsonify({
-            'success': True,
-            'stats': {
-                'pending': pending_count,
-                'verified_total': verified_count,
-                'rejected_total': rejected_count,
-                'verified_today': verified_today,
-                'rejected_today': rejected_today,
-                'recent_activity': recent_activity
-            }
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# Admin API for manual verification (for cases where auto-verification is uncertain)
-@app.route('/api/admin/license/verify/<license_id>', methods=['POST'])
-def admin_verify_license(license_id):
-    """Admin manual verification of license"""
-    try:
-        data = request.json
-        action = data.get('action')  # 'approve' or 'reject'
-        admin_notes = data.get('notes', '')
-        license_number = data.get('license_number', '')
-        business_name = data.get('business_name', '')
-        address = data.get('address', '')
-        
-        if action not in ['approve', 'reject']:
-            return jsonify({'success': False, 'message': 'Invalid action'}), 400
-        
-        # Update license status and details
-        new_status = 'verified' if action == 'approve' else 'rejected'
-        update_data = {
-            'status': new_status,
-            'admin_verification_date': datetime.now(),
-            'admin_notes': admin_notes
-        }
-        
-        # Add extracted details if provided
-        if license_number:
-            update_data['license_number'] = license_number
-        if business_name:
-            update_data['business_name'] = business_name
-        if address:
-            update_data['address'] = address
-        
-        # Update verification result
-        update_data['verification_result'] = {
-            'is_valid': action == 'approve',
-            'message': f'License {action}d by admin',
-            'extracted_data': {
-                'business_name': business_name or 'Verified by admin',
-                'address': address or 'Verified by admin',
-                'license_number': license_number or 'Verified by admin'
-            }
-        }
-        
-        db['licenses'].update_one(
-            {'_id': ObjectId(license_id)},
-            {'$set': update_data}
-        )
-        
-        # Get license to update supplier status
-        license_doc = db['licenses'].find_one({'_id': ObjectId(license_id)})
-        if license_doc:
-            supplier_update = {
-                'license_verification_status': new_status,
-                'license_verification_date': datetime.now()
-            }
-            
-            # Add license details to supplier if approved
-            if action == 'approve':
-                if license_number:
-                    supplier_update['license_number'] = license_number
-                if business_name:
-                    supplier_update['business_name'] = business_name
-            
-            db['suppliers'].update_one(
-                {'_id': ObjectId(license_doc['supplier_id'])},
-                {'$set': supplier_update}
-            )
-        
-        return jsonify({
-            'success': True,
-            'message': f'License {action}d successfully!'
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# Order Management APIs
-@app.route('/api/orders', methods=['POST'])
-def create_order():
-    try:
-        data = request.json
-        
-        # Generate unique order ID
-        order_id = f"ORD-{datetime.now().strftime('%Y%m%d')}-{str(ObjectId())[-6:].upper()}"
-        
-        order_data = {
-            'order_id': order_id,
-            'customer_info': data['customerInfo'],
-            'shipping_address': data['shippingAddress'],
-            'shipping_method': data['shippingMethod'],
-            'delivery_instructions': data.get('deliveryInstructions', ''),
-            'payment_method': data['paymentMethod'],
-            'items': data['items'],
-            'subtotal': data['subtotal'],
-            'shipping_cost': data['shippingCost'],
-            'tax_amount': data['taxAmount'],
-            'total_amount': data['totalAmount'],
-            'order_date': datetime.now(),
-            'status': 'pending',
-            'vendor_id': data.get('vendor_id'),  # Will be set from session
-            'supplier_orders': []  # Will contain individual supplier orders
-        }
-        
-        # Group items by supplier and create supplier orders
-        supplier_items = {}
-        for item in data['items']:
-            supplier_name = item['supplierName']
-            if supplier_name not in supplier_items:
-                supplier_items[supplier_name] = []
-            supplier_items[supplier_name].append(item)
-        
-        # Get supplier IDs for each supplier name
-        supplier_orders = []
-        for supplier_name, items in supplier_items.items():
-            # Find supplier by name
-            supplier = db['suppliers'].find_one({'business_name': supplier_name})
-            if not supplier:
-                supplier = db['suppliers'].find_one({'name': supplier_name})
-            
-            # Get logistic charges for this supplier's items (if present)
-            logistic_charges = 0.0
-            for item in items:
-                logistic_charges += float(item.get('supplier_logistic_charges', 0))
-            
-            supplier_order = {
-                'supplier_name': supplier_name,
-                'supplier_id': str(supplier['_id']) if supplier else None,
-                'items': items,
-                'subtotal': sum(item['price'] * item['quantity'] for item in items),
-                'supplier_logistic_charges': logistic_charges,
-                'status': 'pending',
-                'order_date': datetime.now()
-            }
-            supplier_orders.append(supplier_order)
-        
-        order_data['supplier_orders'] = supplier_orders
-        
-        # Insert order into database
-        result = db['orders'].insert_one(order_data)
-        
-        return jsonify({
-            'success': True,
-            'message': 'Order created successfully',
-            'order_id': order_id,
-            'order_mongo_id': str(result.inserted_id)
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/orders', methods=['GET'])
-def get_orders():
-    try:
-        user_type = request.args.get('user_type')
-        user_id = request.args.get('user_id')
-        
-        # Debug: List all orders if no user_type/user_id provided
-        if not user_type or not user_id:
-            print("Debug: Listing all orders")
-            all_orders = list(db['orders'].find({}))
-            print(f"Total orders in database: {len(all_orders)}")
-            
-            # Convert ObjectId to string for JSON serialization
-            for order in all_orders:
-                order['_id'] = str(order['_id'])
-                if 'order_date' in order:
-                    order['order_date'] = order['order_date'].isoformat()
-            
-            for order in all_orders:
-                print(f"Order: {order.get('order_id')} - Status: {order.get('status')}")
-                if 'supplier_orders' in order:
-                    for so in order['supplier_orders']:
-                        print(f"  Supplier: {so.get('supplier_name')}")
-            
-            return jsonify({
-                'success': True, 
-                'message': 'All orders listed for debugging',
-                'orders': all_orders
-            })
-        
-        if user_type == 'vendor':
-            # Get orders for vendor with supplier_orders included
-            orders = list(db['orders'].find({'vendor_id': user_id}).sort('order_date', -1))
-            
-            # Ensure supplier_orders are included for vendor view
-            for order in orders:
-                if 'supplier_orders' not in order:
-                    order['supplier_orders'] = []
-        elif user_type == 'supplier':
-            # Get orders for supplier (filter by supplier ID or name)
-            # Try to find supplier by ObjectId first, then by string ID
-            supplier = None
-            try:
-                supplier = db['suppliers'].find_one({'_id': ObjectId(user_id)})
-            except:
-                # If ObjectId conversion fails, try to find by string ID
-                supplier = db['suppliers'].find_one({'user_id': user_id})
-            
-            if supplier:
-                # Supplier found in suppliers collection
-                supplier_name = supplier.get('business_name', supplier.get('name', ''))
-                supplier_id = str(supplier['_id'])
-                
-                # Find orders where this supplier is involved
-                query = {
-                    '$or': [
-                        {'supplier_orders.supplier_name': supplier_name},
-                        {'supplier_orders.supplier_id': supplier_id}
-                    ]
-                }
-            else:
-                # For test suppliers, use the user_id directly
-                # Map test supplier IDs to their names
-                supplier_names = {
-                    'supplier123': 'Fresh Foods Ltd',
-                    'supplier456': 'Veggie Paradise', 
-                    'supplier789': 'ND Hotel'
-                }
-                
-                supplier_name = supplier_names.get(user_id, user_id)
-                supplier_id = user_id
-                
-                # Find orders where this supplier is involved
-                query = {
-                    '$or': [
-                        {'supplier_orders.supplier_name': supplier_name},
-                        {'supplier_orders.supplier_id': supplier_id}
-                    ]
-                }
-            
-            orders = list(db['orders'].find(query).sort('order_date', -1))
-        else:
-            return jsonify({'success': False, 'message': 'Invalid user type'}), 400
-        
-        # Convert ObjectId to string for JSON serialization
-        for order in orders:
-            order['_id'] = str(order['_id'])
-            order['order_date'] = order['order_date'].isoformat()
-        
-        return jsonify({
-            'success': True,
-            'orders': orders
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/orders/<order_id>', methods=['GET'])
-def get_order(order_id):
-    try:
-        order = db['orders'].find_one({'order_id': order_id})
-        if not order:
-            return jsonify({'success': False, 'message': 'Order not found'}), 404
-        
-        order['_id'] = str(order['_id'])
-        order['order_date'] = order['order_date'].isoformat()
-        
-        return jsonify({
-            'success': True,
-            'order': order
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/orders/<order_id>/status', methods=['PUT'])
-def update_order_status(order_id):
-    try:
-        data = request.json
-        new_status = data.get('status')
-        supplier_name = data.get('supplier_name')  # For supplier-specific updates
-        supplier_id = data.get('supplier_id')  # For supplier-specific updates
-        rejection_reason = data.get('rejection_reason', '')
-        acceptance_notes = data.get('acceptance_notes', '')
-        
-        if not new_status:
-            return jsonify({'success': False, 'message': 'Status required'}), 400
-        
-        update_data = {}
-        timestamp = datetime.now()
-        
-        if supplier_name or supplier_id:
-            # Update specific supplier order status
-            update_data['supplier_orders.$.status'] = new_status
-            update_data['supplier_orders.$.last_updated'] = timestamp
-            
-            # Add status history
-            status_update = {
-                'status': new_status,
-                'timestamp': timestamp,
-                'updated_by': 'supplier',
-                'notes': acceptance_notes if new_status == 'accepted' else rejection_reason
-            }
-            update_data['supplier_orders.$.status_history'] = status_update
-            
-            # Add rejection reason if status is rejected
-            if new_status == 'rejected':
-                update_data['supplier_orders.$.rejection_reason'] = rejection_reason
-            elif new_status == 'accepted':
-                update_data['supplier_orders.$.acceptance_notes'] = acceptance_notes
-                update_data['supplier_orders.$.accepted_at'] = timestamp
-            
-            # Build query based on available identifiers
-            query = {'order_id': order_id}
-            if supplier_id:
-                query['supplier_orders.supplier_id'] = supplier_id
-            elif supplier_name:
-                query['supplier_orders.supplier_name'] = supplier_name
-                
-            result = db['orders'].update_one(query, {'$set': update_data})
-            
-            # If accepted, check if all suppliers have accepted to update main order status
-            if new_status == 'accepted':
-                order = db['orders'].find_one({'order_id': order_id})
-                if order and 'supplier_orders' in order:
-                    all_accepted = all(so.get('status') == 'accepted' for so in order['supplier_orders'])
-                    if all_accepted:
-                        db['orders'].update_one(
-                            {'order_id': order_id},
-                            {
-                                '$set': {
-                                    'status': 'confirmed',
-                                    'confirmed_at': timestamp
-                                }
-                            }
-                        )
-        else:
-            # Update main order status
-            update_data['status'] = new_status
-            update_data['last_updated'] = timestamp
-            
-            result = db['orders'].update_one(
-                {'order_id': order_id},
-                {'$set': update_data}
-            )
-        
-        if result.modified_count == 0:
-            return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
-        
-        return jsonify({
-            'success': True,
-            'message': 'Order status updated successfully'
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/orders/<order_id>/accept', methods=['POST'])
-def accept_order(order_id):
-    """Supplier accepts an order - Optimized for performance"""
-    try:
-        print(f"Accept order request for order_id: {order_id}")
-        data = request.json
-        print(f"Request data: {data}")
-        
-        supplier_id = data.get('supplier_id')
-        supplier_name = data.get('supplier_name')
-        acceptance_notes = data.get('acceptance_notes', '')
-        estimated_delivery = data.get('estimated_delivery')
-        
-        if not supplier_id and not supplier_name:
-            return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
-        
-        timestamp = datetime.now()
-        
-        # Build query for single update operation
-        query = {'order_id': order_id}
-        if supplier_id:
-            query['supplier_orders.supplier_id'] = supplier_id
-        elif supplier_name:
-            query['supplier_orders.supplier_name'] = supplier_name
-        
-        # Optimized update with minimal fields
-        update_data = {
-            'supplier_orders.$.status': 'accepted',
-            'supplier_orders.$.accepted_at': timestamp,
-            'supplier_orders.$.acceptance_notes': acceptance_notes,
-            'supplier_orders.$.estimated_delivery': estimated_delivery,
-            'supplier_orders.$.last_updated': timestamp
-        }
-        
-        # Single database operation
-        result = db['orders'].update_one(query, {'$set': update_data})
-        
-        if result.modified_count == 0:
-            return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
-        
-        # Check if all suppliers have accepted to update main order status
-        order = db['orders'].find_one({'order_id': order_id})
-        if order and 'supplier_orders' in order:
-            all_accepted = all(so.get('status') == 'accepted' for so in order['supplier_orders'])
-            if all_accepted:
-                db['orders'].update_one(
-                    {'order_id': order_id},
-                    {
-                        '$set': {
-                            'status': 'confirmed',
-                            'confirmed_at': timestamp
-                        }
-                    }
-                )
-                print(f"Order {order_id} confirmed - all suppliers accepted")
-        
-        # Update stock quantities after order acceptance
-        stock_update_result = update_supplier_stock_on_order_accept(order_id, supplier_name)
-        
-        print(f"Order accepted successfully: {order_id}")
-        print(f"Stock update result: {stock_update_result}")
-        
-        return jsonify({
-            'success': True,
-            'message': 'Order accepted successfully',
-            'stock_updated': stock_update_result['success'],
-            'stock_message': stock_update_result['message']
-        })
-        
-    except Exception as e:
-        print(f"Error accepting order: {str(e)}")
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-def update_supplier_stock_on_order_accept(order_id, supplier_name):
-    """Update supplier stock quantities when order is accepted"""
-    try:
-        print(f"Updating stock for order {order_id}, supplier {supplier_name}")
-        
-        # Get the order details
-        order = db['orders'].find_one({'order_id': order_id})
-        if not order:
-            return {'success': False, 'message': 'Order not found'}
-        
-        # Find supplier-specific items in the order
-        supplier_order = None
-        for so in order.get('supplier_orders', []):
-            if so.get('supplier_name') == supplier_name:
-                supplier_order = so
-                break
-        
-        if not supplier_order:
-            return {'success': False, 'message': f'No items found for supplier {supplier_name}'}
-        
-        # Update stock for each item
-        updated_items = []
-        failed_items = []
-        
-        for item in supplier_order.get('items', []):
-            product_name = item.get('name')
-            ordered_quantity = item.get('quantity', 0)
-            
-            print(f"Processing item: {product_name}, quantity: {ordered_quantity}")
-            
-            # Find the stock item for this supplier and product
-            # First try to get supplier name from supplier_id
-            supplier_info = db['suppliers'].find_one({'business_name': supplier_name})
-            supplier_id = None
-            if supplier_info:
-                supplier_id = str(supplier_info['_id'])
-            
-            stock_query = {
-                'product_name': product_name
-            }
-            
-            # Add supplier filter if we have supplier_id
-            if supplier_id:
-                stock_query['supplier_id'] = supplier_id
-            
-            stock_item = db['stocks'].find_one(stock_query)
-            
-            if stock_item:
-                current_stock = stock_item.get('quantity_available', 0)
-                new_stock = current_stock - ordered_quantity
-                
-                if new_stock >= 0:
-                    # Update stock quantity
-                    result = db['stocks'].update_one(
-                        {'_id': stock_item['_id']},
-                        {
-                            '$set': {
-                                'quantity_available': new_stock,
-                                'updated_at': datetime.now()
-                            },
-                            '$push': {
-                                'stock_history': {
-                                    'action': 'order_accepted',
-                                    'quantity_change': -ordered_quantity,
-                                    'previous_stock': current_stock,
-                                    'new_stock': new_stock,
-                                    'order_id': order_id,
-                                    'timestamp': datetime.now()
-                                }
-                            }
-                        }
-                    )
-                    
-                    if result.modified_count > 0:
-                        updated_items.append({
-                            'product': product_name,
-                            'previous_stock': current_stock,
-                            'new_stock': new_stock,
-                            'ordered_quantity': ordered_quantity
-                        })
-                        print(f"Stock updated for {product_name}: {current_stock} -> {new_stock}")
-                    else:
-                        failed_items.append(f"Failed to update stock for {product_name}")
-                else:
-                    failed_items.append(f"Insufficient stock for {product_name} (current: {current_stock}, ordered: {ordered_quantity})")
-            else:
-                failed_items.append(f"Stock item not found for {product_name}")
-        
-        # Prepare response
-        if updated_items and not failed_items:
-            return {
-                'success': True,
-                'message': f'Stock updated successfully for {len(updated_items)} items',
-                'updated_items': updated_items
-            }
-        elif updated_items and failed_items:
-            return {
-                'success': True,
-                'message': f'Stock updated for {len(updated_items)} items, {len(failed_items)} failed',
-                'updated_items': updated_items,
-                'failed_items': failed_items
-            }
-        else:
-            return {
-                'success': False,
-                'message': f'Failed to update stock: {", ".join(failed_items)}'
-            }
-            
-    except Exception as e:
-        print(f"Error updating stock: {str(e)}")
-        return {'success': False, 'message': f'Error updating stock: {str(e)}'}
-
-@app.route('/api/orders/<order_id>/reject', methods=['POST'])
-def reject_order(order_id):
-    """Supplier rejects an order"""
-    try:
-        data = request.json
-        supplier_id = data.get('supplier_id')
-        supplier_name = data.get('supplier_name')
-        rejection_reason = data.get('rejection_reason', '')
-        
-        if not supplier_id and not supplier_name:
-            return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
-        
-        if not rejection_reason:
-            return jsonify({'success': False, 'message': 'Rejection reason required'}), 400
-        
-        timestamp = datetime.now()
-        update_data = {
-            'supplier_orders.$.status': 'rejected',
-            'supplier_orders.$.rejected_at': timestamp,
-            'supplier_orders.$.rejection_reason': rejection_reason,
-            'supplier_orders.$.last_updated': timestamp
-        }
-        
-        # Add status history
-        status_update = {
-            'status': 'rejected',
-            'timestamp': timestamp,
-            'updated_by': 'supplier',
-            'notes': rejection_reason
-        }
-        update_data['supplier_orders.$.status_history'] = status_update
-        
-        # Build query
-        query = {'order_id': order_id}
-        if supplier_id:
-            query['supplier_orders.supplier_id'] = supplier_id
-        elif supplier_name:
-            query['supplier_orders.supplier_name'] = supplier_name
-        
-        result = db['orders'].update_one(query, {'$set': update_data})
-        
-        if result.modified_count == 0:
-            return jsonify({'success': False, 'message': 'Order not found or no changes made'}), 404
-        
-        return jsonify({
-            'success': True,
-            'message': 'Order rejected successfully'
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/orders/<order_id>/supplier-status', methods=['GET'])
-def get_supplier_order_status(order_id):
-    """Get detailed status for a specific supplier's order"""
-    try:
-        data = request.args
-        supplier_id = data.get('supplier_id')
-        supplier_name = data.get('supplier_name')
-        
-        if not supplier_id and not supplier_name:
-            return jsonify({'success': False, 'message': 'Supplier ID or name required'}), 400
-        
-        order = db['orders'].find_one({'order_id': order_id})
-        if not order:
-            return jsonify({'success': False, 'message': 'Order not found'}), 404
-        
-        # Find supplier-specific order
-        supplier_order = None
-        if 'supplier_orders' in order:
-            for so in order['supplier_orders']:
-                if (supplier_id and so.get('supplier_id') == supplier_id) or \
-                   (supplier_name and so.get('supplier_name') == supplier_name):
-                    supplier_order = so
-                    break
-        
-        if not supplier_order:
-            return jsonify({'success': False, 'message': 'Supplier order not found'}), 404
-        
-        return jsonify({
-            'success': True,
-            'supplier_order': supplier_order,
-            'main_order': {
-                'order_id': order['order_id'],
-                'status': order['status'],
-                'customer_info': order['customer_info'],
-                'total_amount': order['total_amount']
-            }
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/orders/<order_id>/delivery', methods=['PUT'])
-def update_delivery_info(order_id):
-    """Update delivery information for an order"""
-    try:
-        data = request.json
-        supplier_name = data.get('supplier_name')
-        tracking_number = data.get('tracking_number')
-        estimated_delivery = data.get('estimated_delivery')
-        delivery_notes = data.get('delivery_notes')
-        
-        if not supplier_name:
-            return jsonify({'success': False, 'message': 'Supplier name required'}), 400
-        
-        # Update the order with delivery information
-        update_data = {}
-        if tracking_number:
-            update_data['supplier_orders.$.tracking_number'] = tracking_number
-        if estimated_delivery:
-            update_data['supplier_orders.$.estimated_delivery'] = estimated_delivery
-        if delivery_notes:
-            update_data['supplier_orders.$.delivery_notes'] = delivery_notes
-        
-        if update_data:
-            update_data['supplier_orders.$.last_updated'] = datetime.now()
-            
-            result = db['orders'].update_one(
-                {
-                    'order_id': order_id,
-                    'supplier_orders.supplier_name': supplier_name
-                },
-                {'$set': update_data}
-            )
-            
-            if result.modified_count > 0:
-                return jsonify({
-                    'success': True,
-                    'message': 'Delivery information updated successfully'
-                })
-            else:
-                return jsonify({
-                    'success': False,
-                    'message': 'Order or supplier not found'
-                }), 404
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'No delivery information provided'
-            }), 400
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/orders/<order_id>/bill', methods=['GET'])
-def download_bill(order_id):
-    try:
-        order = db['orders'].find_one({'order_id': order_id})
-        if not order:
-            return jsonify({'success': False, 'message': 'Order not found'}), 404
-        
-        # Generate bill HTML
-        bill_html = generate_bill_html(order)
-        
-        return jsonify({
-            'success': True,
-            'bill_html': bill_html
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-def generate_bill_html(order):
-    """Generate HTML for the bill/invoice with modern design and supplier details"""
-    
-    # Get supplier details from the first supplier order
-    supplier_name = "OverXchange"
-    supplier_address = "Digital Marketplace"
-    supplier_email = "support@overxchange.com"
-    
-    if 'supplier_orders' in order and order['supplier_orders']:
-        # Get the first supplier's details
-        first_supplier = order['supplier_orders'][0]
-        supplier_name = first_supplier.get('supplier_name', 'OverXchange')
-        
-        # Try to get supplier details from database
-        try:
-            supplier = db['suppliers'].find_one({'_id': ObjectId(first_supplier.get('supplier_id'))})
-            if supplier:
-                supplier_name = supplier.get('business_name', supplier.get('name', supplier_name))
-                supplier_address = supplier.get('address', 'Digital Marketplace')
-                supplier_email = supplier.get('email', 'support@overxchange.com')
-        except:
-            pass
-    
-    items_html = ''
-    for item in order['items']:
-        # Try to get product details from database
-        product_details = ""
-        try:
-            product = db['products'].find_one({'name': item['name']})
-            if product:
-                category = product.get('category', '')
-                description = product.get('description', '')
-                brand = product.get('brand', '')
-                if category or description or brand:
-                    product_details = f"<br><small style='color: #666; font-size: 12px;'>"
-                    if category:
-                        product_details += f"<i class='fas fa-tag'></i> {category} "
-                    if brand:
-                        product_details += f"<i class='fas fa-copyright'></i> {brand} "
-                    if description:
-                        product_details += f"<i class='fas fa-info-circle'></i> {description[:50]}..."
-                    product_details += "</small>"
-        except:
-            pass
-        
-        items_html += f'''
-        <tr>
-            <td>
-                <i class="fas fa-box"></i> {item['name']}
-                {product_details}
-            </td>
-            <td>{item['quantity']} {item['unit']}</td>
-            <td>₹{item['price']}</td>
-            <td>₹{(item['price'] * item['quantity']):.2f}</td>
-        </tr>
-        '''
-    
-    bill_html = f'''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Invoice - {order['order_id']}</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-        <style>
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                margin: 0;
-                padding: 40px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: #333;
-                min-height: 100vh;
-            }}
-            
-            .container {{
-                max-width: 900px;
-                margin: 0 auto;
-                background: white;
-                padding: 40px;
-                border-radius: 15px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                position: relative;
-                overflow: hidden;
-            }}
-            
-            .container::before {{
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 5px;
-                background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-            }}
-            
-            .header {{
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 3px solid #f0f0f0;
-                padding-bottom: 20px;
-                margin-bottom: 30px;
-            }}
-            
-            .logo {{
-                font-size: 28px;
-                font-weight: bold;
-                color: #667eea;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                position: relative;
-            }}
-            
-            .logo::after {{
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 0;
-                width: 50px;
-                height: 3px;
-                background: linear-gradient(90deg, #667eea, #764ba2);
-                border-radius: 2px;
-            }}
-            
-            .invoice-number {{
-                font-size: 18px;
-                font-weight: bold;
-                color: #333;
-                background: #f8f9fa;
-                padding: 15px 20px;
-                border-radius: 10px;
-                border-left: 4px solid #667eea;
-            }}
-            
-            .invoice-title {{
-                font-size: 48px;
-                font-weight: bold;
-                text-align: center;
-                margin: 30px 0 20px 0;
-                color: #667eea;
-                text-transform: uppercase;
-                letter-spacing: 3px;
-            }}
-            
-            .invoice-date {{
-                text-align: center;
-                font-size: 16px;
-                color: #666;
-                margin-bottom: 40px;
-            }}
-            
-            .parties {{
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 40px;
-                gap: 50px;
-            }}
-            
-            .billed-to, .from {{
-                flex: 1;
-                background: #f8f9fa;
-                padding: 25px;
-                border-radius: 12px;
-                border: 1px solid #e9ecef;
-            }}
-            
-            .section-title {{
-                font-weight: bold;
-                font-size: 18px;
-                margin-bottom: 15px;
-                color: #667eea;
-                border-bottom: 2px solid #667eea;
-                padding-bottom: 8px;
-                font-weight: 600;
-            }}
-            
-            .customer-name {{
-                font-weight: bold;
-                font-size: 16px;
-                margin-bottom: 10px;
-                color: #333;
-            }}
-            
-            .address {{
-                color: #555;
-                line-height: 1.6;
-                font-size: 15px;
-            }}
-            
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-                margin: 30px 0;
-                background: white;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            }}
-            
-            th {{
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                color: white;
-                padding: 18px 15px;
-                text-align: left;
-                font-weight: 600;
-                font-size: 15px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }}
-            
-            td {{
-                padding: 18px 15px;
-                border-bottom: 1px solid #f0f0f0;
-                color: #333;
-                font-size: 14px;
-            }}
-            
-            tr:hover {{
-                background: #f8f9fa;
-            }}
-            
-            .total-row {{
-                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                font-weight: bold;
-            }}
-            
-            .total-row td {{
-                padding: 18px 15px;
-                font-size: 18px;
-                color: #667eea;
-            }}
-            
-            .payment {{
-                margin-top: 30px;
-                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                padding: 25px;
-                border-radius: 12px;
-                border-top: 3px solid #667eea;
-            }}
-            
-            .payment-method {{
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 10px;
-                font-size: 16px;
-            }}
-            
-            .thank-you {{
-                text-align: center;
-                margin-top: 20px;
-                font-size: 16px;
-                color: #666;
-            }}
-            
-            .waves {{
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 120px;
-                overflow: hidden;
-                z-index: -1;
-            }}
-            
-            .wave1 {{
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 80px;
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                border-radius: 50% 50% 0 0;
-                transform: scaleX(2.5);
-                opacity: 0.1;
-            }}
-            
-            .wave2 {{
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 60px;
-                background: linear-gradient(135deg, #764ba2, #667eea);
-                border-radius: 50% 50% 0 0;
-                transform: scaleX(2);
-                opacity: 0.15;
-            }}
-            
-            @media print {{
-                body {{
-                    background: white;
-                    padding: 20px;
-                }}
-                .container {{
-                    box-shadow: none;
-                    border-radius: 0;
-                }}
-                .waves {{
-                    display: none;
-                }}
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <div class="logo">
-                    <i class="fas fa-building"></i> {supplier_name.upper()}
-                </div>
-                <div class="invoice-number">
-                    <i class="fas fa-file-invoice"></i> NO. {order['order_id']}
-                </div>
-            </div>
-            
-            <div class="invoice-title">INVOICE</div>
-            <div class="invoice-date">{order['order_date'].strftime('%d %B, %Y')}</div>
-            
-            <div class="parties">
-                <div class="billed-to">
-                    <div class="section-title"><i class="fas fa-user-tie"></i> Billed to:</div>
-                    <div class="customer-name">{order['customer_info']['firstName']} {order['customer_info']['lastName']}</div>
-                    <div class="address">
-                        <i class="fas fa-map-marker-alt"></i> {order['shipping_address']['addressLine1']}<br>
-                        {order['shipping_address']['addressLine2'] if order['shipping_address']['addressLine2'] else ''}
-                        <i class="fas fa-city"></i> {order['shipping_address']['city']}, {order['shipping_address']['state']}<br>
-                        <i class="fas fa-envelope"></i> {order['customer_info']['email']}
-                    </div>
-                </div>
-                
-                <div class="from">
-                    <div class="section-title"><i class="fas fa-user"></i> From:</div>
-                    <div class="customer-name">{supplier_name}</div>
-                    <div class="address">
-                        <i class="fas fa-store"></i> {supplier_address}<br>
-                        <i class="fas fa-map-marker-alt"></i> {order['shipping_address']['city']}, {order['shipping_address']['state']}<br>
-                        <i class="fas fa-envelope"></i> {supplier_email}
-                    </div>
-                </div>
-            </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th><i class="fas fa-box"></i> Item</th>
-                        <th><i class="fas fa-sort-numeric-up"></i> Quantity</th>
-                        <th><i class="fas fa-dollar-sign"></i> Price</th>
-                        <th><i class="fas fa-calculator"></i> Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {items_html}
-                    <tr class="total-row">
-                        <td colspan="3"><i class="fas fa-receipt"></i> Total</td>
-                        <td>₹{order['total_amount']:.2f}</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div class="payment">
-                <div class="payment-method"><i class="fas fa-credit-card"></i> Payment method: {order['payment_method'].title()}</div>
-                <div class="thank-you"><i class="fas fa-heart"></i> Thank you for choosing {supplier_name}!</div>
-            </div>
-            
-            <div class="waves">
-                <div class="wave1"></div>
-                <div class="wave2"></div>
-            </div>
-        </div>
-    </body>
-    </html>
-    '''
-    
-    return bill_html
-
-@app.route('/api/orders/delivered-stats/<supplier_id>', methods=['GET'])
-def get_delivered_orders_stats(supplier_id):
-    """Get total delivered orders and remaining orders for a supplier"""
-    try:
-        # Find supplier info
-        supplier_info = db['suppliers'].find_one({'_id': ObjectId(supplier_id)})
-        if not supplier_info:
-            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
-        
-        supplier_name = supplier_info.get('business_name', supplier_info.get('name', ''))
-        
-        # Get all orders for this supplier
-        all_orders_query = {
-            '$or': [
-                {'supplier_orders.supplier_name': supplier_name},
-                {'supplier_orders.supplier_id': supplier_id}
-            ]
-        }
-        
-        all_orders = list(db['orders'].find(all_orders_query))
-        total_orders = 0
-        delivered_orders = 0
-        pending_orders = 0
-        rejected_orders = 0
-        total_delivered_value = 0
-        
-        for order in all_orders:
-            for supplier_order in order.get('supplier_orders', []):
-                if (supplier_order.get('supplier_name') == supplier_name or 
-                    supplier_order.get('supplier_id') == supplier_id):
-                    total_orders += 1
-                    
-                    status = supplier_order.get('status', 'pending')
-                    if status == 'delivered':
-                        delivered_orders += 1
-                        # Calculate delivered order value
-                        for item in supplier_order.get('items', []):
-                            item_quantity = item.get('quantity', 0)
-                            item_price = item.get('price', 0)
-                            total_delivered_value += item_quantity * item_price
-                    elif status == 'pending':
-                        pending_orders += 1
-                    elif status == 'rejected':
-                        rejected_orders += 1
-        
-        # Calculate remaining orders (non-delivered)
-        remaining_orders = total_orders - delivered_orders
-        
-        return jsonify({
-            'success': True,
-            'stats': {
-                'total_orders': total_orders,
-                'delivered_orders': delivered_orders,
-                'remaining_orders': remaining_orders,
-                'pending_orders': pending_orders,
-                'rejected_orders': rejected_orders,
-                'total_delivered_value': total_delivered_value,
-                'delivery_rate': round((delivered_orders / max(total_orders, 1)) * 100, 2)
-            },
-            'supplier_name': supplier_name
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# Frontend routes - must be at the end to not interfere with API routes
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_frontend(path):
-    if path != "" and os.path.exists(os.path.join(FRONTEND_DIR, path)):
-        return send_from_directory(FRONTEND_DIR, path)
-    else:
-        return send_from_directory(FRONTEND_DIR, 'index.html')
 
 if __name__ == '__main__':
-    # Get port from environment variable for Railway deployment
-    port = int(os.environ.get('PORT', 5000))
-    print(f"Starting OverXchange on port {port}")
-    print(f"Environment: {os.environ.get('RAILWAY_ENVIRONMENT', 'development')}")
-    # For Railway deployment
-    app.run(debug=False, host='0.0.0.0', port=port, threaded=True) 
+    # Use environment variables for host and port
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', 8080))
+    
+    # Turn off debug mode in production
+    debug = os.environ.get('FLASK_ENV', 'development') == 'development'
+    
+    # Start the Flask app
+    app.run(host=host, port=port, debug=debug)

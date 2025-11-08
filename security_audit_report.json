@@ -1,0 +1,396 @@
+{
+  "summary": {
+    "total_issues": 54,
+    "high_severity": 5,
+    "medium_severity": 44,
+    "low_severity": 5
+  },
+  "issues": [
+    {
+      "type": "hardcoded_credential",
+      "line": 5,
+      "message": "Hardcoded credential found: mongo_client = MongoClient('mongodb+srv://krishnatandon006:krishnatandon006@zenspace.63o32aq.mongodb.net/')",
+      "severity": "high",
+      "file": "backend\\add_sample_suppliers.py"
+    },
+    {
+      "type": "sql_injection",
+      "line": 52,
+      "message": "Potential SQL injection: r'SELECT.*\\+.*request',",
+      "severity": "high",
+      "file": "scripts\\security_audit.py"
+    },
+    {
+      "type": "sql_injection",
+      "line": 53,
+      "message": "Potential SQL injection: r'INSERT.*\\+.*request',",
+      "severity": "high",
+      "file": "scripts\\security_audit.py"
+    },
+    {
+      "type": "sql_injection",
+      "line": 54,
+      "message": "Potential SQL injection: r'UPDATE.*\\+.*request',",
+      "severity": "high",
+      "file": "scripts\\security_audit.py"
+    },
+    {
+      "type": "sql_injection",
+      "line": 55,
+      "message": "Potential SQL injection: r'DELETE.*\\+.*request'",
+      "severity": "high",
+      "file": "scripts\\security_audit.py"
+    },
+    {
+      "type": "weak_cors",
+      "line": 0,
+      "message": "Weak CORS configuration: origins set to \"*\"",
+      "severity": "medium",
+      "file": "scripts\\security_audit.py"
+    },
+    {
+      "type": "xss",
+      "line": 622,
+      "message": "Potential XSS vulnerability: document.body.innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 673,
+      "message": "Potential XSS vulnerability: fieldsDiv.innerHTML = '';",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 742,
+      "message": "Potential XSS vulnerability: messageDiv.innerHTML = '<div class=\"loading\"></div> Loading profile...';",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 757,
+      "message": "Potential XSS vulnerability: messageDiv.innerHTML = '<i class=\"fas fa-check-circle\"></i> Profile loaded successfully!';",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 765,
+      "message": "Potential XSS vulnerability: messageDiv.innerHTML = `<i class=\"fas fa-exclamation-circle\"></i> ${err.message}`;",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 794,
+      "message": "Potential XSS vulnerability: saveBtn.innerHTML = '<div class=\"loading\"></div> Saving...';",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 812,
+      "message": "Potential XSS vulnerability: saveBtn.innerHTML = '<i class=\"fas fa-save\"></i> Save Changes';",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 815,
+      "message": "Potential XSS vulnerability: messageDiv.innerHTML = `<i class=\"fas fa-check-circle\"></i> ${resp.message}`;",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 826,
+      "message": "Potential XSS vulnerability: saveBtn.innerHTML = '<i class=\"fas fa-save\"></i> Save Changes';",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 829,
+      "message": "Potential XSS vulnerability: messageDiv.innerHTML = `<i class=\"fas fa-exclamation-circle\"></i> ${err.message}`;",
+      "severity": "medium",
+      "file": "frontend\\profile.html"
+    },
+    {
+      "type": "xss",
+      "line": 2271,
+      "message": "Potential XSS vulnerability: tbody.innerHTML = '';",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 2278,
+      "message": "Potential XSS vulnerability: tbody.innerHTML = stocks.map(stock => `",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 2351,
+      "message": "Potential XSS vulnerability: tbody.innerHTML = '';",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 2358,
+      "message": "Potential XSS vulnerability: tbody.innerHTML = stocks.map(stock => `",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 2640,
+      "message": "Potential XSS vulnerability: couponsGrid.innerHTML = '';",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 2645,
+      "message": "Potential XSS vulnerability: couponCard.innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 3139,
+      "message": "Potential XSS vulnerability: verifyBtn.innerHTML = '<i class=\"fas fa-spinner fa-spin\"></i> Verifying...';",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 3178,
+      "message": "Potential XSS vulnerability: verifyBtn.innerHTML = originalText;",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 3325,
+      "message": "Potential XSS vulnerability: submitBtn.innerHTML = '<i class=\"fas fa-spinner fa-spin\"></i> Verifying...';",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 3373,
+      "message": "Potential XSS vulnerability: submitBtn.innerHTML = originalText;",
+      "severity": "medium",
+      "file": "frontend\\supply-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 33,
+      "message": "Potential XSS vulnerability: stepDiv.innerHTML = '<strong>' + new Date().toLocaleTimeString() + ':</strong> ' + message;",
+      "severity": "medium",
+      "file": "frontend\\test_complete_flow.html"
+    },
+    {
+      "type": "xss",
+      "line": 39,
+      "message": "Potential XSS vulnerability: document.getElementById('steps').innerHTML = '';",
+      "severity": "medium",
+      "file": "frontend\\test_complete_flow.html"
+    },
+    {
+      "type": "xss",
+      "line": 1263,
+      "message": "Potential XSS vulnerability: suppliersGrid.innerHTML = '';",
+      "severity": "medium",
+      "file": "frontend\\vendor-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 1273,
+      "message": "Potential XSS vulnerability: card.innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendor-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 1452,
+      "message": "Potential XSS vulnerability: verifyBtn.innerHTML = '<i class=\"fas fa-spinner fa-spin\"></i> Verifying...';",
+      "severity": "medium",
+      "file": "frontend\\vendor-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 1491,
+      "message": "Potential XSS vulnerability: verifyBtn.innerHTML = originalText;",
+      "severity": "medium",
+      "file": "frontend\\vendor-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 1607,
+      "message": "Potential XSS vulnerability: submitBtn.innerHTML = '<i class=\"fas fa-spinner fa-spin\"></i> Uploading...';",
+      "severity": "medium",
+      "file": "frontend\\vendor-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 1640,
+      "message": "Potential XSS vulnerability: submitBtn.innerHTML = originalText;",
+      "severity": "medium",
+      "file": "frontend\\vendor-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 1699,
+      "message": "Potential XSS vulnerability: supplierSelect.innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendor-dashboard.html"
+    },
+    {
+      "type": "xss",
+      "line": 564,
+      "message": "Potential XSS vulnerability: submitBtn.innerHTML = '<i class=\"fas fa-paper-plane\"></i> Post Offer';",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 566,
+      "message": "Potential XSS vulnerability: submitBtn.innerHTML = '<i class=\"fas fa-paper-plane\"></i> Post Request';",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 581,
+      "message": "Potential XSS vulnerability: notification.innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 597,
+      "message": "Potential XSS vulnerability: board.innerHTML = listingsData.map(listing => `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 666,
+      "message": "Potential XSS vulnerability: document.getElementById('listingDetails').innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 688,
+      "message": "Potential XSS vulnerability: document.getElementById('actionContent').innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 701,
+      "message": "Potential XSS vulnerability: document.getElementById('actionContent').innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 712,
+      "message": "Potential XSS vulnerability: document.getElementById('actionContent').innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 738,
+      "message": "Potential XSS vulnerability: document.getElementById('actionContent').innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 744,
+      "message": "Potential XSS vulnerability: document.getElementById('actionContent').innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 757,
+      "message": "Potential XSS vulnerability: document.getElementById('actionContent').innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "xss",
+      "line": 813,
+      "message": "Potential XSS vulnerability: analyticsSection.innerHTML = `",
+      "severity": "medium",
+      "file": "frontend\\vendornet.html"
+    },
+    {
+      "type": "dependency",
+      "message": "Check Flask version for vulnerabilities",
+      "severity": "low"
+    },
+    {
+      "type": "dependency",
+      "message": "Check werkzeug version for vulnerabilities",
+      "severity": "low"
+    },
+    {
+      "type": "dependency",
+      "message": "Check requests version for vulnerabilities",
+      "severity": "low"
+    },
+    {
+      "type": "dependency",
+      "message": "Consider pinning axios version for security",
+      "severity": "low"
+    },
+    {
+      "type": "dependency",
+      "message": "Consider pinning framer-motion version for security",
+      "severity": "low"
+    },
+    {
+      "type": "file_permission",
+      "message": "File C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\config.py is world-readable",
+      "severity": "medium"
+    },
+    {
+      "type": "file_permission",
+      "message": "File C:\\Users\\LENOVO\\OneDrive\\Desktop\\hackathon\\OverXchange\\backend\\security.py is world-readable",
+      "severity": "medium"
+    }
+  ],
+  "recommendations": [
+    "\ud83d\udd10 Move all hardcoded credentials to environment variables",
+    "\ud83d\udd10 Use a secure secrets management system",
+    "\ud83d\udee1\ufe0f Use parameterized queries to prevent SQL injection",
+    "\ud83d\udee1\ufe0f Implement input validation and sanitization",
+    "\ud83d\udee1\ufe0f Sanitize all user input before rendering",
+    "\ud83d\udee1\ufe0f Use textContent instead of innerHTML where possible",
+    "\ud83c\udf10 Configure CORS to only allow specific origins",
+    "\ud83c\udf10 Implement proper CORS headers",
+    "\ud83d\udce6 Regularly update dependencies and check for vulnerabilities",
+    "\ud83d\udce6 Use dependency scanning tools",
+    "\ud83d\udd12 Set appropriate file permissions for sensitive files",
+    "\ud83d\udd12 Use chmod 600 for sensitive configuration files",
+    "\ud83d\udd10 Implement proper authentication and authorization",
+    "\ud83d\udd10 Use HTTPS in production",
+    "\ud83d\udd10 Implement rate limiting",
+    "\ud83d\udd10 Add security headers (HSTS, CSP, etc.)",
+    "\ud83d\udd10 Regular security audits and penetration testing",
+    "\ud83d\udd10 Implement logging and monitoring",
+    "\ud83d\udd10 Use secure session management",
+    "\ud83d\udd10 Implement input validation on both client and server"
+  ]
+}
