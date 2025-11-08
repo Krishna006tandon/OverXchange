@@ -3576,37 +3576,24 @@
         document.getElementById('stockForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const stockData = {
-                product_name: document.getElementById('productName').value,
-                category: document.getElementById('category').value,
-                description: document.getElementById('description').value,
-                quantity_available: parseInt(document.getElementById('quantity').value, 10),
-                unit: document.getElementById('unit').value,
-                price_per_unit: parseFloat(document.getElementById('pricePerUnit').value),
-                minimum_order_quantity: parseInt(document.getElementById('minOrderQuantity').value, 10),
-                quality_grade: document.getElementById('qualityGrade').value,
-                is_organic: document.getElementById('isOrganic').value === 'true',
-                sku: document.getElementById('sku').value,
-                brand: document.getElementById('brand').value,
-                weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : null,
-                weight_unit: document.getElementById('weightUnit').value,
-                expiry_date: document.getElementById('expiryDate').value,
-                storage_instructions: document.getElementById('storageInstructions').value,
-                ingredients: document.getElementById('ingredients').value,
-                nutritional_info: document.getElementById('nutritionalInfo').value,
-                allergen_info: document.getElementById('allergenInfo').value,
-                supplier_id: localStorage.getItem('user_id')
-            };
+            const form = e.target;
+            const formData = new FormData(form);
+            formData.append('supplier_id', localStorage.getItem('user_id'));
+
+            const imageFile = document.getElementById('productImage').files[0];
+            if (imageFile) {
+                formData.append('product_image', imageFile);
+            }
 
             try {
                 let response;
                 const fetchOptions = {
                     method: editingStockId ? 'PUT' : 'POST',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        // No 'Content-Type' header, browser sets it for FormData
                     },
-                    body: JSON.stringify(stockData)
+                    body: formData
                 };
 
                 if (editingStockId) {

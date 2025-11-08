@@ -461,25 +461,72 @@ def get_supplier_stocks(supplier_id):
 @app.route('/api/stocks', methods=['POST'])
 def add_stock():
     """Add a new stock item"""
-    data = request.json
-    data['created_at'] = datetime.now()
-    data['updated_at'] = datetime.now()
-    data['last_updated'] = datetime.now()
-    data['stock_history'] = [{
-        'action': 'stock_added',
-        'quantity_change': data.get('quantity', 0),
-        'previous_stock': 0,
-        'new_stock': data.get('quantity', 0),
-        'timestamp': datetime.now()
-    }]
-    result = db['stocks'].insert_one(data)
-    return jsonify({'success': True, 'message': 'Stock added successfully!', 'id': str(result.inserted_id)})
+    try:
+        data = request.form.to_dict()
+        
+        # Convert numeric fields from string
+        numeric_fields = ['quantity_available', 'price_per_unit', 'minimum_order_quantity', 'weight']
+        for field in numeric_fields:
+            if field in data and data[field]:
+                try:
+                    data[field] = float(data[field])
+                except (ValueError, TypeError):
+                    data[field] = 0
+
+        data['is_organic'] = data.get('is_organic', 'false').lower() == 'true'
+        
+        # Handle image upload
+        if 'product_image' in request.files:
+            image_file = request.files['product_image']
+            if image_file.filename != '':
+                # Sanitize filename and save
+                filename = SecurityUtils.sanitize_filename(image_file.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image_file.save(image_path)
+                data['image_url'] = filename
+
+        data['created_at'] = datetime.now()
+        data['updated_at'] = datetime.now()
+        data['last_updated'] = datetime.now()
+        data['stock_history'] = [{
+            'action': 'stock_added',
+            'quantity_change': data.get('quantity_available', 0),
+            'previous_stock': 0,
+            'new_stock': data.get('quantity_available', 0),
+            'timestamp': datetime.now()
+        }]
+        result = db['stocks'].insert_one(data)
+        return jsonify({'success': True, 'message': 'Stock added successfully!', 'id': str(result.inserted_id)})
+    except Exception as e:
+        logger.error(f"Error adding stock: {e}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @app.route('/api/stocks/<stock_id>', methods=['PUT'])
 def update_stock(stock_id):
     """Update a stock item"""
     try:
-        data = request.json
+        data = request.form.to_dict()
+
+        # Convert numeric fields from string
+        numeric_fields = ['quantity_available', 'price_per_unit', 'minimum_order_quantity', 'weight']
+        for field in numeric_fields:
+            if field in data and data[field]:
+                try:
+                    data[field] = float(data[field])
+                except (ValueError, TypeError):
+                    # Keep existing value if conversion fails
+                    pass
+
+        data['is_organic'] = data.get('is_organic', 'false').lower() == 'true'
+
+        # Handle image upload
+        if 'product_image' in request.files:
+            image_file = request.files['product_image']
+            if image_file.filename != '':
+                filename = SecurityUtils.sanitize_filename(image_file.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image_file.save(image_path)
+                data['image_url'] = filename
         
         # Get current stock to calculate quantity change
         current_stock = db['stocks'].find_one({'_id': ObjectId(stock_id)})
