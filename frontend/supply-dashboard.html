@@ -2464,6 +2464,13 @@
                             <label for="description">Description</label>
                             <textarea id="description" name="description" rows="3"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="productImage">Product Image</label>
+                            <input type="file" id="productImage" name="product_image" accept="image/jpeg, image/png, image/webp" onchange="previewImage(event)" style="padding: 10px; background: var(--background-color); border-radius: 8px;">
+                            <div id="imagePreviewContainer" style="margin-top: 15px; text-align: center; display: none;">
+                                <img id="imagePreview" src="#" alt="Image Preview" style="max-width: 150px; max-height: 150px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow);">
+                            </div>
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="quantity">Quantity Available *</label>
@@ -3618,17 +3625,7 @@
                     closeStockModal();
                     loadStocks(); // Reload stocks
                     const supplierName = getCurrentSupplierName() || 'Supplier';
-                    const successMessage = editingStockId ? 'Stock updated successfully!' : 'Stock added successfully!';
-                    
-                    const imageUploadMessage = `Dear ${supplierName}, please upload high-quality images for your product to ensure it looks attractive to buyers.
-
-Recommended:
-• High-resolution (at least 1000x1000 pixels)
-• Plain white or neutral background
-• Multiple angles
-• JPEG, PNG, or WebP format.`;
-
-                    alert(successMessage + '\n\n' + imageUploadMessage);
+                    alert(editingStockId ? 'Stock updated successfully!' : 'Stock added successfully!');
                 } else {
                     alert('Error: ' + result.message);
                 }
@@ -3637,22 +3634,6 @@ Recommended:
                 alert('Error saving stock. Please try again.');
             }
         });
-
-        // Image preview function
-        function previewImage(event) {
-            const reader = new FileReader();
-            const imagePreview = document.getElementById('imagePreview');
-            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-
-            reader.onload = function(){
-                imagePreview.src = reader.result;
-                imagePreviewContainer.style.display = 'block';
-            };
-
-            if (event.target.files[0]) {
-                reader.readAsDataURL(event.target.files[0]);
-            }
-        }
 
         async function editStock(stockId) {
             openStockModal(stockId);
@@ -6188,6 +6169,14 @@ Recommended:
         }
 
         function closeQuickRejectModal() {
+            const modal = document.getElementById('quickRejectModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+    </script>
+</body>
+</html> function closeQuickRejectModal() {
             const modal = document.getElementById('quickRejectModal');
             if (modal) {
                 modal.remove();
