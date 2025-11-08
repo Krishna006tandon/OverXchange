@@ -659,7 +659,8 @@
             filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                const imageUrl = p.image_url ? `/uploads/${p.image_url}` : `https://via.placeholder.com/150/f0f2f5/a0aec0?text=No+Image`;
+                const backendUrl = 'http://localhost:5000'; // Define your backend URL
+                const imageUrl = p.image_url ? `${backendUrl}/uploads/${p.image_url}` : `https://via.placeholder.com/150/f0f2f5/a0aec0?text=No+Image`;
                 card.innerHTML = `
                     <div class="product-image-container">
                         <img src="${imageUrl}" alt="${p.product_name || 'Product'}" class="product-image">
