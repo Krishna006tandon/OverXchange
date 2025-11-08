@@ -659,7 +659,7 @@
             filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                const imageUrl = p.image_url || `https://via.placeholder.com/150/f0f2f5/a0aec0?text=No+Image`;
+                const imageUrl = p.image_url ? `/uploads/${p.image_url}` : `https://via.placeholder.com/150/f0f2f5/a0aec0?text=No+Image`;
                 card.innerHTML = `
                     <div class="product-image-container">
                         <img src="${imageUrl}" alt="${p.product_name || 'Product'}" class="product-image">
@@ -673,7 +673,7 @@
                         </div>
                         <div class="product-actions">
                             <input type="number" min="1" value="1" max="${p.quantity_available || 1}" class="quantity-input" id="qty-${p._id || p.id}">
-                            <button class="btn-primary add-to-cart-btn" onclick="vendorAddToCart('${p._id || p.id}','${(p.product_name || '').replace(/'/g, "\\'")}',${p.price_per_unit || 0},'${p.unit || ''}','${p.supplier_id || ''}', ${p.quantity_available || 0}, '${p.supplier_name || 'Unknown Supplier'}', '${p.image_url || ''}')">
+                            <button class="btn-primary add-to-cart-btn" onclick="vendorAddToCart('${p._id || p.id}','${(p.product_name || '').replace(/'/g, "\\'")}',${p.price_per_unit || 0},'${p.unit || ''}','${p.supplier_id || ''}', ${p.quantity_available || 0}, '${p.supplier_name || 'Unknown Supplier'}', '${imageUrl}')">
                                 <i class="fas fa-cart-plus"></i> Add
                             </button>
                         </div>

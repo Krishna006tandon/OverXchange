@@ -3576,54 +3576,32 @@
         document.getElementById('stockForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = new FormData(e.target);
-            const stockData = {
-                supplier_id: localStorage.getItem('user_id'),
-                product_name: formData.get('product_name'),
-                category: formData.get('category'),
-                description: formData.get('description'),
-                quantity_available: parseInt(formData.get('quantity_available')),
-                unit: formData.get('unit'),
-                price_per_unit: parseFloat(formData.get('price_per_unit')),
-                minimum_order_quantity: parseInt(formData.get('minimum_order_quantity')),
-                quality_grade: formData.get('quality_grade'),
-                is_organic: formData.get('is_organic') === 'true',
-                
-                // Additional fields
-                sku: formData.get('sku'),
-                brand: formData.get('brand'),
-                weight: formData.get('weight') ? parseFloat(formData.get('weight')) : null,
-                weight_unit: formData.get('weight_unit'),
-                expiry_date: formData.get('expiry_date'),
-                storage_instructions: formData.get('storage_instructions'),
-                ingredients: formData.get('ingredients'),
-                nutritional_info: formData.get('nutritional_info'),
-                allergen_info: formData.get('allergen_info')
-            };
+            const form = e.target;
+            const formData = new FormData(form);
+            formData.append('supplier_id', localStorage.getItem('user_id'));
 
             try {
                 let response;
+                const fetchOptions = {
+                    method: editingStockId ? 'PUT' : 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        // No 'Content-Type' header, browser sets it for FormData
+                    },
+                    body: formData
+                };
+
                 if (editingStockId) {
-                    // Update existing stock
-                    response = await fetch(`/api/stocks/${editingStockId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                        body: JSON.stringify(stockData)
-                    });
+                    response = await fetch(`/api/stocks/${editingStockId}`, fetchOptions);
                 } else {
-                    // Add new stock
-                    response = await fetch('/api/stocks', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                        body: JSON.stringify(stockData)
-                    });
+                    response = await fetch('/api/stocks', fetchOptions);
                 }
                 
                 const result = await response.json();
                 
                 if (result.success) {
                     closeStockModal();
-                    loadStocks(); // Reload stocks
+                    await loadStocks(); // Reload stocks
                     const supplierName = getCurrentSupplierName() || 'Supplier';
                     alert(editingStockId ? 'Stock updated successfully!' : 'Stock added successfully!');
                 } else {
