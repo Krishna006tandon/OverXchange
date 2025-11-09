@@ -11,6 +11,7 @@ import re
 import logging
 import json
 from functools import wraps
+import requests
 # from google.oauth2 import id_token
 # from google.auth.transport import requests as google_requests
 # from PIL import Image  # Commented out for now
@@ -62,6 +63,13 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# Allowed image extensions for upload
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Initialize admin collection with default admin if not exists
 def initialize_admin():
@@ -482,6 +490,8 @@ def add_stock():
         if 'product_image' in request.files:
             image_file = request.files['product_image']
             if image_file and image_file.filename != '':
+                if not allowed_file(image_file.filename):
+                    return jsonify({'success': False, 'message': 'Invalid file type. Please upload an image (png, jpg, jpeg, gif, webp).'}), 400
                 filename = SecurityUtils.sanitize_filename(image_file.filename)
                 
                 try:
