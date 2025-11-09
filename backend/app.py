@@ -11,6 +11,7 @@ import re
 import logging
 import json
 from functools import wraps
+import requests
 # from google.oauth2 import id_token
 # from google.auth.transport import requests as google_requests
 # from PIL import Image  # Commented out for now
@@ -62,6 +63,13 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# Allowed image extensions for upload
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Initialize admin collection with default admin if not exists
 def initialize_admin():
@@ -363,11 +371,11 @@ def get_user_collection(user_type):
 @app.route('/api/profile/<user_type>/<user_id>', methods=['GET'])
 @require_auth
 @rate_limit(max_requests=100, window=3600)
-def get_profile(user_type, user_id):
+def get_profile(current_user, user_type, user_id):
     try:
         # Verify user can access this profile
-        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
-            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
+        if current_user['user_id'] != user_id or current_user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=current_user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
             return jsonify({'error': 'Unauthorized access'}), 403
         
         collection = get_user_collection(user_type)
@@ -390,11 +398,11 @@ def get_profile(user_type, user_id):
 @app.route('/api/profile/<user_type>/<user_id>', methods=['PUT'])
 @require_auth
 @rate_limit(max_requests=50, window=3600)
-def update_profile(user_type, user_id):
+def update_profile(current_user, user_type, user_id):
     try:
         # Verify user can update this profile
-        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
-            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
+        if current_user['user_id'] != user_id or current_user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=current_user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
             return jsonify({'error': 'Unauthorized access'}), 403
         
         collection = get_user_collection(user_type)
@@ -446,7 +454,8 @@ def get_stocks():
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
-        stock['image_url'] = stock.get('image_url', f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}")
+        if not stock.get('image_url'):
+            stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks/supplier/<supplier_id>', methods=['GET'])
@@ -456,6 +465,8 @@ def get_supplier_stocks(supplier_id):
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
+        if not stock.get('image_url'):
+            stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks', methods=['POST'])
@@ -478,12 +489,44 @@ def add_stock():
         # Handle image upload
         if 'product_image' in request.files:
             image_file = request.files['product_image']
-            if image_file.filename != '':
-                # Sanitize filename and save
+            if image_file and image_file.filename != '':
+                if not allowed_file(image_file.filename):
+                    return jsonify({'success': False, 'message': 'Invalid file type. Please upload an image (png, jpg, jpeg, gif, webp).'}), 400
                 filename = SecurityUtils.sanitize_filename(image_file.filename)
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                image_file.save(image_path)
-                data['image_url'] = filename
+                
+                try:
+                    token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+                    if not token:
+                        logger.error("BLOB_READ_WRITE_TOKEN not set.")
+                        return jsonify({'success': False, 'message': 'Image storage is not configured.'}), 500
+
+                    headers = {
+                        'x-api-version': '5',
+                        'authorization': f'Bearer {token}',
+                        'x-content-type': image_file.mimetype
+                    }
+                    
+                    upload_url = f'https://blob.vercel-storage.com/{filename}'
+                    
+                    file_content = image_file.read()
+
+                    response = requests.put(
+                        upload_url,
+                        data=file_content,
+                        headers=headers,
+                        timeout=30
+                    )
+                    response.raise_for_status()
+                    
+                    blob_data = response.json()
+                    data['image_url'] = blob_data['url']
+
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Failed to upload image to Vercel Blob: {e}")
+                    return jsonify({'success': False, 'message': 'Error uploading image.'}), 500
+                except Exception as e:
+                    logger.error(f"An unexpected error occurred during image upload: {e}")
+                    return jsonify({'success': False, 'message': 'An internal error occurred.'}), 500
 
         data['created_at'] = datetime.now()
         data['updated_at'] = datetime.now()

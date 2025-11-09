@@ -1,4 +1,5 @@
 import os
+import tempfile
 from datetime import timedelta
 
 class Config:
@@ -20,10 +21,6 @@ class Config:
     # Rate Limiting
     RATELIMIT_DEFAULT = "200 per day;50 per hour;10 per minute"
     RATELIMIT_STORAGE_URL = "memory://"
-    
-    # File Upload Security
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'}
     
     # Security Headers
     SECURITY_HEADERS = {
