@@ -22,6 +22,7 @@ class Config:
     RATELIMIT_STORAGE_URL = "memory://"
     
     # File Upload Security
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'}
     
@@ -67,4 +68,9 @@ class Config:
         def add_security_headers(response):
             for header, value in Config.SECURITY_HEADERS.items():
                 response.headers[header] = value
-            return response 
+            return response
+
+        # Create upload folder if it doesn't exist
+        upload_folder = app.config.get('UPLOAD_FOLDER')
+        if upload_folder and not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)

@@ -162,6 +162,11 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
 @app.route('/vendor-dashboard')
 def vendor_dashboard():
     return send_from_directory(FRONTEND_DIR, 'vendor-dashboard.html')
@@ -363,11 +368,11 @@ def get_user_collection(user_type):
 @app.route('/api/profile/<user_type>/<user_id>', methods=['GET'])
 @require_auth
 @rate_limit(max_requests=100, window=3600)
-def get_profile(user_type, user_id):
+def get_profile(current_user, user_type, user_id):
     try:
         # Verify user can access this profile
-        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
-            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
+        if current_user['user_id'] != user_id or current_user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=current_user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
             return jsonify({'error': 'Unauthorized access'}), 403
         
         collection = get_user_collection(user_type)
@@ -390,11 +395,11 @@ def get_profile(user_type, user_id):
 @app.route('/api/profile/<user_type>/<user_id>', methods=['PUT'])
 @require_auth
 @rate_limit(max_requests=50, window=3600)
-def update_profile(user_type, user_id):
+def update_profile(current_user, user_type, user_id):
     try:
         # Verify user can update this profile
-        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
-            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
+        if current_user['user_id'] != user_id or current_user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=current_user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
             return jsonify({'error': 'Unauthorized access'}), 403
         
         collection = get_user_collection(user_type)
@@ -446,7 +451,11 @@ def get_stocks():
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
-        stock['image_url'] = stock.get('image_url', f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}")
+        image_filename = stock.get('image_url')
+        if image_filename and not image_filename.startswith('http'):
+            stock['image_url'] = f"/uploads/{image_filename}"
+        elif not image_filename:
+            stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks/supplier/<supplier_id>', methods=['GET'])
@@ -456,6 +465,11 @@ def get_supplier_stocks(supplier_id):
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
+        image_filename = stock.get('image_url')
+        if image_filename and not image_filename.startswith('http'):
+            stock['image_url'] = f"/uploads/{image_filename}"
+        elif not image_filename:
+            stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks', methods=['POST'])
