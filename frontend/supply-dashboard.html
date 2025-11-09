@@ -2176,6 +2176,187 @@
             margin: 1.5rem 0;
         }
 
+        /* Payment Management Styles */
+        .payments-container {
+            padding: 2rem;
+        }
+
+        .payments-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .payments-list-section {
+            background: var(--bg-color);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .payments-list-section .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .payments-list-section .section-header h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .payments-list-section select {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .payments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .payment-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .payment-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .payment-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+
+        .payment-date {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .payment-status .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-verification {
+            background: #e6fffa;
+            color: #38b2ac;
+        }
+
+        .status-done {
+            background: #c6f6d5;
+            color: #38a169;
+        }
+
+        .status-undone {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        .payment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .payment-detail-item {
+            padding: 0.75rem;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .payment-detail-item strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .payment-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .btn-success {
+            background: #38a169;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background: #2f855a;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-color);
+        }
+
+        .empty-state p {
+            margin: 0;
+            color: var(--text-light);
+        }
+
         @media (max-width: 768px) {
             .order-details {
                 grid-template-columns: 1fr;
@@ -2238,6 +2419,12 @@
                         <a href="#" class="nav-link" data-page="analytics">
                             <i class="fas fa-chart-bar nav-icon"></i>
                             <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="payments">
+                            <i class="fas fa-money-bill-wave nav-icon"></i>
+                            <span>Payments</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -2840,6 +3027,58 @@
                 </div>
             </div>
 
+            <div id="payments-page" class="page-content" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">Payment Management</h1>
+                    <div class="header-actions">
+                        <button class="refresh-btn" onclick="loadPayments()" title="Refresh Payments">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="payments-container">
+                    <div class="payments-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #e6fffa;">
+                                <i class="fas fa-clock" style="color: #38b2ac;"></i>
+                            </div>
+                            <div class="stat-title">Pending Verification</div>
+                            <div class="stat-value" id="pendingVerificationCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #c6f6d5;">
+                                <i class="fas fa-check-circle" style="color: #38a169;"></i>
+                            </div>
+                            <div class="stat-title">Verified Payments</div>
+                            <div class="stat-value" id="verifiedPaymentsCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #fed7d7;">
+                                <i class="fas fa-times-circle" style="color: #e53e3e;"></i>
+                            </div>
+                            <div class="stat-title">Rejected Payments</div>
+                            <div class="stat-value" id="rejectedPaymentsCount">0</div>
+                        </div>
+                    </div>
+
+                    <div class="payments-list-section">
+                        <div class="section-header">
+                            <h2>All Payments</h2>
+                            <select id="paymentStatusFilter" onchange="loadPayments()">
+                                <option value="all">All Status</option>
+                                <option value="verification">Verification</option>
+                                <option value="done">Done</option>
+                                <option value="undone">Undone</option>
+                            </select>
+                        </div>
+                        <div id="paymentsList" class="payments-list">
+                            <!-- Payments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="settings-page" class="page-content" style="display: none;">
                 <div class="page-header">
                     <h1 class="page-title">Settings</h1>
@@ -3017,7 +3256,86 @@
                         </div>
                     </div>
 
+                    <!-- Payment Settings -->
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-credit-card"></i>
+                                Payment Account Details
+                            </h2>
+                        </div>
+                        <div class="settings-content">
+                            <div class="form-group">
+                                <label for="preferredPaymentMethod">Preferred Payment Method</label>
+                                <select id="preferredPaymentMethod" class="form-control">
+                                    <option value="">Select Payment Method</option>
+                                    <option value="bank">Bank Transfer</option>
+                                    <option value="upi">UPI</option>
+                                    <option value="qr">QR Code</option>
+                                </select>
+                            </div>
 
+                            <!-- Bank Details -->
+                            <div id="bankDetailsSection" style="display: none;">
+                                <h3 class="subsection-title">Bank Account Details</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="bankName">Bank Name</label>
+                                        <input type="text" id="bankName" placeholder="Enter bank name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="accountNumber">Account Number</label>
+                                        <input type="text" id="accountNumber" placeholder="Enter account number">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="ifscCode">IFSC Code</label>
+                                        <input type="text" id="ifscCode" placeholder="Enter IFSC code">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="accountHolderName">Account Holder Name</label>
+                                        <input type="text" id="accountHolderName" placeholder="Enter account holder name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bankBranch">Branch Name</label>
+                                    <input type="text" id="bankBranch" placeholder="Enter branch name">
+                                </div>
+                            </div>
+
+                            <!-- UPI Details -->
+                            <div id="upiDetailsSection" style="display: none;">
+                                <h3 class="subsection-title">UPI Details</h3>
+                                <div class="form-group">
+                                    <label for="upiId">UPI ID</label>
+                                    <input type="text" id="upiId" placeholder="Enter UPI ID (e.g., name@paytm)">
+                                </div>
+                            </div>
+
+                            <!-- QR Code Details -->
+                            <div id="qrDetailsSection" style="display: none;">
+                                <h3 class="subsection-title">QR Code</h3>
+                                <div class="form-group">
+                                    <label for="qrCodeImage">Upload QR Code Image</label>
+                                    <input type="file" id="qrCodeImage" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('qrCodeImage').click()">
+                                        <i class="fas fa-upload"></i> Choose QR Code Image
+                                    </button>
+                                    <div id="qrCodePreview" style="margin-top: 10px; display: none;">
+                                        <img id="qrCodePreviewImg" src="" alt="QR Code Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="removeQRCode()" style="margin-left: 10px;">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" onclick="savePaymentSettings()">
+                                <i class="fas fa-save"></i> Save Payment Settings
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- Security Settings -->
                     <div class="settings-section">
@@ -3285,6 +3603,8 @@
                         loadCoupons();
                     } else if (targetPage === 'analytics') {
                         loadAnalyticsData();
+                    } else if (targetPage === 'payments') {
+                        loadPayments();
                     }
                 }
             });
@@ -4067,6 +4387,352 @@
                     stopAutoRefresh();
                 }
             });
+
+            // Payment method selection
+            const preferredPaymentMethod = document.getElementById('preferredPaymentMethod');
+            if (preferredPaymentMethod) {
+                preferredPaymentMethod.addEventListener('change', function(e) {
+                    togglePaymentMethodSections(e.target.value);
+                });
+            }
+
+            // QR code image upload
+            const qrCodeImage = document.getElementById('qrCodeImage');
+            if (qrCodeImage) {
+                qrCodeImage.addEventListener('change', function(e) {
+                    handleQRCodeUpload(e);
+                });
+            }
+
+            // Load payment settings
+            loadPaymentSettings();
+        }
+
+        // Toggle payment method sections
+        function togglePaymentMethodSections(method) {
+            document.getElementById('bankDetailsSection').style.display = method === 'bank' ? 'block' : 'none';
+            document.getElementById('upiDetailsSection').style.display = method === 'upi' ? 'block' : 'none';
+            document.getElementById('qrDetailsSection').style.display = method === 'qr' ? 'block' : 'none';
+        }
+
+        // Handle QR code upload
+        function handleQRCodeUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('qrCodePreviewImg').src = e.target.result;
+                    document.getElementById('qrCodePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove QR code
+        function removeQRCode() {
+            document.getElementById('qrCodeImage').value = '';
+            document.getElementById('qrCodePreview').style.display = 'none';
+            document.getElementById('qrCodePreviewImg').src = '';
+        }
+
+        // Load payment settings from backend
+        async function loadPaymentSettings() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                if (!userId) return;
+
+                const response = await fetch(`/api/supplier/payment-settings/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.payment_settings) {
+                        const settings = result.payment_settings;
+                        
+                        // Set preferred payment method
+                        document.getElementById('preferredPaymentMethod').value = settings.preferred_method || '';
+                        togglePaymentMethodSections(settings.preferred_method || '');
+
+                        // Load bank details
+                        if (settings.bank_details) {
+                            document.getElementById('bankName').value = settings.bank_details.bank_name || '';
+                            document.getElementById('accountNumber').value = settings.bank_details.account_number || '';
+                            document.getElementById('ifscCode').value = settings.bank_details.ifsc_code || '';
+                            document.getElementById('accountHolderName').value = settings.bank_details.account_holder_name || '';
+                            document.getElementById('bankBranch').value = settings.bank_details.branch || '';
+                        }
+
+                        // Load UPI details
+                        if (settings.upi_id) {
+                            document.getElementById('upiId').value = settings.upi_id || '';
+                        }
+
+                        // Load QR code
+                        if (settings.qr_code_url) {
+                            document.getElementById('qrCodePreviewImg').src = settings.qr_code_url;
+                            document.getElementById('qrCodePreview').style.display = 'block';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading payment settings:', error);
+            }
+        }
+
+        // Save payment settings
+        async function savePaymentSettings() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                if (!userId) {
+                    alert('Please login to save payment settings');
+                    return;
+                }
+
+                const preferredMethod = document.getElementById('preferredPaymentMethod').value;
+                if (!preferredMethod) {
+                    alert('Please select a preferred payment method');
+                    return;
+                }
+
+                const paymentSettings = {
+                    preferred_method: preferredMethod
+                };
+
+                // Collect bank details
+                if (preferredMethod === 'bank') {
+                    paymentSettings.bank_details = {
+                        bank_name: document.getElementById('bankName').value,
+                        account_number: document.getElementById('accountNumber').value,
+                        ifsc_code: document.getElementById('ifscCode').value,
+                        account_holder_name: document.getElementById('accountHolderName').value,
+                        branch: document.getElementById('bankBranch').value
+                    };
+                }
+
+                // Collect UPI details
+                if (preferredMethod === 'upi') {
+                    paymentSettings.upi_id = document.getElementById('upiId').value;
+                    if (!paymentSettings.upi_id) {
+                        alert('Please enter UPI ID');
+                        return;
+                    }
+                }
+
+                // Handle QR code upload
+                const qrCodeFile = document.getElementById('qrCodeImage').files[0];
+                if (preferredMethod === 'qr') {
+                    if (!qrCodeFile && !document.getElementById('qrCodePreviewImg').src) {
+                        alert('Please upload a QR code image');
+                        return;
+                    }
+                }
+
+                // If QR code file is selected, upload it first
+                let qrCodeUrl = document.getElementById('qrCodePreviewImg').src;
+                if (qrCodeFile) {
+                    const formData = new FormData();
+                    formData.append('qr_code', qrCodeFile);
+                    formData.append('supplier_id', userId);
+
+                    const uploadResponse = await fetch('/api/supplier/upload-qr-code', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: formData
+                    });
+
+                    if (uploadResponse.ok) {
+                        const uploadResult = await uploadResponse.json();
+                        qrCodeUrl = uploadResult.qr_code_url;
+                    }
+                }
+
+                if (preferredMethod === 'qr' && qrCodeUrl) {
+                    paymentSettings.qr_code_url = qrCodeUrl;
+                }
+
+                // Save payment settings
+                const response = await fetch(`/api/supplier/payment-settings/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(paymentSettings)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Payment settings saved successfully!');
+                } else {
+                    alert('Error saving payment settings: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error saving payment settings:', error);
+                alert('Error saving payment settings. Please try again.');
+            }
+        }
+
+        // ==================== Payment Management Functions ====================
+
+        async function loadPayments() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                if (!userId) {
+                    alert('Please login to view payments');
+                    return;
+                }
+
+                const response = await fetch('/api/payments', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    displayPayments(result.payments);
+                    updatePaymentStats(result.payments);
+                } else {
+                    console.error('Error loading payments:', result.message);
+                    document.getElementById('paymentsList').innerHTML = '<p class="error-message">Error loading payments</p>';
+                }
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                document.getElementById('paymentsList').innerHTML = '<p class="error-message">Error loading payments. Please try again.</p>';
+            }
+        }
+
+        function displayPayments(payments) {
+            const paymentsList = document.getElementById('paymentsList');
+            const statusFilter = document.getElementById('paymentStatusFilter')?.value || 'all';
+
+            // Filter payments by status
+            let filteredPayments = payments;
+            if (statusFilter !== 'all') {
+                filteredPayments = payments.filter(p => p.status === statusFilter);
+            }
+
+            if (filteredPayments.length === 0) {
+                paymentsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h3>No payments found</h3>
+                        <p>Payments will appear here once vendors make payments to you.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let paymentsHTML = '';
+            filteredPayments.forEach(payment => {
+                const statusClass = getPaymentStatusClass(payment.status);
+                const statusLabel = getPaymentStatusLabel(payment.status);
+                const date = new Date(payment.created_at).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                paymentsHTML += `
+                    <div class="payment-card">
+                        <div class="payment-header">
+                            <div class="payment-info">
+                                <h3>Payment #${payment._id.substring(0, 8)}</h3>
+                                <p class="payment-date"><i class="fas fa-calendar"></i> ${date}</p>
+                            </div>
+                            <div class="payment-status">
+                                <span class="status-badge ${statusClass}">${statusLabel}</span>
+                            </div>
+                        </div>
+                        <div class="payment-details">
+                            <div class="payment-detail-item">
+                                <strong>Amount:</strong> ₹${payment.amount.toFixed(2)}
+                            </div>
+                            <div class="payment-detail-item">
+                                <strong>Payment Method:</strong> ${payment.payment_method || 'N/A'}
+                            </div>
+                            <div class="payment-detail-item">
+                                <strong>Transaction ID:</strong> ${payment.transaction_id || 'N/A'}
+                            </div>
+                        </div>
+                        ${payment.status === 'verification' ? `
+                            <div class="payment-actions">
+                                <button onclick="updatePaymentStatus('${payment._id}', 'done')" class="btn btn-success">
+                                    <i class="fas fa-check"></i> Mark as Done
+                                </button>
+                                <button onclick="updatePaymentStatus('${payment._id}', 'undone')" class="btn btn-danger">
+                                    <i class="fas fa-times"></i> Mark as Undone
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            paymentsList.innerHTML = paymentsHTML;
+        }
+
+        function getPaymentStatusClass(status) {
+            switch(status) {
+                case 'verification': return 'status-verification';
+                case 'done': return 'status-done';
+                case 'undone': return 'status-undone';
+                default: return 'status-pending';
+            }
+        }
+
+        function getPaymentStatusLabel(status) {
+            switch(status) {
+                case 'verification': return 'Verification';
+                case 'done': return 'Done';
+                case 'undone': return 'Undone';
+                default: return 'Pending';
+            }
+        }
+
+        function updatePaymentStats(payments) {
+            const verification = payments.filter(p => p.status === 'verification').length;
+            const done = payments.filter(p => p.status === 'done').length;
+            const undone = payments.filter(p => p.status === 'undone').length;
+
+            document.getElementById('pendingVerificationCount').textContent = verification;
+            document.getElementById('verifiedPaymentsCount').textContent = done;
+            document.getElementById('rejectedPaymentsCount').textContent = undone;
+        }
+
+        async function updatePaymentStatus(paymentId, newStatus) {
+            if (!confirm(`Are you sure you want to mark this payment as ${newStatus === 'done' ? 'Done' : 'Undone'}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/payments/${paymentId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    loadPayments(); // Reload payments
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error updating payment status:', error);
+                alert('Error updating payment status. Please try again.');
+            }
         }
 
         // Save all settings
@@ -6144,18 +6810,21 @@
             });
         }
 
-        function closeQuickAcceptModal() {
-            const modal = document.getElementById('quickAcceptModal');
+function closeQuickRejectModal() {
+            const modal = document.getElementById('quickRejectModal');
             if (modal) {
                 modal.remove();
             }
         }
 
-        function closeQuickRejectModal() {
-            const modal = document.getElementById('quickRejectModal');
-            if (modal) {
-                modal.remove();
-            }
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('imagePreview');
+                output.src = reader.result;
+                document.getElementById('imagePreviewContainer').style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
         }
     </script>
 </body>
