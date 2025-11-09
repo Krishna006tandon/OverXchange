@@ -576,8 +576,8 @@ def update_stock(stock_id):
         if not current_stock:
             return jsonify({'success': False, 'message': 'Stock not found'}), 404
         
-        current_quantity = current_stock.get('quantity', 0)
-        new_quantity = data.get('quantity', current_quantity)
+        current_quantity = current_stock.get('quantity_available', 0)
+        new_quantity = float(data.get('quantity_available', current_quantity))
         quantity_change = new_quantity - current_quantity
         
         # Prepare update data
