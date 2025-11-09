@@ -536,6 +536,9 @@ def update_stock(stock_id):
         current_quantity = current_stock.get('quantity', 0)
         new_quantity = data.get('quantity', current_quantity)
         quantity_change = new_quantity - current_quantity
+        current_quantity = current_stock.get('quantity_available', 0)
+        new_quantity = data.get('quantity_available', current_quantity)
+        quantity_change = float(new_quantity) - float(current_quantity)
         
         # Prepare update data
         update_data = data.copy()
