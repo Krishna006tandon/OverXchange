@@ -1,4 +1,5 @@
 import os
+import tempfile
 from datetime import timedelta
 
 class Config:
@@ -22,7 +23,10 @@ class Config:
     RATELIMIT_STORAGE_URL = "memory://"
     
     # File Upload Security
-    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
+    if os.environ.get('FLASK_ENV') == 'development':
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
+    else:
+        UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'}
     
