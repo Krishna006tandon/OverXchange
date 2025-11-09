@@ -22,14 +22,6 @@ class Config:
     RATELIMIT_DEFAULT = "200 per day;50 per hour;10 per minute"
     RATELIMIT_STORAGE_URL = "memory://"
     
-    # File Upload Security
-    if os.environ.get('FLASK_ENV') == 'development':
-        UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
-    else:
-        UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'uploads')
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'}
-    
     # Security Headers
     SECURITY_HEADERS = {
         'X-Content-Type-Options': 'nosniff',
@@ -72,9 +64,4 @@ class Config:
         def add_security_headers(response):
             for header, value in Config.SECURITY_HEADERS.items():
                 response.headers[header] = value
-            return response
-
-        # Create upload folder if it doesn't exist
-        upload_folder = app.config.get('UPLOAD_FOLDER')
-        if upload_folder and not os.path.exists(upload_folder):
-            os.makedirs(upload_folder)
+            return response 

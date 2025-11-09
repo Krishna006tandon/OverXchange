@@ -162,20 +162,6 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-@app.route('/uploads/<path:filename>')
-def uploaded_file(filename):
-    upload_dir = app.config['UPLOAD_FOLDER']
-    logger.info(f"Attempting to serve file: {filename} from directory: {upload_dir}")
-    file_path = os.path.join(upload_dir, filename)
-    if not os.path.isfile(file_path):
-        logger.error(f"File not found at path: {file_path}")
-        if os.path.exists(upload_dir):
-            logger.info(f"Contents of {upload_dir}: {os.listdir(upload_dir)}")
-        else:
-            logger.error(f"Upload directory does not exist: {upload_dir}")
-    return send_from_directory(upload_dir, filename)
-
-
 @app.route('/vendor-dashboard')
 def vendor_dashboard():
     return send_from_directory(FRONTEND_DIR, 'vendor-dashboard.html')
@@ -460,10 +446,7 @@ def get_stocks():
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
-        image_filename = stock.get('image_url')
-        if image_filename and not image_filename.startswith('http'):
-            stock['image_url'] = f"/uploads/{image_filename}"
-        elif not image_filename:
+        if not stock.get('image_url'):
             stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
@@ -474,10 +457,7 @@ def get_supplier_stocks(supplier_id):
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
-        image_filename = stock.get('image_url')
-        if image_filename and not image_filename.startswith('http'):
-            stock['image_url'] = f"/uploads/{image_filename}"
-        elif not image_filename:
+        if not stock.get('image_url'):
             stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
@@ -501,12 +481,42 @@ def add_stock():
         # Handle image upload
         if 'product_image' in request.files:
             image_file = request.files['product_image']
-            if image_file.filename != '':
-                # Sanitize filename and save
+            if image_file and image_file.filename != '':
                 filename = SecurityUtils.sanitize_filename(image_file.filename)
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                image_file.save(image_path)
-                data['image_url'] = filename
+                
+                try:
+                    token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+                    if not token:
+                        logger.error("BLOB_READ_WRITE_TOKEN not set.")
+                        return jsonify({'success': False, 'message': 'Image storage is not configured.'}), 500
+
+                    headers = {
+                        'x-api-version': '5',
+                        'authorization': f'Bearer {token}',
+                        'x-content-type': image_file.mimetype
+                    }
+                    
+                    upload_url = f'https://blob.vercel-storage.com/{filename}'
+                    
+                    file_content = image_file.read()
+
+                    response = requests.put(
+                        upload_url,
+                        data=file_content,
+                        headers=headers,
+                        timeout=30
+                    )
+                    response.raise_for_status()
+                    
+                    blob_data = response.json()
+                    data['image_url'] = blob_data['url']
+
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Failed to upload image to Vercel Blob: {e}")
+                    return jsonify({'success': False, 'message': 'Error uploading image.'}), 500
+                except Exception as e:
+                    logger.error(f"An unexpected error occurred during image upload: {e}")
+                    return jsonify({'success': False, 'message': 'An internal error occurred.'}), 500
 
         data['created_at'] = datetime.now()
         data['updated_at'] = datetime.now()
