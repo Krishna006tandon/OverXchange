@@ -164,7 +164,16 @@ def favicon():
 
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    upload_dir = app.config['UPLOAD_FOLDER']
+    logger.info(f"Attempting to serve file: {filename} from directory: {upload_dir}")
+    file_path = os.path.join(upload_dir, filename)
+    if not os.path.isfile(file_path):
+        logger.error(f"File not found at path: {file_path}")
+        if os.path.exists(upload_dir):
+            logger.info(f"Contents of {upload_dir}: {os.listdir(upload_dir)}")
+        else:
+            logger.error(f"Upload directory does not exist: {upload_dir}")
+    return send_from_directory(upload_dir, filename)
 
 
 @app.route('/vendor-dashboard')
