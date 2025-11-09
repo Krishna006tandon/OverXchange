@@ -54,6 +54,9 @@ vendor_chats = db['vendor_chats']
 vendor_feedback = db['vendor_feedback']
 vendor_analytics = db['vendor_analytics']
 
+# Payment collections
+payments_collection = db['payments']
+
 # Setup logging
 logging.basicConfig(
     level=getattr(logging, Config.LOG_LEVEL),
@@ -2139,6 +2142,274 @@ def verify_license_by_state(license_number):
 #         SecurityUtils.log_security_event('GOOGLE_AUTH_COMPLETE_ERROR', details=str(e))
 #         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
+# ==================== Payment Settings & Payment Workflow APIs ====================
+
+@app.route('/api/supplier/payment-settings/<supplier_id>', methods=['GET'])
+@require_auth
+def get_payment_settings(current_user, supplier_id):
+    """Get payment settings for a supplier"""
+    try:
+        # Verify supplier owns this account or is admin
+        if current_user['user_id'] != supplier_id and current_user.get('user_type') != 'admin':
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+        supplier = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+        if not supplier:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+
+        payment_settings = supplier.get('payment_settings', {})
+        return jsonify({
+            'success': True,
+            'payment_settings': payment_settings
+        })
+    except Exception as e:
+        logger.error(f"Error getting payment settings: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/supplier/payment-settings/<supplier_id>', methods=['PUT'])
+@require_auth
+def update_payment_settings(current_user, supplier_id):
+    """Update payment settings for a supplier"""
+    try:
+        # Verify supplier owns this account
+        if current_user['user_id'] != supplier_id:
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+        data = request.json
+        payment_settings = {
+            'preferred_method': data.get('preferred_method'),
+            'bank_details': data.get('bank_details'),
+            'upi_id': data.get('upi_id'),
+            'qr_code_url': data.get('qr_code_url'),
+            'updated_at': datetime.utcnow()
+        }
+
+        suppliers_collection.update_one(
+            {'_id': ObjectId(supplier_id)},
+            {'$set': {'payment_settings': payment_settings}}
+        )
+
+        return jsonify({
+            'success': True,
+            'message': 'Payment settings updated successfully'
+        })
+    except Exception as e:
+        logger.error(f"Error updating payment settings: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/supplier/upload-qr-code', methods=['POST'])
+@require_auth
+def upload_qr_code(current_user):
+    """Upload QR code image for supplier"""
+    try:
+        if 'qr_code' not in request.files:
+            return jsonify({'success': False, 'message': 'No file provided'}), 400
+
+        file = request.files['qr_code']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'No file selected'}), 400
+
+        if not allowed_file(file.filename):
+            return jsonify({'success': False, 'message': 'Invalid file type'}), 400
+
+        # Create uploads directory if it doesn't exist
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads', 'qr_codes')
+        os.makedirs(upload_dir, exist_ok=True)
+
+        # Generate unique filename
+        supplier_id = request.form.get('supplier_id') or current_user['user_id']
+        filename = f"qr_{supplier_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.{file.filename.rsplit('.', 1)[1].lower()}"
+        filepath = os.path.join(upload_dir, filename)
+
+        file.save(filepath)
+
+        # Generate URL (adjust based on your deployment)
+        qr_code_url = f"/uploads/qr_codes/{filename}"
+
+        return jsonify({
+            'success': True,
+            'qr_code_url': qr_code_url,
+            'message': 'QR code uploaded successfully'
+        })
+    except Exception as e:
+        logger.error(f"Error uploading QR code: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/supplier/payment-details/<supplier_id>', methods=['GET'])
+@require_auth
+def get_supplier_payment_details(current_user, supplier_id):
+    """Get supplier payment details for vendor payment form"""
+    try:
+        supplier = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+        if not supplier:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+
+        payment_settings = supplier.get('payment_settings', {})
+        preferred_method = payment_settings.get('preferred_method')
+
+        # Calculate pending amount (sum of earnings from completed orders)
+        pending_amount = 0
+        completed_orders = orders_collection.find({
+            'supplier_orders.supplier_id': supplier_id,
+            'supplier_orders.status': {'$in': ['completed', 'delivered']}
+        })
+
+        for order in completed_orders:
+            for supplier_order in order.get('supplier_orders', []):
+                if str(supplier_order.get('supplier_id')) == supplier_id:
+                    subtotal = supplier_order.get('subtotal', 0)
+                    # Calculate earnings (95% after 5% commission)
+                    earnings = subtotal * 0.95
+                    pending_amount += earnings
+
+        # Subtract already paid amounts
+        paid_payments = payments_collection.find({
+            'supplier_id': ObjectId(supplier_id),
+            'status': {'$in': ['done', 'verification']}
+        })
+        for payment in paid_payments:
+            pending_amount -= payment.get('amount', 0)
+
+        payment_details = {
+            'preferred_method': preferred_method,
+            'bank_details': payment_settings.get('bank_details'),
+            'upi_id': payment_settings.get('upi_id'),
+            'qr_code_url': payment_settings.get('qr_code_url'),
+            'pending_amount': max(0, pending_amount)  # Ensure non-negative
+        }
+
+        return jsonify({
+            'success': True,
+            'payment_details': payment_details
+        })
+    except Exception as e:
+        logger.error(f"Error getting payment details: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/vendor/payments', methods=['POST'])
+@require_auth
+def create_vendor_payment(current_user):
+    """Create a vendor payment to supplier"""
+    try:
+        data = request.json
+        vendor_id = current_user['user_id']
+        supplier_id = data.get('supplier_id')
+        amount = float(data.get('amount', 0))
+        payment_method = data.get('payment_method')
+        transaction_id = data.get('transaction_id')
+
+        if not supplier_id or not amount or not payment_method:
+            return jsonify({'success': False, 'message': 'Missing required fields'}), 400
+
+        if not transaction_id:
+            return jsonify({'success': False, 'message': 'Transaction ID is required'}), 400
+
+        # Verify supplier exists
+        supplier = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+        if not supplier:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+
+        # Get supplier's preferred payment method
+        payment_settings = supplier.get('payment_settings', {})
+        preferred_method = payment_settings.get('preferred_method', 'auto')
+        if payment_method == 'auto':
+            payment_method = preferred_method
+
+        # Create payment record
+        payment_doc = {
+            'vendor_id': ObjectId(vendor_id),
+            'supplier_id': ObjectId(supplier_id),
+            'amount': amount,
+            'payment_method': payment_method,
+            'transaction_id': transaction_id,
+            'status': 'verification',
+            'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow()
+        }
+
+        result = payments_collection.insert_one(payment_doc)
+
+        return jsonify({
+            'success': True,
+            'message': 'Payment submitted for verification',
+            'payment_id': str(result.inserted_id)
+        })
+    except Exception as e:
+        logger.error(f"Error creating payment: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/payments', methods=['GET'])
+@require_auth
+def get_payments(current_user):
+    """Get payments list for supplier or admin"""
+    try:
+        user_id = current_user['user_id']
+        user_type = current_user.get('user_type', 'supplier')
+
+        query = {}
+        if user_type == 'supplier':
+            query['supplier_id'] = ObjectId(user_id)
+        elif user_type == 'vendor':
+            query['vendor_id'] = ObjectId(user_id)
+        # Admin can see all payments
+
+        payments = list(payments_collection.find(query).sort('created_at', -1))
+
+        # Convert ObjectId to string
+        for payment in payments:
+            payment['_id'] = str(payment['_id'])
+            payment['vendor_id'] = str(payment['vendor_id'])
+            payment['supplier_id'] = str(payment['supplier_id'])
+
+        return jsonify({
+            'success': True,
+            'payments': payments
+        })
+    except Exception as e:
+        logger.error(f"Error getting payments: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/payments/<payment_id>/status', methods=['PUT'])
+@require_auth
+def update_payment_status(current_user, payment_id):
+    """Update payment status (Done/Undone)"""
+    try:
+        data = request.json
+        new_status = data.get('status')  # 'done' or 'undone'
+
+        if new_status not in ['done', 'undone']:
+            return jsonify({'success': False, 'message': 'Invalid status'}), 400
+
+        payment = payments_collection.find_one({'_id': ObjectId(payment_id)})
+        if not payment:
+            return jsonify({'success': False, 'message': 'Payment not found'}), 404
+
+        user_id = current_user['user_id']
+        user_type = current_user.get('user_type', 'supplier')
+
+        # Verify user has permission (supplier or admin)
+        if user_type != 'admin' and str(payment['supplier_id']) != user_id:
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+        # Update payment status
+        payments_collection.update_one(
+            {'_id': ObjectId(payment_id)},
+            {'$set': {
+                'status': new_status,
+                'updated_at': datetime.utcnow(),
+                'verified_by': user_id,
+                'verified_at': datetime.utcnow()
+            }}
+        )
+
+        message = 'Payment verified successfully.' if new_status == 'done' else 'Payment marked as undone.'
+        return jsonify({
+            'success': True,
+            'message': message
+        })
+    except Exception as e:
+        logger.error(f"Error updating payment status: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     # Use environment variables for host and port
