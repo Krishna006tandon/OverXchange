@@ -983,7 +983,7 @@ def download_bill(current_user, order_id):
                                     <td>
                                         Customer: {order.get('customer_info', {}).get('firstName', 'N/A')} {order.get('customer_info', {}).get('lastName', '')}<br>
                                         {order.get('shipping_address', {}).get('addressLine1', '')}<br>
-                                        {order.get('shipping_address', {{}}).get('city', '')}, {order.get('shipping_address', {{}}).get('state', '')} {order.get('shipping_address', {{}}).get('pincode', '')}
+                                        {order.get('shipping_address', {}).get('city', '')}, {order.get('shipping_address', {}).get('state', '')} {order.get('shipping_address', {}).get('pincode', '')}
                                     </td>
                                 </tr>
                             </table>
