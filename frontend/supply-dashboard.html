@@ -5827,18 +5827,38 @@
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showSupplierOrderDetailsModal(data.order);
-                    } else {
-                        alert('Failed to load order details: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading order details:', error);
-                    alert('Error loading order details. Please try again.');
-                });
+            .then(response => {
+                if (!response.ok) {
+                    // If response is not ok, get text and throw error to be caught by .catch
+                    return response.text().then(text => {
+                        throw new Error(`Server returned ${response.status} ${response.statusText}: ${text.substring(0, 200)}...`);
+                    });
+                }
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(`Expected JSON, but got HTML/text. Session might have expired. Response: ${text.substring(0, 200)}...`);
+                    });
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    showSupplierOrderDetailsModal(data.order);
+                } else {
+                    alert('Failed to load order details: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading order details:', error);
+                if (error.message.includes("Session might have expired")) {
+                    alert('Your session may have expired. Please log in again.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Error loading order details. Check console for more information.');
+                }
+            });
         }
 
         function showSupplierOrderDetailsModal(order) {
