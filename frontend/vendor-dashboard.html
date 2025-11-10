@@ -1053,6 +1053,302 @@ Description: ${data.listing.description}`);
         function showChat() {
             showSection('messagesContainer');
         }
+
+        // ==================== Vendor Payment Functions ====================
+        let currentPaymentSupplierId = null;
+        let currentPaymentSupplierName = null;
+
+        async function initiatePayment(supplierId, supplierName) {
+            currentPaymentSupplierId = supplierId;
+            currentPaymentSupplierName = supplierName;
+            
+            try {
+                // Fetch supplier payment details
+                const response = await fetch(`/api/supplier/payment-details/${supplierId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+                if (!result.success) {
+                    alert('Error loading payment details: ' + result.message);
+                    return;
+                }
+
+                const paymentDetails = result.payment_details;
+                showPaymentModal(paymentDetails);
+            } catch (error) {
+                console.error('Error fetching payment details:', error);
+                alert('Error loading payment details. Please try again.');
+            }
+        }
+
+        function showPaymentModal(paymentDetails) {
+            const modal = document.getElementById('paymentModal');
+            if (!modal) {
+                createPaymentModal();
+            }
+
+            const modalContent = document.getElementById('paymentModalContent');
+            const preferredMethod = paymentDetails.preferred_method || '';
+
+            let paymentMethodHTML = '';
+            if (preferredMethod === 'qr' && paymentDetails.qr_code_url) {
+                paymentMethodHTML = `
+                    <div class="payment-method-display">
+                        <h4>Scan QR Code to Pay</h4>
+                        <img src="${paymentDetails.qr_code_url}" alt="QR Code" style="max-width: 300px; max-height: 300px; border: 2px solid #e1e5e9; border-radius: 10px; padding: 10px; background: white;">
+                    </div>
+                `;
+            } else if (preferredMethod === 'upi' && paymentDetails.upi_id) {
+                paymentMethodHTML = `
+                    <div class="payment-method-display">
+                        <h4>UPI Payment</h4>
+                        <p style="font-size: 18px; font-weight: 600; color: #667eea; padding: 15px; background: #f0f4ff; border-radius: 8px;">
+                            <i class="fas fa-mobile-alt"></i> ${paymentDetails.upi_id}
+                        </p>
+                        <button onclick="copyUPI('${paymentDetails.upi_id}')" class="btn-secondary" style="margin-top: 10px;">
+                            <i class="fas fa-copy"></i> Copy UPI ID
+                        </button>
+                    </div>
+                `;
+            } else if (preferredMethod === 'bank' && paymentDetails.bank_details) {
+                const bank = paymentDetails.bank_details;
+                paymentMethodHTML = `
+                    <div class="payment-method-display">
+                        <h4>Bank Transfer Details</h4>
+                        <div style="background: #f0f4ff; padding: 20px; border-radius: 8px;">
+                            <p><strong>Bank Name:</strong> ${bank.bank_name || 'N/A'}</p>
+                            <p><strong>Account Number:</strong> ${bank.account_number || 'N/A'}</p>
+                            <p><strong>IFSC Code:</strong> ${bank.ifsc_code || 'N/A'}</p>
+                            <p><strong>Account Holder:</strong> ${bank.account_holder_name || 'N/A'}</p>
+                            <p><strong>Branch:</strong> ${bank.branch || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                paymentMethodHTML = '<p style="color: #e53e3e;">No payment method configured by supplier.</p>';
+            }
+
+            modalContent.innerHTML = `
+                <div class="payment-modal-header">
+                    <h2><i class="fas fa-credit-card"></i> Make Payment to ${currentPaymentSupplierName}</h2>
+                    <button onclick="closePaymentModal()" class="close-btn">&times;</button>
+                </div>
+                <div class="payment-modal-body">
+                    ${paymentMethodHTML}
+                    <div class="payment-amount-section">
+                        <label for="paymentAmount">Payment Amount (₹)</label>
+                        <input type="number" id="paymentAmount" value="${paymentDetails.pending_amount || 0}" step="0.01" min="0" required>
+                        <small>Pending Amount: ₹${(paymentDetails.pending_amount || 0).toFixed(2)}</small>
+                    </div>
+                    <div class="payment-transaction-section">
+                        <label for="transactionId">Transaction ID *</label>
+                        <input type="text" id="transactionId" placeholder="Enter transaction/reference number" required>
+                        <small>Enter the transaction ID from your payment app/bank</small>
+                    </div>
+                    <div class="payment-status-info">
+                        <p><i class="fas fa-info-circle"></i> After confirming, payment will be submitted for verification.</p>
+                    </div>
+                </div>
+                <div class="payment-modal-footer">
+                    <button onclick="closePaymentModal()" class="btn-secondary">Cancel</button>
+                    <button onclick="confirmPayment()" class="btn-primary" id="confirmPaymentBtn">
+                        <i class="fas fa-check"></i> Confirm Payment
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function createPaymentModal() {
+            const modal = document.createElement('div');
+            modal.id = 'paymentModal';
+            modal.className = 'payment-modal';
+            modal.innerHTML = '<div id="paymentModalContent" class="payment-modal-content"></div>';
+            document.body.appendChild(modal);
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            currentPaymentSupplierId = null;
+            currentPaymentSupplierName = null;
+        }
+
+        function copyUPI(upiId) {
+            navigator.clipboard.writeText(upiId).then(() => {
+                alert('UPI ID copied to clipboard!');
+            });
+        }
+
+        async function confirmPayment() {
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const transactionId = document.getElementById('transactionId').value.trim();
+            const confirmBtn = document.getElementById('confirmPaymentBtn');
+
+            // Validation
+            if (!transactionId) {
+                alert('Please enter Transaction ID');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid payment amount');
+                return;
+            }
+
+            // Disable button during processing
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const response = await fetch('/api/vendor/payments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        supplier_id: currentPaymentSupplierId,
+                        amount: amount,
+                        payment_method: 'auto', // Will be determined from supplier settings
+                        transaction_id: transactionId
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Payment submitted for verification.');
+                    closePaymentModal();
+                } else {
+                    alert('Error: ' + result.message);
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm Payment';
+                }
+            } catch (error) {
+                console.error('Error confirming payment:', error);
+                alert('Error submitting payment. Please try again.');
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm Payment';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('paymentModal');
+            if (event.target === modal) {
+                closePaymentModal();
+            }
+        }
     </script>
+    <style>
+        .payment-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .payment-modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .payment-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+
+        .payment-modal-header h2 {
+            margin: 0;
+            color: #2d3748;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .payment-method-display {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .payment-amount-section, .payment-transaction-section {
+            margin: 20px 0;
+        }
+
+        .payment-amount-section label, .payment-transaction-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .payment-amount-section input, .payment-transaction-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .payment-status-info {
+            background: #e6fffa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #234e52;
+        }
+
+        .payment-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e1e5e9;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+    </style>
 </body>
 </html>
