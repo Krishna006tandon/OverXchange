@@ -961,15 +961,15 @@ def download_bill(current_user, order_id):
             logger.warning(f"Order not found for ID: {order_id}")
             return jsonify({'success': False, 'message': 'Order not found'}), 404
 
-        logger.info(f"Order object for bill: {order}")
+        logger.debug(f"Full order object for bill: {json.dumps(order, default=str, indent=2)}")
 
         # Fetch vendor details
         vendor_id = order.get('vendor_id')
         vendor_info = None
         if vendor_id:
-            logger.info(f"Fetching vendor info for vendor_id: {vendor_id}")
+            logger.debug(f"Fetching vendor info for vendor_id: {vendor_id}")
             vendor_info = db['vendors'].find_one({'_id': ObjectId(vendor_id)})
-            logger.info(f"Vendor info fetched: {vendor_info}")
+            logger.debug(f"Vendor info fetched: {json.dumps(vendor_info, default=str, indent=2)}")
         else:
             logger.warning(f"vendor_id not found in order: {order_id}")
 
@@ -1043,8 +1043,10 @@ def download_bill(current_user, order_id):
         """
 
         for so in order.get('supplier_orders', []):
+            logger.debug(f"Processing supplier_order: {json.dumps(so, default=str, indent=2)}")
             # Fetch full supplier details if needed, otherwise use what's in so
             supplier_full_info = db['suppliers'].find_one({'_id': ObjectId(so['supplier_id'])}) if so.get('supplier_id') else None
+            logger.debug(f"Supplier full info: {json.dumps(supplier_full_info, default=str, indent=2)}")
             
             bill_html += f"""
                 <tr class="heading">
@@ -1396,7 +1398,7 @@ def vendor_register():
         'email': data['email'],
         'password': hashed_password,
         'company': data.get('company', ''),
-        'location': data.get('location', ''),
+        'address': data.get('address', ''), # Changed from 'location' to 'address'
         'phone': data.get('phone', ''),
         'trust_score': 5.0,
         'total_transactions': 0,
