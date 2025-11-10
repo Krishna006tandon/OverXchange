@@ -642,8 +642,13 @@ def create_order(current_user):
         for item in data['items']:
             supplier_id = item.get('supplierId')
             if supplier_id not in supplier_orders:
+                # Fetch supplier details to get the name
+                supplier_doc = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+                supplier_name = supplier_doc.get('name', 'Unknown Supplier') if supplier_doc else 'Unknown Supplier'
+                
                 supplier_orders[supplier_id] = {
                     'supplier_id': supplier_id,
+                    'supplier_name': supplier_name, # Add supplier_name here
                     'items': [],
                     'subtotal': 0,
                     'status': 'pending'
@@ -654,6 +659,7 @@ def create_order(current_user):
         # Create the main order document
         order_doc = {
             'vendor_id': ObjectId(vendor_id),
+            'customer_info': data.get('customer_info'), # Assuming customer_info is passed from frontend
             'shipping_address': data['shipping_address'],
             'total_amount': data['total_amount'],
             'subtotal': data['subtotal'],
@@ -662,6 +668,7 @@ def create_order(current_user):
             'discount': data.get('discount', 0),
             'coupon_code': data.get('coupon_code'),
             'status': 'pending', # Overall order status
+            'order_date': datetime.utcnow(), # Add order_date
             'created_at': datetime.utcnow(),
             'supplier_orders': list(supplier_orders.values()) # Embed supplier-specific orders
         }

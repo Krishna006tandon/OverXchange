@@ -5863,8 +5863,9 @@
 
         function showSupplierOrderDetailsModal(order) {
             // Get supplier-specific items
+            const currentSupplierId = getCurrentSupplierId();
             const supplierItems = order.supplier_orders.find(so => 
-                so.supplier_name === getCurrentSupplierName()
+                so.supplier_id === currentSupplierId || so.supplier_name === getCurrentSupplierName()
             );
 
             if (!supplierItems) {
