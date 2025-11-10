@@ -5646,7 +5646,7 @@
                             <div class="order-info">
                                 <h3>Order #${order._id}</h3>
                                 <p class="order-date">${orderDate}</p>
-                                <p class="customer-info">Customer: ${order.customer_info?.firstName} ${order.customer_info?.lastName}</p>
+                                <p class="customer-info">Customer: ${order.customer_info?.firstName ?? 'N/A'} ${order.customer_info?.lastName ?? ''}</p>
                             </div>
                             <div class="order-status">
                                 <span class="status-badge ${statusClass}">${supplierItems.status.toUpperCase()}</span>
@@ -5921,9 +5921,9 @@
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
                                         <h4 style="margin: 0 0 10px 0; font-size: 16px; opacity: 0.9;">Personal Details</h4>
-                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-user" style="margin-right: 8px; width: 16px;"></i><strong>Name:</strong> ${order.customer_info.firstName} ${order.customer_info.lastName}</p>
-                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-envelope" style="margin-right: 8px; width: 16px;"></i><strong>Email:</strong> ${order.customer_info.email}</p>
-                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-phone" style="margin-right: 8px; width: 16px;"></i><strong>Phone:</strong> ${order.customer_info.phone}</p>
+                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-user" style="margin-right: 8px; width: 16px;"></i><strong>Name:</strong> ${order.customer_info?.firstName ?? 'N/A'} ${order.customer_info?.lastName ?? ''}</p>
+                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-envelope" style="margin-right: 8px; width: 16px;"></i><strong>Email:</strong> ${order.customer_info?.email ?? 'N/A'}</p>
+                                        <p style="margin: 5px 0; font-size: 15px;"><i class="fas fa-phone" style="margin-right: 8px; width: 16px;"></i><strong>Phone:</strong> ${order.customer_info?.phone ?? 'N/A'}</p>
                                     </div>
                                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
                                         <h4 style="margin: 0 0 10px 0; font-size: 16px; opacity: 0.9;">Shipping Address</h4>
