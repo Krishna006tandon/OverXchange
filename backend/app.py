@@ -1874,13 +1874,36 @@ def verify_license_automatically(file_content, file_type):
             #         'mime_type': 'image/png',
             #         'data': img_bytes
             #     })
-            logger.warning("PDF processing is a placeholder. Only image files are fully supported for Gemini Vision Pro.")
-            return {
-                'is_valid': False,
-                'confidence': 0,
-                'error': 'PDF processing not fully implemented yet. Please upload an image.',
-                'verification_date': datetime.now().isoformat()
-            }
+        elif file_type == 'application/pdf':
+            logger.info("Processing PDF file.")
+            try:
+                import fitz # PyMuPDF
+                doc = fitz.open(stream=file_content, filetype="pdf")
+                for page_num in range(len(doc)):
+                    page = doc.load_page(page_num)
+                    pix = page.get_pixmap(matrix=fitz.Matrix(2, 2)) # Render at 2x resolution for better OCR
+                    img_bytes = pix.tobytes(format="png")
+                    image_parts.append({
+                        'mime_type': 'image/png',
+                        'data': img_bytes
+                    })
+                logger.info(f"Successfully converted {len(doc)} PDF pages to images.")
+            except ImportError:
+                logger.error("PyMuPDF not installed. Cannot process PDF files.")
+                return {
+                    'is_valid': False,
+                    'confidence': 0,
+                    'error': 'PyMuPDF is not installed. Please install it to process PDF files.',
+                    'verification_date': datetime.now().isoformat()
+                }
+            except Exception as e:
+                logger.error(f"Error processing PDF file with PyMuPDF: {e}")
+                return {
+                    'is_valid': False,
+                    'confidence': 0,
+                    'error': f'Error processing PDF file: {str(e)}',
+                    'verification_date': datetime.now().isoformat()
+                }
         else:
             return {
                 'is_valid': False,
