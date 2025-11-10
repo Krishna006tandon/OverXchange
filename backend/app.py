@@ -769,6 +769,244 @@ def get_order_details(current_user, order_id):
         logger.error(f"Get order details error: {str(e)}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
+@app.route('/api/orders/<order_id>/accept', methods=['POST'])
+@require_auth
+def accept_order(current_user, order_id):
+    """Accept a supplier's portion of an order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        data = request.json
+        supplier_name = data.get('supplier_name')
+        if not supplier_name:
+            return jsonify({'success': False, 'message': 'Supplier name is required'}), 400
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        # Find the specific supplier order and update its status
+        supplier_order_found = False
+        stock_update_messages = []
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_name') == supplier_name and so.get('status') == 'pending':
+                so['status'] = 'accepted'
+                supplier_order_found = True
+
+                # Deduct stock
+                for item in so.get('items', []):
+                    stock_item = stocks_collection.find_one({'_id': ObjectId(item['id'])})
+                    if stock_item:
+                        new_quantity = stock_item.get('quantity_available', 0) - item.get('quantity', 0)
+                        if new_quantity < 0:
+                            # Not enough stock, this is a problem. For now, we'll just note it.
+                            stock_update_messages.append(f"Warning: Not enough stock for {item['name']}. Stock is {stock_item.get('quantity_available', 0)}, order requires {item.get('quantity', 0)}.")
+                            # In a real-world scenario, you might reject the order here or handle backorders.
+                            new_quantity = 0 # Set to 0 to avoid negative stock
+                        
+                        stocks_collection.update_one(
+                            {'_id': ObjectId(item['id'])},
+                            {'$set': {'quantity_available': new_quantity, 'updated_at': datetime.utcnow()}}
+                        )
+                        stock_update_messages.append(f"Stock for {item['name']} updated to {new_quantity}.")
+                    else:
+                        stock_update_messages.append(f"Warning: Stock item with ID {item['id']} not found for {item['name']}.")
+
+                break
+        
+        if not supplier_order_found:
+            return jsonify({'success': False, 'message': 'No pending order found for this supplier'}), 400
+
+        # Update the order in the database
+        orders_collection.update_one({'_id': ObjectId(order_id)}, {'$set': {'supplier_orders': order['supplier_orders']}})
+
+        return jsonify({'success': True, 'message': 'Order accepted successfully!', 'stock_updated': True, 'stock_message': " ".join(stock_update_messages)})
+
+    except Exception as e:
+        logger.error(f"Accept order error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/reject', methods=['POST'])
+@require_auth
+def reject_order(current_user, order_id):
+    """Reject a supplier's portion of an order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        data = request.json
+        supplier_name = data.get('supplier_name')
+        rejection_reason = data.get('rejection_reason', 'No reason provided')
+
+        if not supplier_name:
+            return jsonify({'success': False, 'message': 'Supplier name is required'}), 400
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        # Find the specific supplier order and update its status
+        supplier_order_found = False
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_name') == supplier_name and so.get('status') == 'pending':
+                so['status'] = 'rejected'
+                so['rejection_reason'] = rejection_reason
+                supplier_order_found = True
+                break
+        
+        if not supplier_order_found:
+            return jsonify({'success': False, 'message': 'No pending order found for this supplier'}), 400
+
+        # Update the order in the database
+        orders_collection.update_one({'_id': ObjectId(order_id)}, {'$set': {'supplier_orders': order['supplier_orders']}})
+
+        return jsonify({'success': True, 'message': 'Order rejected successfully!'})
+
+    except Exception as e:
+        logger.error(f"Reject order error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/delivery', methods=['PUT'])
+@require_auth
+def update_delivery_info(current_user, order_id):
+    """Update delivery info for a supplier's portion of an order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        data = request.json
+        supplier_name = data.get('supplier_name')
+        tracking_number = data.get('tracking_number')
+        estimated_delivery = data.get('estimated_delivery')
+        delivery_notes = data.get('delivery_notes')
+
+        if not supplier_name:
+            return jsonify({'success': False, 'message': 'Supplier name is required'}), 400
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        # Find the specific supplier order and update it
+        supplier_order_found = False
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_name') == supplier_name:
+                if tracking_number:
+                    so['tracking_number'] = tracking_number
+                if estimated_delivery:
+                    so['estimated_delivery'] = estimated_delivery
+                if delivery_notes:
+                    so['delivery_notes'] = delivery_notes
+                supplier_order_found = True
+                break
+        
+        if not supplier_order_found:
+            return jsonify({'success': False, 'message': 'No order found for this supplier'}), 400
+
+        # Update the order in the database
+        orders_collection.update_one({'_id': ObjectId(order_id)}, {'$set': {'supplier_orders': order['supplier_orders']}})
+
+        return jsonify({'success': True, 'message': 'Delivery information updated successfully!'})
+
+    except Exception as e:
+        logger.error(f"Update delivery info error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/bill', methods=['GET'])
+@require_auth
+def download_bill(current_user, order_id):
+    """Generate an HTML bill for a specific order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        # Simple HTML bill template
+        bill_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Invoice for Order #{str(order['_id'])}</title>
+            <style>
+                body {{ font-family: sans-serif; margin: 20px; }}
+                .invoice-box {{ max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; color: #555; }}
+                .invoice-box table {{ width: 100%; line-height: inherit; text-align: left; }}
+                .invoice-box table td {{ padding: 5px; vertical-align: top; }}
+                .invoice-box table tr.top table td {{ padding-bottom: 20px; }}
+                .invoice-box table tr.heading td {{ background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }}
+                .invoice-box table tr.item td {{ border-bottom: 1px solid #eee; }}
+                .invoice-box table tr.total td:nth-child(2) {{ border-top: 2px solid #eee; font-weight: bold; }}
+                .rtl {{ direction: rtl; }}
+            </style>
+        </head>
+        <body>
+            <div class="invoice-box">
+                <table>
+                    <tr class="top">
+                        <td colspan="2">
+                            <table>
+                                <tr>
+                                    <td class="title">
+                                        <h2>OverXchange Inc.</h2>
+                                    </td>
+                                    <td>
+                                        Invoice #: {str(order['_id'])}<br>
+                                        Created: {order.get('created_at').strftime('%B %d, %Y')}<br>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="information">
+                        <td colspan="2">
+                            <table>
+                                <tr>
+                                    <td>
+                                        Customer: {order.get('customer_info', {{}}).get('firstName', 'N/A')} {order.get('customer_info', {{}}).get('lastName', '')}<br>
+                                        {order.get('shipping_address', {{}}).get('addressLine1', '')}<br>
+                                        {order.get('shipping_address', {{}}).get('city', '')}, {order.get('shipping_address', {{}}).get('state', '')} {order.get('shipping_address', {{}}).get('pincode', '')}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="heading">
+                        <td>Item</td>
+                        <td>Price</td>
+                    </tr>
+        """
+
+        for so in order.get('supplier_orders', []):
+            bill_html += f"<tr class='heading'><td colspan='2'>Supplier: {so.get('supplier_name', 'N/A')}</td></tr>"
+            for item in so.get('items', []):
+                bill_html += f"""
+                    <tr class="item">
+                        <td>{item.get('name', 'N/A')} (x{item.get('quantity', 0)})</td>
+                        <td>₹{item.get('price', 0) * item.get('quantity', 0):.2f}</td>
+                    </tr>
+                """
+        
+        bill_html += f"""
+                    <tr class="total">
+                        <td></td>
+                        <td>Total: ₹{order.get('total_amount', 0):.2f}</td>
+                    </tr>
+                </table>
+            </div>
+        </body>
+        </html>
+        """
+
+        return jsonify({{'success': True, 'bill_html': bill_html}})
+
+    except Exception as e:
+        logger.error(f"Download bill error: {str(e)}")
+        return jsonify({{'success': False, 'message': 'Internal server error'}}), 500
+
 @app.route('/api/dashboard/<supplier_id>', methods=['GET'])
 def get_dashboard_data(supplier_id):
     """Get dashboard analytics for a supplier"""

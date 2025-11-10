@@ -6099,39 +6099,39 @@
                                 
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                                     ${supplierItems.status === 'pending' ? `
-                                    <button class="btn btn-primary" onclick="acceptOrderFromDetails('${order.order_id}')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
+                                    <button class="btn btn-primary" onclick="acceptOrderFromDetails('${order._id}')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
                                         <i class="fas fa-check-circle" style="margin-right: 8px;"></i>✅ Accept Order
                                     </button>
-                                    <button class="btn btn-danger" onclick="rejectOrderFromDetails('${order.order_id}')" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); font-size: 16px;">
+                                    <button class="btn btn-danger" onclick="rejectOrderFromDetails('${order._id}')" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); font-size: 16px;">
                                         <i class="fas fa-times-circle" style="margin-right: 8px;"></i>❌ Reject Order
                                     </button>
                                     ` : ''}
                                     
                                     ${supplierItems.status === 'accepted' ? `
-                                    <button class="btn btn-primary" onclick="updateOrderStatus('${order.order_id}', 'processing')" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); font-size: 16px;">
+                                    <button class="btn btn-primary" onclick="updateOrderStatus('${order._id}', 'processing')" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); font-size: 16px;">
                                         <i class="fas fa-cog" style="margin-right: 8px;"></i>⚙️ Process Order
                                     </button>
-                                    <button class="btn btn-success" onclick="updateOrderStatus('${order.order_id}', 'shipped')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
+                                    <button class="btn btn-success" onclick="updateOrderStatus('${order._id}', 'shipped')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
                                         <i class="fas fa-shipping-fast" style="margin-right: 8px;"></i>🚚 Mark Shipped
                                     </button>
                                     ` : ''}
                                     
                                     ${supplierItems.status === 'processing' ? `
-                                    <button class="btn btn-success" onclick="updateOrderStatus('${order.order_id}', 'shipped')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
+                                    <button class="btn btn-success" onclick="updateOrderStatus('${order._id}', 'shipped')" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); font-size: 16px;">
                                         <i class="fas fa-shipping-fast" style="margin-right: 8px;"></i>🚚 Mark Shipped
                                     </button>
                                     ` : ''}
                                     
                                     ${supplierItems.status === 'shipped' ? `
-                                    <button class="btn btn-warning" onclick="updateOrderStatus('${order.order_id}', 'delivered')" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3); font-size: 16px;">
+                                    <button class="btn btn-warning" onclick="updateOrderStatus('${order._id}', 'delivered')" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3); font-size: 16px;">
                                         <i class="fas fa-check-double" style="margin-right: 8px;"></i>✅ Mark Delivered
                                     </button>
-                                    <button class="btn btn-info" onclick="showDeliveryModal('${order.order_id}')" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3); font-size: 16px;">
+                                    <button class="btn btn-info" onclick="showDeliveryModal('${order._id}')" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3); font-size: 16px;">
                                         <i class="fas fa-truck" style="margin-right: 8px;"></i>📦 Update Tracking
                                     </button>
                                     ` : ''}
                                     
-                                    <button class="btn btn-info" onclick="downloadBill('${order.order_id}')" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3); font-size: 16px;">
+                                    <button class="btn btn-info" onclick="downloadBill('${order._id}')" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3); font-size: 16px;">
                                         <i class="fas fa-download" style="margin-right: 8px;"></i>📄 Download Bill
                                     </button>
                                     
