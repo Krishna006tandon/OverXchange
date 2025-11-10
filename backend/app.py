@@ -729,6 +729,10 @@ def get_supplier_orders(current_user):
 def get_order_details(current_user, order_id):
     """Get details for a specific order"""
     try:
+        # Add validation for order_id
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
         order = orders_collection.find_one({'_id': ObjectId(order_id)})
 
         if not order:
