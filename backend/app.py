@@ -981,8 +981,8 @@ def download_bill(current_user, order_id):
                             <table>
                                 <tr>
                                     <td>
-                                        Customer: {order.get('customer_info', {{}}).get('firstName', 'N/A')} {order.get('customer_info', {{}}).get('lastName', '')}<br>
-                                        {order.get('shipping_address', {{}}).get('addressLine1', '')}<br>
+                                        Customer: {order.get('customer_info', {}).get('firstName', 'N/A')} {order.get('customer_info', {}).get('lastName', '')}<br>
+                                        {order.get('shipping_address', {}).get('addressLine1', '')}<br>
                                         {order.get('shipping_address', {{}}).get('city', '')}, {order.get('shipping_address', {{}}).get('state', '')} {order.get('shipping_address', {{}}).get('pincode', '')}
                                     </td>
                                 </tr>
@@ -1015,10 +1015,10 @@ def download_bill(current_user, order_id):
         </body>
         </html>
         """
-        return jsonify({{'success': True, 'bill_html': bill_html}})
+        return jsonify({'success': True, 'bill_html': bill_html})
     except Exception as e:
         logger.error(f"Download bill error: {str(e)}")
-        return jsonify({{'success': False, 'message': 'Internal server error'}}), 500
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 
 @app.route('/api/dashboard/<supplier_id>', methods=['GET'])
