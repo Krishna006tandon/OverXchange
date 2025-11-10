@@ -50,9 +50,126 @@
             <input type="tel" placeholder="Phone (OTP Verified)" required>
             <input type="email" placeholder="Email (OTP Verified)" required>
             <input type="text" placeholder="GSTIN (Mandatory)" required>
-            <input type="text" placeholder="Business Proof (Mandatory)" required>
-            <input type="number" placeholder="Minimum Order Quantity (MOQ)" required>
-            <input type="text" placeholder="Available Logistics Options" required>
+            .signup-links a:hover { text-decoration: underline; }
+
+        /* New styles for license upload */
+        .license-upload-section {
+            margin-top: 20px;
+            border: 1px dashed #c7d2fe;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8fafc;
+        }
+
+        .license-upload-section h3 {
+            color: #3730a3;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .license-upload-section .file-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .license-upload-section .file-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #c7d2fe;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .license-upload-section .btn-ai-verify {
+            background: linear-gradient(90deg, #805ad5 0%, #a78bfa 100%); /* Purple for AI */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .license-upload-section .btn-ai-verify:hover {
+            background: linear-gradient(90deg, #a78bfa 0%, #805ad5 100%);
+            transform: translateY(-1px);
+        }
+
+        .ai-verification-result {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            text-align: left;
+        }
+
+        .ai-verification-result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .ai-verification-result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .ai-verification-result.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-logo">
+                <span class="navbar-logo-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 13l3 3 7-7" stroke="#fff" stroke-width="2" fill="none"/></svg>
+                </span>
+                OverXchange
+            </a>
+            <div class="navbar-links">
+                <a href="index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+    <div class="signup-container">
+        <h2>Supplier Signup</h2>
+        <form id="supplierSignupForm">
+            <input type="text" id="businessName" placeholder="Business Name" required>
+            <input type="file" id="businessLogo" accept="image/*" placeholder="Business Logo" style="padding:8px;">
+            <input type="text" id="productCategories" placeholder="Product Categories Supplied" required>
+            <input type="text" id="warehouseAddress" placeholder="Warehouse Address" required>
+            <input type="tel" id="phone" placeholder="Phone (OTP Verified)" required>
+            <input type="email" id="email" placeholder="Email (OTP Verified)" required>
+            <input type="text" id="gstin" placeholder="GSTIN (Mandatory)" required>
+            
+            <div class="license-upload-section">
+                <h3>License Verification with AI</h3>
+                <p>Upload your FSSAI or other business license for AI-powered verification.</p>
+                <div class="file-input-group">
+                    <input type="file" id="licenseDocument" accept=".pdf,image/*" class="file-input">
+                    <button type="button" class="btn-ai-verify" onclick="uploadLicenseForAIVerification()">
+                        <i class="fas fa-robot"></i> Verify with AI
+                    </button>
+                </div>
+                <div id="aiVerificationResult" class="ai-verification-result" style="display: none;"></div>
+                <input type="hidden" id="aiExtractedLicenseNumber">
+                <input type="hidden" id="aiExtractedBusinessName">
+                <input type="hidden" id="aiExtractedAddress">
+                <input type="hidden" id="aiVerificationStatus">
+            </div>
+
+            <input type="text" id="businessProof" placeholder="Business Proof (Mandatory)" required>
+            <input type="number" id="moq" placeholder="Minimum Order Quantity (MOQ)" required>
+            <input type="text" id="logisticsOptions" placeholder="Available Logistics Options" required>
             <button type="submit">Sign Up as Supplier</button>
         </form>
         <div class="signup-links">
@@ -60,5 +177,138 @@
             Want to buy or join group orders? <a href="signup_vendor.html">Vendor Signup</a>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const supplierSignupForm = document.getElementById('supplierSignupForm');
+            supplierSignupForm.addEventListener('submit', handleSupplierSignup);
+        });
+
+        async function uploadLicenseForAIVerification() {
+            const licenseDocumentInput = document.getElementById('licenseDocument');
+            const aiVerificationResultDiv = document.getElementById('aiVerificationResult');
+            const aiExtractedLicenseNumber = document.getElementById('aiExtractedLicenseNumber');
+            const aiExtractedBusinessName = document.getElementById('aiExtractedBusinessName');
+            const aiExtractedAddress = document.getElementById('aiExtractedAddress');
+            const aiVerificationStatus = document.getElementById('aiVerificationStatus');
+
+            aiVerificationResultDiv.style.display = 'none'; // Hide previous messages
+            aiExtractedLicenseNumber.value = '';
+            aiExtractedBusinessName.value = '';
+            aiExtractedAddress.value = '';
+            aiVerificationStatus.value = 'pending'; // Default status
+
+            if (licenseDocumentInput.files.length === 0) {
+                showAIVerificationMessage('Please select a license document to upload.', 'error');
+                return;
+            }
+
+            const file = licenseDocumentInput.files[0];
+            const formData = new FormData();
+            formData.append('license_document', file);
+
+            showAIVerificationMessage('Uploading and verifying license with AI...', 'info');
+
+            try {
+                // This endpoint needs to be created in the backend (e.g., backend/app.py)
+                const response = await fetch('/api/supplier/license/ai-verify', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    aiExtractedLicenseNumber.value = data.extracted_data.license_number || '';
+                    aiExtractedBusinessName.value = data.extracted_data.business_name || '';
+                    aiExtractedAddress.value = data.extracted_data.address || '';
+                    aiVerificationStatus.value = data.extracted_data.verification_status || 'pending'; // AI might return 'verified' or 'flagged'
+
+                    let message = 'AI Verification successful! Extracted details: ';
+                    message += `License No: ${aiExtractedLicenseNumber.value || 'N/A'}, `;
+                    message += `Business Name: ${aiExtractedBusinessName.value || 'N/A'}, `;
+                    message += `Address: ${aiExtractedAddress.value || 'N/A'}. `;
+                    message += `Status: ${aiVerificationStatus.value.toUpperCase()}.`;
+
+                    showAIVerificationMessage(message, 'success');
+                } else {
+                    aiVerificationStatus.value = 'failed';
+                    showAIVerificationMessage('AI Verification failed: ' + data.message, 'error');
+                }
+            } catch (error) {
+                aiVerificationStatus.value = 'failed';
+                showAIVerificationMessage('Error during AI verification: ' + error.message, 'error');
+            }
+        }
+
+        function showAIVerificationMessage(message, type) {
+            const aiVerificationResultDiv = document.getElementById('aiVerificationResult');
+            aiVerificationResultDiv.textContent = message;
+            aiVerificationResultDiv.className = `ai-verification-result ${type}`;
+            aiVerificationResultDiv.style.display = 'block';
+        }
+
+        async function handleSupplierSignup(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const businessName = document.getElementById('businessName').value;
+            const businessLogo = document.getElementById('businessLogo').files[0];
+            const productCategories = document.getElementById('productCategories').value;
+            const warehouseAddress = document.getElementById('warehouseAddress').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const gstin = document.getElementById('gstin').value;
+            const businessProof = document.getElementById('businessProof').value; // This should probably be a file input too
+            const moq = document.getElementById('moq').value;
+            const logisticsOptions = document.getElementById('logisticsOptions').value;
+
+            // AI Extracted Data
+            const aiExtractedLicenseNumber = document.getElementById('aiExtractedLicenseNumber').value;
+            const aiExtractedBusinessName = document.getElementById('aiExtractedBusinessName').value;
+            const aiExtractedAddress = document.getElementById('aiExtractedAddress').value;
+            const aiVerificationStatus = document.getElementById('aiVerificationStatus').value;
+            const licenseDocumentFile = document.getElementById('licenseDocument').files[0];
+
+
+            const formData = new FormData();
+            formData.append('business_name', businessName);
+            if (businessLogo) formData.append('business_logo', businessLogo);
+            formData.append('product_categories', productCategories);
+            formData.append('warehouse_address', warehouseAddress);
+            formData.append('phone', phone);
+            formData.append('email', email);
+            formData.append('gstin', gstin);
+            formData.append('business_proof', businessProof); // If this is a file, it needs to be handled like licenseDocument
+            formData.append('moq', moq);
+            formData.append('logistics_options', logisticsOptions);
+
+            // Append AI-extracted data
+            formData.append('ai_extracted_license_number', aiExtractedLicenseNumber);
+            formData.append('ai_extracted_business_name', aiExtractedBusinessName);
+            formData.append('ai_extracted_address', aiExtractedAddress);
+            formData.append('ai_verification_status', aiVerificationStatus);
+            if (licenseDocumentFile) formData.append('license_document_file', licenseDocumentFile);
+
+
+            try {
+                // This endpoint needs to be created/modified in the backend (e.g., backend/app.py)
+                const response = await fetch('/api/supplier/signup', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Supplier signup successful! Please login.');
+                    window.location.href = 'login.html'; // Redirect to login page
+                } else {
+                    alert('Supplier signup failed: ' + result.message);
+                }
+            } catch (error) {
+                alert('Error during signup: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html> 

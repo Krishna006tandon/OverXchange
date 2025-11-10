@@ -5257,20 +5257,26 @@
             if (!userId) return;
 
             try {
-                // Get status from backend API
-                const response = await fetch(`/api/license/status/${userId}`, {
+                // Fetch supplier profile to get license status
+                const response = await fetch(`/api/profile/supplier/${userId}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 const result = await response.json();
 
-                if (result.success) {
-                    updateVerificationStatus(result.status);
-                    localStorage.setItem(`verification_${userId}`, result.status);
+                if (result.user_id) { // Check if user data is returned
+                    const licenseDoc = result.license_document;
+                    let status = 'not-verified';
+                    if (licenseDoc && licenseDoc.ai_verification_status) {
+                        status = licenseDoc.ai_verification_status === 'ai_verified' ? 'verified' : 'rejected'; // Simplified status
+                    }
+                    updateVerificationStatus(status);
+                    localStorage.setItem(`verification_${userId}`, status);
                     updateVerificationBadges(); // Update badges
                 } else {
-                    // Fallback to localStorage
+                    console.error('Failed to load supplier profile for license status:', result.message);
+                    // Fallback to localStorage if API fails
                     const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
                     updateVerificationStatus(verificationStatus);
                     updateVerificationBadges(); // Update badges
@@ -6525,17 +6531,17 @@
             try {
                 // Create FormData for file upload
                 const formData = new FormData();
-                formData.append('license_file', selectedFile);
-                formData.append('supplier_id', userId);
+                formData.append('license_document', selectedFile); // Use 'license_document' as key
+                // No need to append supplier_id here, as it's handled by authentication on the backend
 
                 // Show loading state
                 if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying with AI...';
                     submitBtn.disabled = true;
                 }
 
-                // Submit to backend API
-                const response = await fetch('/api/license/upload', {
+                // Submit to backend AI verification API
+                const response = await fetch('/api/supplier/license/ai-verify', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -6552,28 +6558,29 @@
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const result = await response.json();
                     if (result.success) {
-                        // Update status based on verification result
-                        const verificationResult = result.verification_result;
-                        let status = 'pending';
+                        // Update status based on AI verification result
+                        const aiVerificationStatus = result.extracted_data.verification_status;
+                        let statusToDisplay = 'not-verified'; // Default if AI status is unclear
+
+                        if (aiVerificationStatus === 'ai_verified') {
+                            statusToDisplay = 'verified';
+                            alert('🎉 License verified successfully by AI! Your account is now verified.');
+                        } else if (aiVerificationStatus === 'ai_needs_review') {
+                            statusToDisplay = 'pending';
+                            alert('AI could not fully verify the license. Please ensure your document is clear and try again.');
+                        } else { // 'failed' or any other status
+                            statusToDisplay = 'rejected';
+                            alert('AI verification failed. Please check your document and try again.');
+                        }
+
+                        updateVerificationStatus(statusToDisplay);
+                        localStorage.setItem(`verification_${userId}`, statusToDisplay);
                         
-                        if (verificationResult.is_valid === true) {
-                            status = 'verified';
-                            alert('🎉 License verified automatically! You are now a verified supplier.');
-                        } else if (verificationResult.is_valid === 'manual_review') {
-                            status = 'pending';
-                            alert('License submitted for manual review. We will verify it within 24 hours.');
-                        } else {
-                            status = 'rejected';
-                            alert('License verification failed. Please check your document and try again.');
-                        }
+                        // Refresh the verification status display
+                        loadVerificationStatus();
 
-                        updateVerificationStatus(status);
-                        localStorage.setItem(`verification_${userId}`, status);
-
-                        // Show verification details
-                        if (verificationResult.confidence) {
-                            console.log('Verification Details:', verificationResult);
-                        }
+                        // Display AI extracted details (optional, for user feedback)
+                        console.log('AI Extracted Details:', result.extracted_data);
 
                         // Reset file selection
                         removeFile();

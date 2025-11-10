@@ -55,7 +55,8 @@ class Config:
     LOG_FILE = os.environ.get('LOG_FILE', 'app.log')
     
     # Development vs Production
-    DEBUG = os.environ.get('FLASK_ENV') == 'development'
+    # File Upload Settings
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 Megabytes
 
 
     

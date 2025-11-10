@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
 from flask import abort
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from flask import send_from_directory
 import re
@@ -332,63 +332,151 @@ def signup_vendor():
 @rate_limit(max_requests=3, window=3600)  # 3 signups per hour
 def signup_supplier():
     try:
-        data = request.json
-        if not data:
-            return jsonify({"success": False, "message": "Invalid request data"}), 400
+        # Use request.form for form data and request.files for file data
+        business_name = SecurityUtils.sanitize_input(request.form.get('business_name', ''))
+        product_categories = SecurityUtils.sanitize_input(request.form.get('product_categories', ''))
+        warehouse_address = SecurityUtils.sanitize_input(request.form.get('warehouse_address', ''))
+        phone = SecurityUtils.sanitize_input(request.form.get('phone', ''))
+        email = SecurityUtils.sanitize_input(request.form.get('email', ''))
+        gstin = SecurityUtils.sanitize_input(request.form.get('gstin', ''))
+        business_proof = SecurityUtils.sanitize_input(request.form.get('business_proof', '')) # Assuming this is text for now
+        moq = request.form.get('moq', 0)
+        logistics_options = SecurityUtils.sanitize_input(request.form.get('logistics_options', ''))
+
+        # AI Extracted Data
+        ai_extracted_license_number = SecurityUtils.sanitize_input(request.form.get('ai_extracted_license_number', 'N/A'))
+        ai_extracted_business_name = SecurityUtils.sanitize_input(request.form.get('ai_extracted_business_name', 'N/A'))
+        ai_extracted_address = SecurityUtils.sanitize_input(request.form.get('ai_extracted_address', 'N/A'))
+        ai_verification_status = SecurityUtils.sanitize_input(request.form.get('ai_verification_status', 'not_processed'))
+
+        # Generate a temporary password for the supplier
+        temp_password = os.urandom(16).hex() # Generate a random 32-char hex string
+        hashed_password = SecurityUtils.hash_password(temp_password)
         
-        # Sanitize and validate input
-        email = SecurityUtils.sanitize_input(data.get('email', ''))
-        password = data.get('password', '')
-        first_name = SecurityUtils.sanitize_input(data.get('first_name', ''))
-        last_name = SecurityUtils.sanitize_input(data.get('last_name', ''))
-        name = f"{first_name} {last_name}".strip()
-        phone = SecurityUtils.sanitize_input(data.get('phone', ''))
-        address = SecurityUtils.sanitize_input(data.get('address', ''))
-        
+        logger.info(f"Received supplier signup request for {email} with business: {business_name}")
+
         # Validate required fields
-        if not email or not password or not name:
-            return jsonify({"success": False, "message": "Email, password, and name are required"}), 400
+        if not email or not business_name or not phone or not gstin:
+            return jsonify({"success": False, "message": "Email, Business Name, Phone, and GSTIN are required"}), 400
         
         # Validate email format
         if not SecurityUtils.validate_email(email):
             return jsonify({"success": False, "message": "Invalid email format"}), 400
         
-        # Validate password strength
-        password_validation = SecurityUtils.validate_password(password)
-        if not password_validation['valid']:
-            return jsonify({"success": False, "message": "Password validation failed", "errors": password_validation['errors']}), 400
-        
-        # Validate phone number if provided
-        if phone and not SecurityUtils.validate_phone_number(phone):
+        # Validate phone number
+        if not SecurityUtils.validate_phone_number(phone):
             return jsonify({"success": False, "message": "Invalid phone number format"}), 400
         
-        # Check if user already exists
-        existing_user = db['suppliers'].find_one({'email': email})
-        if existing_user:
-            return jsonify({"success": False, "message": "Email already registered"}), 409
+        # Check if supplier already exists
+        existing_supplier = db['suppliers'].find_one({'email': email})
+        if existing_supplier:
+            return jsonify({"success": False, "message": "Email already registered as a supplier"}), 409
         
-        # Hash password and create user
-        hashed_password = SecurityUtils.hash_password(password)
-        user_data = {
+        # Handle Business Logo upload
+        business_logo_url = None
+        if 'business_logo' in request.files:
+            logo_file = request.files['business_logo']
+            if logo_file and logo_file.filename != '':
+                if not allowed_file(logo_file.filename):
+                    return jsonify({'success': False, 'message': 'Invalid file type for logo. Please upload an image (png, jpg, jpeg, gif, webp).'}), 400
+                try:
+                    filename = SecurityUtils.sanitize_filename(logo_file.filename)
+                    token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+                    if not token:
+                        logger.error("BLOB_READ_WRITE_TOKEN not set for logo upload.")
+                        return jsonify({'success': False, 'message': 'Image storage is not configured.'}), 500
+
+                    headers = {
+                        'x-api-version': '5',
+                        'authorization': f'Bearer {token}',
+                        'x-content-type': logo_file.mimetype
+                    }
+                    upload_url = f'https://blob.vercel-storage.com/{filename}'
+                    logo_file_content = logo_file.read()
+                    response = requests.put(upload_url, data=logo_file_content, headers=headers, timeout=30)
+                    response.raise_for_status()
+                    blob_data = response.json()
+                    business_logo_url = blob_data['url']
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Failed to upload business logo to Vercel Blob: {e}")
+                    return jsonify({'success': False, 'message': 'Error uploading business logo.'}), 500
+                except Exception as e:
+                    logger.error(f"An unexpected error occurred during business logo upload: {e}")
+                    return jsonify({'success': False, 'message': 'An internal error occurred during logo upload.'}), 500
+
+        # Handle License Document upload
+        license_document_url = None
+        if 'license_document_file' in request.files:
+            license_file = request.files['license_document_file']
+            if license_file and license_file.filename != '':
+                # Allow PDF and image types for license documents
+                if not (allowed_file(license_file.filename) or license_file.filename.lower().endswith('.pdf')):
+                    return jsonify({'success': False, 'message': 'Invalid file type for license. Please upload an image or PDF.'}), 400
+                try:
+                    filename = f"license_{email}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{SecurityUtils.sanitize_filename(license_file.filename)}"
+                    token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+                    if not token:
+                        logger.error("BLOB_READ_WRITE_TOKEN not set for license upload.")
+                        return jsonify({'success': False, 'message': 'Document storage is not configured.'}), 500
+
+                    headers = {
+                        'x-api-version': '5',
+                        'authorization': f'Bearer {token}',
+                        'x-content-type': license_file.mimetype
+                    }
+                    upload_url = f'https://blob.vercel-storage.com/{filename}'
+                    license_file_content = license_file.read()
+                    response = requests.put(upload_url, data=license_file_content, headers=headers, timeout=30)
+                    response.raise_for_status()
+                    blob_data = response.json()
+                    license_document_url = blob_data['url']
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Failed to upload license document to Vercel Blob: {e}")
+                    return jsonify({'success': False, 'message': 'Error uploading license document.'}), 500
+                except Exception as e:
+                    logger.error(f"An unexpected error occurred during license document upload: {e}")
+                    return jsonify({'success': False, 'message': 'An internal error occurred during license upload.'}), 500
+
+        supplier_data = {
             'email': email,
-            'password': hashed_password,
-            'name': name,
+            'password': hashed_password, # Temporary password
+            'name': business_name, # Using business name as primary name for supplier
+            'business_name': business_name,
+            'product_categories': product_categories.split(',') if product_categories else [],
+            'warehouse_address': warehouse_address,
             'phone': phone,
-            'address': address,
+            'gstin': gstin,
+            'business_proof': business_proof,
+            'minimum_order_quantity': int(moq) if moq else 0,
+            'logistics_options': logistics_options.split(',') if logistics_options else [],
+            'business_logo_url': business_logo_url,
+            'license_document': {
+                'url': license_document_url,
+                'ai_extracted_license_number': ai_extracted_license_number,
+                'ai_extracted_business_name': ai_extracted_business_name,
+                'ai_extracted_address': ai_extracted_address,
+                'ai_verification_status': ai_verification_status, # e.g., 'ai_verified', 'ai_needs_review', 'failed'
+                'uploaded_at': datetime.utcnow()
+            },
             'created_at': datetime.utcnow(),
-            'status': 'active'
+            'status': 'active' if ai_verification_status == 'ai_verified' else 'inactive' # Directly set status based on AI
         }
         
-        result = db['suppliers'].insert_one(user_data)
+        result = db['suppliers'].insert_one(supplier_data)
         
-        SecurityUtils.log_security_event('SIGNUP_SUCCESS', user_id=str(result.inserted_id), details='Supplier signup')
+        SecurityUtils.log_security_event('SUPPLIER_SIGNUP_SUCCESS', user_id=str(result.inserted_id), details='Supplier signup with AI license processing')
         
-        return jsonify({"success": True, "message": "Supplier signup successful!", "id": str(result.inserted_id)})
+        return jsonify({
+            "success": True,
+            "message": "Supplier signup successful! Your account status is based on AI license verification.",
+            "id": str(result.inserted_id),
+            "temp_password": temp_password # In a real app, this would be sent via email securely
+        })
     
     except Exception as e:
         logger.error(f"Supplier signup error: {str(e)}")
-        SecurityUtils.log_security_event('SIGNUP_ERROR', details=f'Supplier signup error: {str(e)}')
-        return jsonify({"success": False, "message": "Internal server error"}), 500
+        SecurityUtils.log_security_event('SUPPLIER_SIGNUP_ERROR', details=f'Supplier signup error: {str(e)}')
+        return jsonify({"success": False, "message": "Internal server error during supplier signup."}), 500
 
 def get_user_collection(user_type):
     if user_type == 'vendor':
@@ -418,6 +506,10 @@ def get_profile(current_user, user_type, user_id):
         user['user_type'] = user_type
         user['user_id'] = str(user['_id'])
         user['_id'] = str(user['_id'])
+        
+        # Include license document details for suppliers
+        if user_type == 'supplier' and 'license_document' in user:
+            user['license_document'] = user['license_document']
         
         return jsonify(user)
     
@@ -1406,6 +1498,111 @@ def validate_coupon(coupon_code):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/supplier/license/ai-verify', methods=['POST'])
+@require_auth
+def supplier_ai_verify_license(current_user):
+    """
+    API endpoint for suppliers to upload a license file for AI verification.
+    Performs AI verification, saves the document, and updates supplier's license status.
+    """
+    try:
+        if current_user['user_type'] != 'supplier':
+            return jsonify({'success': False, 'message': 'Unauthorized access. Only suppliers can upload licenses.'}), 403
+
+        supplier_id = current_user['user_id'] # Get supplier_id from authenticated user
+
+        if 'license_document' not in request.files:
+            return jsonify({'success': False, 'message': 'No license_document part in the request'}), 400
+        
+        license_file = request.files['license_document']
+        
+        if license_file.filename == '':
+            return jsonify({'success': False, 'message': 'No selected file'}), 400
+        
+        if license_file:
+            file_content = license_file.read()
+            file_type = license_file.content_type
+            
+            logger.info(f"Received file for supplier AI license verification: {license_file.filename} ({file_type}) for supplier {supplier_id}")
+            
+            # Perform AI verification
+            verification_result = verify_license_automatically(file_content, file_type)
+            
+            # Upload license document to Vercel Blob storage
+            license_document_url = None
+            try:
+                filename = f"license_{supplier_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{SecurityUtils.sanitize_filename(license_file.filename)}"
+                token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+                if not token:
+                    logger.error("BLOB_READ_WRITE_TOKEN not set for license upload.")
+                    return jsonify({'success': False, 'message': 'Document storage is not configured.'}), 500
+
+                headers = {
+                    'x-api-version': '5',
+                    'authorization': f'Bearer {token}',
+                    'x-content-type': license_file.mimetype
+                }
+                upload_url = f'https://blob.vercel-storage.com/{filename}'
+                # Rewind file_content to read again for upload
+                license_file.seek(0) 
+                response = requests.put(upload_url, data=license_file.read(), headers=headers, timeout=30)
+                response.raise_for_status()
+                blob_data = response.json()
+                license_document_url = blob_data['url']
+                logger.info(f"License document uploaded to Vercel Blob: {license_document_url}")
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Failed to upload license document to Vercel Blob: {e}")
+                return jsonify({'success': False, 'message': 'Error uploading license document.'}), 500
+            except Exception as e:
+                logger.error(f"An unexpected error occurred during license document upload: {e}")
+                return jsonify({'success': False, 'message': 'An internal error occurred during license upload.'}), 500
+
+            # Determine final status based on AI verification
+            ai_verification_status = verification_result.get('is_valid')
+            if ai_verification_status is True:
+                final_supplier_status = 'active'
+                message = 'License verified successfully by AI! Your account is now active.'
+            else:
+                final_supplier_status = 'inactive'
+                message = 'AI verification failed. Your account is inactive. Please check your document and try again.'
+            
+            # Update supplier document in MongoDB
+            update_fields = {
+                'license_document.url': license_document_url,
+                'license_document.ai_extracted_license_number': verification_result.get('license_number', 'N/A'),
+                'license_document.ai_extracted_business_name': verification_result.get('business_name', 'N/A'),
+                'license_document.ai_extracted_address': verification_result.get('address', 'N/A'),
+                'license_document.ai_verification_status': 'ai_verified' if ai_verification_status is True else 'ai_rejected',
+                'license_document.uploaded_at': datetime.utcnow(),
+                'status': final_supplier_status # Update overall supplier status
+            }
+
+            suppliers_collection.update_one(
+                {'_id': ObjectId(supplier_id)},
+                {'$set': update_fields}
+            )
+            logger.info(f"Supplier {supplier_id} license and status updated to {final_supplier_status}.")
+
+            return jsonify({
+                'success': True,
+                'message': message,
+                'extracted_data': {
+                    'license_number': verification_result.get('license_number', 'N/A'),
+                    'business_name': verification_result.get('business_name', 'N/A'),
+                    'address': verification_result.get('address', 'N/A'),
+                    'verification_status': 'ai_verified' if ai_verification_status is True else 'ai_rejected',
+                    'raw_ai_output': verification_result.get('raw_gemini_output')
+                },
+                'new_supplier_status': final_supplier_status
+            }), 200
+        
+        return jsonify({'success': False, 'message': 'Something went wrong during file upload.'}), 500
+    except Exception as e:
+        logger.error(f"Error in supplier_ai_verify_license: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error during AI license verification.'}), 500
+
+
+
 @app.route('/api/license/upload', methods=['POST'])
 def verify_license_endpoint():
     """
@@ -1446,17 +1643,25 @@ def verify_license_endpoint():
                 supplier_id = request.form.get('supplier_id')
                 if supplier_id:
                     status_to_set = 'rejected'
-                    if verification_result.get('error') == 'PDF processing not fully implemented yet. Please upload an image.':
-                        status_to_set = 'pending' # Mark as pending if PDF and needs manual review
+                    if verification_result.get('error') and 'PyMuPDF is not installed' in verification_result.get('error'):
+                        status_to_set = 'pending' # Mark as pending if PyMuPDF is missing, suggesting manual review
+                        message = 'PDF processing failed: PyMuPDF not found in environment. Please contact support or upload an image.'
+                    elif verification_result.get('error') and 'Error processing PDF file' in verification_result.get('error'):
+                        status_to_set = 'rejected' # Mark as rejected if PDF processing failed for other reasons
+                        message = f"PDF processing failed: {verification_result.get('error')}"
+                    else:
+                        status_to_set = 'rejected'
+                        message = 'License verification failed.'
+                    
                     db['suppliers'].update_one(
                         {'_id': ObjectId(supplier_id)},
                         {'$set': {'license_status': status_to_set, 'license_details': verification_result}}
                     )
-                return jsonify({
-                    'success': False,
-                    'message': 'License verification failed.',
-                    'verification_details': verification_result
-                }), 400
+                    return jsonify({
+                        'success': False,
+                        'message': message,
+                        'verification_details': verification_result
+                    }), 400
         
         return jsonify({'success': False, 'message': 'Something went wrong during file upload.'}), 500
     except Exception as e:
