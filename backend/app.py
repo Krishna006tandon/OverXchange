@@ -38,11 +38,16 @@ app.config.from_object(Config)
 Config.init_app(app)
 
 # Configure Gemini API
+gemini_vision_model = None # Initialize to None
 if Config.GEMINI_API_KEY:
-    genai.configure(api_key=Config.GEMINI_API_KEY)
-    # Initialize Gemini Vision Pro model
-    gemini_vision_model = genai.GenerativeModel('models/gemini-2.5-flash')
-    logger.info("Gemini API configured and model initialized.")
+    try:
+        genai.configure(api_key=Config.GEMINI_API_KEY)
+        # Initialize Gemini Vision Pro model
+        gemini_vision_model = genai.GenerativeModel('models/gemini-2.5-flash')
+        logger.info("Gemini API configured and model initialized.")
+    except Exception as e:
+        logger.error(f"Error initializing Gemini API: {e}")
+        logger.warning("Gemini API features will be disabled due to initialization error.")
 else:
     logger.warning("GEMINI_API_KEY not found. Gemini API features will be disabled.")
 
