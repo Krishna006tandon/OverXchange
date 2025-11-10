@@ -3416,6 +3416,7 @@
                 const data = await response.json();
                 
                 if (data.name) {
+                    localStorage.setItem('supplier_name', data.name);
                     const userId = localStorage.getItem('user_id');
                     const verificationStatus = localStorage.getItem(`verification_${userId}`) || 'not-verified';
                     const verificationBadge = verificationStatus === 'verified' ? 
@@ -3607,7 +3608,6 @@
                 if (result.success) {
                     closeStockModal();
                     await loadStocks(); // Reload stocks
-                    const supplierName = getCurrentSupplierName() || 'Supplier';
                     alert(editingStockId ? 'Stock updated successfully!' : 'Stock added successfully!');
                 } else {
                     alert('Error: ' + result.message);
@@ -4911,15 +4911,11 @@
                     console.log('Raw orders from API:', data.orders);
                         
                         // Filter orders for current supplier
-                        const supplierOrders = data.orders.filter(order => {
-                            if (order.supplier_orders) {
-                                return order.supplier_orders.some(so => 
-                                    so.supplier_name === supplierName || 
-                                    so.supplier_id === userId
-                                );
-                            }
-                            return false;
-                        });
+                        const supplierOrders = data.orders.filter(order => 
+                            order.supplier_orders?.some(so => 
+                                so.supplier_name === supplierName || so.supplier_id === userId
+                            )
+                        );
                         
                         console.log('Filtered orders for supplier (loadSupplierOrders):', supplierOrders.length, 'orders', supplierOrders);
                         displaySupplierOrders(supplierOrders);
@@ -4945,15 +4941,11 @@
             console.log('Orders received by displaySupplierOrders:', orders);
             
             // Filter orders for current supplier only
-            const supplierOrders = orders.filter(order => {
-                if (order.supplier_orders) {
-                    return order.supplier_orders.some(so => 
-                        so.supplier_name === currentSupplierName || 
-                        so.supplier_id === currentSupplierId
-                    );
-                }
-                return false;
-            });
+            const supplierOrders = orders.filter(order => 
+                order.supplier_orders?.some(so => 
+                    so.supplier_name === currentSupplierName || so.supplier_id === currentSupplierId
+                )
+            );
             
             console.log('Filtered orders for display (displaySupplierOrders):', supplierOrders.length, 'orders', supplierOrders);
             
@@ -5047,50 +5039,38 @@
         }
 
         function updateSupplierOrderStats(orders) {
-            let totalOrders = 0;
-            let pendingOrders = 0;
-            let completedOrders = 0;
-            let totalRevenue = 0;
-
-            orders.forEach(order => {
-                const supplierItems = order.supplier_orders.find(so => 
-                    so.supplier_name === getCurrentSupplierName()
+            const supplierName = getCurrentSupplierName();
+            const stats = orders.reduce((acc, order) => {
+                const supplierOrder = order.supplier_orders?.find(so => 
+                    so.supplier_name === supplierName || so.supplier_id === localStorage.getItem('user_id')
                 );
-                
-                if (supplierItems) {
-                    totalOrders++;
-                    totalRevenue += supplierItems.subtotal;
-                    
-                    if (supplierItems.status === 'pending') {
-                        pendingOrders++;
-                    } else if (supplierItems.status === 'completed' || supplierItems.status === 'delivered') {
-                        completedOrders++;
+                if (supplierOrder) {
+                    acc.totalOrders++;
+                    acc.totalRevenue += supplierOrder.subtotal;
+                    if (supplierOrder.status === 'pending') {
+                        acc.pendingOrders++;
+                    } else if (['completed', 'delivered'].includes(supplierOrder.status)) {
+                        acc.completedOrders++;
                     }
                 }
-            });
+                return acc;
+            }, { totalOrders: 0, pendingOrders: 0, completedOrders: 0, totalRevenue: 0 });
 
-            document.getElementById('supplierTotalOrders').textContent = totalOrders;
-            document.getElementById('supplierPendingOrders').textContent = pendingOrders;
-            document.getElementById('supplierCompletedOrders').textContent = completedOrders;
-            document.getElementById('supplierTotalRevenue').textContent = `₹${totalRevenue.toFixed(2)}`;
+            document.getElementById('supplierTotalOrders').textContent = stats.totalOrders;
+            document.getElementById('supplierPendingOrders').textContent = stats.pendingOrders;
+            document.getElementById('supplierCompletedOrders').textContent = stats.completedOrders;
+            document.getElementById('supplierTotalRevenue').textContent = `₹${stats.totalRevenue.toFixed(2)}`;
         }
 
         function getCurrentSupplierName() {
-            // Get supplier name from localStorage (set during login)
+            // Get supplier name from localStorage (set during login or profile load)
             const supplierName = localStorage.getItem('supplier_name');
             if (supplierName) {
                 return supplierName;
             }
             
-            // If no supplier name in localStorage, try to get from user profile
-            const userId = localStorage.getItem('user_id');
-            if (userId) {
-                // This will be set during login process
-                return localStorage.getItem('business_name') || localStorage.getItem('name') || 'Unknown Supplier';
-            }
-            
-            // Fallback for testing
-            return 'ND Hotel';
+            // Fallback to other possible names
+            return localStorage.getItem('business_name') || localStorage.getItem('name') || 'Unknown Supplier';
         }
 
 
@@ -5717,7 +5697,7 @@
                 estimated_delivery: estimatedDelivery
             };
             
-            fetch(`${currentDomain}/api/orders/${orderId}/accept`, {
+            fetch(`/api/orders/${orderId}/accept`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -5762,7 +5742,7 @@
                 rejection_reason: rejectionReason
             };
             
-            fetch(`${currentDomain}/api/orders/${orderId}/reject`, {
+            fetch(`/api/orders/${orderId}/reject`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -5801,8 +5781,7 @@
         }
 
         function downloadBill(orderId) {
-            const currentDomain = window.location.origin;
-            fetch(`${currentDomain}/api/orders/${orderId}/bill`, {
+            fetch(`/api/orders/${orderId}/bill`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -5996,8 +5975,7 @@
                 estimated_delivery: estimatedDelivery
             };
             
-            const currentDomain = window.location.origin;
-            fetch(`${currentDomain}/api/orders/${orderId}/accept`, {
+            fetch(`/api/orders/${orderId}/accept`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -6110,8 +6088,7 @@
                 rejection_reason: rejectionReason
             };
             
-            const currentDomain = window.location.origin;
-            fetch(`${currentDomain}/api/orders/${orderId}/reject`, {
+            fetch(`/api/orders/${orderId}/reject`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
