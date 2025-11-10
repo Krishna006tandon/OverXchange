@@ -1985,19 +1985,7 @@ def verify_license_automatically(file_content, file_type):
         logger.info(f"License verification result: {verification_details}")
         return verification_details
 
-    except Exception as e:
-        logger.error(f"Error during Gemini-based license verification: {str(e)}")
-        return {
-            'is_valid': False,
-            'confidence': 0,
-            'error': f'Internal server error during AI verification: {str(e)}',
-            'verification_date': datetime.now().isoformat()
-        }
 
-
-    """
-    try:
-        import requests
         from bs4 import BeautifulSoup
         import time
         import re
