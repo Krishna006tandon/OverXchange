@@ -15,6 +15,7 @@ os.chdir(backend_dir)
 
 # Import the Flask app
 from app import app
+print("Flask app imported successfully from backend/app.py")
 
 if __name__ == "__main__":
     # Get port from environment variable for Railway deployment
