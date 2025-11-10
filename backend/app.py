@@ -1411,53 +1411,57 @@ def verify_license_endpoint():
     """
     API endpoint to upload a license file and verify it using Gemini.
     """
-    if 'license_file' not in request.files:
-        return jsonify({'success': False, 'message': 'No license_file part in the request'}), 400
-    
-    license_file = request.files['license_file']
-    
-    if license_file.filename == '':
-        return jsonify({'success': False, 'message': 'No selected file'}), 400
-    
-    if license_file:
-        file_content = license_file.read()
-        file_type = license_file.content_type
+    try:
+        if 'license_file' not in request.files:
+            return jsonify({'success': False, 'message': 'No license_file part in the request'}), 400
         
-        logger.info(f"Received file for license verification: {license_file.filename} ({file_type})")
+        license_file = request.files['license_file']
         
-        verification_result = verify_license_automatically(file_content, file_type)
+        if license_file.filename == '':
+            return jsonify({'success': False, 'message': 'No selected file'}), 400
         
-        if verification_result.get('is_valid'):
-            # Update supplier's license status to 'verified'
-            supplier_id = request.form.get('supplier_id') # Assuming supplier_id is sent with the form data
-            if supplier_id:
-                db['suppliers'].update_one(
-                    {'_id': ObjectId(supplier_id)},
-                    {'$set': {'license_status': 'verified', 'license_details': verification_result}}
-                )
-            return jsonify({
-                'success': True,
-                'message': 'License verified successfully!',
-                'verification_details': verification_result
-            }), 200
-        else:
-            # Update supplier's license status to 'rejected' or 'pending' for manual review
-            supplier_id = request.form.get('supplier_id')
-            if supplier_id:
-                status_to_set = 'rejected'
-                if verification_result.get('error') == 'PDF processing not fully implemented yet. Please upload an image.':
-                    status_to_set = 'pending' # Mark as pending if PDF and needs manual review
-                db['suppliers'].update_one(
-                    {'_id': ObjectId(supplier_id)},
-                    {'$set': {'license_status': status_to_set, 'license_details': verification_result}}
-                )
-            return jsonify({
-                'success': False,
-                'message': 'License verification failed.',
-                'verification_details': verification_result
-            }), 400
-    
-    return jsonify({'success': False, 'message': 'Something went wrong during file upload.'}), 500
+        if license_file:
+            file_content = license_file.read()
+            file_type = license_file.content_type
+            
+            logger.info(f"Received file for license verification: {license_file.filename} ({file_type})")
+            
+            verification_result = verify_license_automatically(file_content, file_type)
+            
+            if verification_result.get('is_valid'):
+                # Update supplier's license status to 'verified'
+                supplier_id = request.form.get('supplier_id') # Assuming supplier_id is sent with the form data
+                if supplier_id:
+                    db['suppliers'].update_one(
+                        {'_id': ObjectId(supplier_id)},
+                        {'$set': {'license_status': 'verified', 'license_details': verification_result}}
+                    )
+                return jsonify({
+                    'success': True,
+                    'message': 'License verified successfully!',
+                    'verification_details': verification_result
+                }), 200
+            else:
+                # Update supplier's license status to 'rejected' or 'pending' for manual review
+                supplier_id = request.form.get('supplier_id')
+                if supplier_id:
+                    status_to_set = 'rejected'
+                    if verification_result.get('error') == 'PDF processing not fully implemented yet. Please upload an image.':
+                        status_to_set = 'pending' # Mark as pending if PDF and needs manual review
+                    db['suppliers'].update_one(
+                        {'_id': ObjectId(supplier_id)},
+                        {'$set': {'license_status': status_to_set, 'license_details': verification_result}}
+                    )
+                return jsonify({
+                    'success': False,
+                    'message': 'License verification failed.',
+                    'verification_details': verification_result
+                }), 400
+        
+        return jsonify({'success': False, 'message': 'Something went wrong during file upload.'}), 500
+    except Exception as e:
+        logger.error(f"Error in verify_license_endpoint: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error during license upload.'}), 500
 
 @app.route('/api/license/status/<user_id>', methods=['GET'])
 @require_auth
@@ -1848,6 +1852,15 @@ def verify_license_automatically(file_content, file_type):
             'verification_date': datetime.now().isoformat()
         }
 
+    if not gemini_vision_model:
+        logger.error("Gemini Vision Pro model not initialized. License verification cannot proceed.")
+        return {
+            'is_valid': False,
+            'confidence': 0,
+            'error': 'Gemini Vision Pro model not initialized. Check API key and configuration.',
+            'verification_date': datetime.now().isoformat()
+        }
+
     try:
         text_content = ""
         image_parts = []
@@ -1859,21 +1872,7 @@ def verify_license_automatically(file_content, file_type):
                 'data': io.BytesIO(file_content).getvalue()
             })
             logger.info(f"Processing image file of type: {file_type}")
-        elif file_type == 'application/pdf':
-            # Placeholder for PDF handling:
-            # For a full implementation, you would convert each PDF page to an image
-            # using a library like PyMuPDF or pdf2image, and then process each image.
-            # Example (requires PyMuPDF: pip install PyMuPDF):
-            # import fitz # PyMuPDF
-            # doc = fitz.open(stream=file_content, filetype="pdf")
-            # for page_num in range(len(doc)):
-            #     page = doc.load_page(page_num)
-            #     pix = page.get_pixmap()
-            #     img_bytes = pix.tobytes("png")
-            #     image_parts.append({
-            #         'mime_type': 'image/png',
-            #         'data': img_bytes
-            #     })
+
         elif file_type == 'application/pdf':
             logger.info("Processing PDF file.")
             try:
@@ -1995,9 +1994,7 @@ def verify_license_automatically(file_content, file_type):
             'verification_date': datetime.now().isoformat()
         }
 
-def verify_license_number(license_number):
-    """
-    Verify FSSAI license number against real FSSAI website
+
     """
     try:
         import requests
