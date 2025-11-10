@@ -723,6 +723,41 @@ def get_supplier_orders(current_user):
     except Exception as e:
         logger.error(f"Get supplier orders error: {str(e)}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>', methods=['GET'])
+@require_auth
+def get_order_details(current_user, order_id):
+    """Get details for a specific order"""
+    try:
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        # Security check: Ensure the user (vendor or supplier) is part of this order
+        user_id = current_user['user_id']
+        user_type = current_user['user_type']
+
+        is_vendor = user_type == 'vendor' and str(order.get('vendor_id')) == user_id
+        is_supplier = user_type == 'supplier' and any(str(so.get('supplier_id')) == user_id for so in order.get('supplier_orders', []))
+
+        if not (is_vendor or is_supplier or user_type == 'admin'):
+            return jsonify({'success': False, 'message': 'Unauthorized to view this order'}), 403
+
+        # Convert ObjectIds to strings for JSON serialization
+        order['_id'] = str(order['_id'])
+        if 'vendor_id' in order:
+            order['vendor_id'] = str(order['vendor_id'])
+        for so in order.get('supplier_orders', []):
+            if 'supplier_id' in so:
+                so['supplier_id'] = str(so['supplier_id'])
+
+        return jsonify({'success': True, 'order': order})
+
+    except Exception as e:
+        logger.error(f"Get order details error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
 @app.route('/api/dashboard/<supplier_id>', methods=['GET'])
 def get_dashboard_data(supplier_id):
     """Get dashboard analytics for a supplier"""
