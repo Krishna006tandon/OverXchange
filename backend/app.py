@@ -778,6 +778,9 @@ def accept_order(current_user, order_id):
             return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
 
         supplier_id = current_user['user_id']
+        data = request.json
+        acceptance_notes = data.get('acceptance_notes')
+        estimated_delivery = data.get('estimated_delivery')
 
         order = orders_collection.find_one({'_id': ObjectId(order_id)})
         if not order:
@@ -788,6 +791,8 @@ def accept_order(current_user, order_id):
         for so in order.get('supplier_orders', []):
             if so.get('supplier_id') == supplier_id and so.get('status') == 'pending':
                 so['status'] = 'accepted'
+                so['acceptance_notes'] = acceptance_notes
+                so['estimated_delivery'] = estimated_delivery
                 supplier_order_found = True
 
                 for item in so.get('items', []):
