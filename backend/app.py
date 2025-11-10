@@ -634,8 +634,22 @@ def create_order(current_user):
         vendor_id = current_user['user_id']
 
         # Basic validation
-        if not data.get('items') or not data.get('shipping_address'):
-            return jsonify({'success': False, 'message': 'Missing order data'}), 400
+        if not data.get('items'):
+            return jsonify({'success': False, 'message': 'Missing order items'}), 400
+        
+        # Validate and structure customer_info
+        customer_info = data.get('customer_info', {})
+        if not all(customer_info.get(key) for key in ['firstName', 'email', 'phone']):
+            return jsonify({'success': False, 'message': 'Customer first name, email, and phone are required'}), 400
+        
+        # Validate and structure shipping_address
+        shipping_address = data.get('shipping_address', {})
+        if not all(shipping_address.get(key) for key in ['addressLine1', 'city', 'state', 'pincode']):
+            return jsonify({'success': False, 'message': 'Shipping address (addressLine1, city, state, pincode) is required'}), 400
+
+        payment_method = data.get('payment_method')
+        if not payment_method:
+            return jsonify({'success': False, 'message': 'Payment method is required'}), 400
 
         # Group items by supplier
         supplier_orders = {}
@@ -659,14 +673,15 @@ def create_order(current_user):
         # Create the main order document
         order_doc = {
             'vendor_id': ObjectId(vendor_id),
-            'customer_info': data.get('customer_info'), # Assuming customer_info is passed from frontend
-            'shipping_address': data['shipping_address'],
+            'customer_info': customer_info,
+            'shipping_address': shipping_address,
             'total_amount': data['total_amount'],
             'subtotal': data['subtotal'],
             'tax': data['tax'],
             'shipping_cost': data.get('shipping_cost', 0),
             'discount': data.get('discount', 0),
             'coupon_code': data.get('coupon_code'),
+            'payment_method': payment_method, # Add payment method here
             'status': 'pending', # Overall order status
             'order_date': datetime.utcnow(), # Add order_date
             'created_at': datetime.utcnow(),
@@ -938,17 +953,25 @@ def download_bill(current_user, order_id):
     """Generate an HTML bill for a specific order"""
     try:
         if not ObjectId.is_valid(order_id):
+            logger.warning(f"Invalid order ID format: {order_id}")
             return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
 
         order = orders_collection.find_one({'_id': ObjectId(order_id)})
         if not order:
+            logger.warning(f"Order not found for ID: {order_id}")
             return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        logger.info(f"Order object for bill: {order}")
 
         # Fetch vendor details
         vendor_id = order.get('vendor_id')
         vendor_info = None
         if vendor_id:
+            logger.info(f"Fetching vendor info for vendor_id: {vendor_id}")
             vendor_info = db['vendors'].find_one({'_id': ObjectId(vendor_id)})
+            logger.info(f"Vendor info fetched: {vendor_info}")
+        else:
+            logger.warning(f"vendor_id not found in order: {order_id}")
 
         bill_html = f"""
         <!DOCTYPE html>
@@ -1029,6 +1052,8 @@ def download_bill(current_user, order_id):
                         Supplier: <strong>{so.get('supplier_name', 'N/A')}</strong>
                         {f"<br>Email: {supplier_full_info.get('email', 'N/A')}" if supplier_full_info and supplier_full_info.get('email') else ''}
                         {f"<br>Phone: {supplier_full_info.get('phone', 'N/A')}" if supplier_full_info and supplier_full_info.get('phone') else ''}
+                        {f"<br>Est. Delivery: {so.get('estimated_delivery', 'Not specified')}"}
+                        {f"<br>Tracking: {so.get('tracking_number', 'Not available')}"}
                     </td>
                 </tr>
             """
@@ -1041,6 +1066,10 @@ def download_bill(current_user, order_id):
                 """
         
         bill_html += f"""
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Payment Method: {order.get('payment_method', 'N/A')}</td>
+                    </tr>
                     <tr class="total">
                         <td></td>
                         <td class="text-right">Subtotal: ₹{order.get('subtotal', 0):.2f}</td>
