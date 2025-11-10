@@ -1428,12 +1428,29 @@ def verify_license_endpoint():
         verification_result = verify_license_automatically(file_content, file_type)
         
         if verification_result.get('is_valid'):
+            # Update supplier's license status to 'verified'
+            supplier_id = request.form.get('supplier_id') # Assuming supplier_id is sent with the form data
+            if supplier_id:
+                db['suppliers'].update_one(
+                    {'_id': ObjectId(supplier_id)},
+                    {'$set': {'license_status': 'verified', 'license_details': verification_result}}
+                )
             return jsonify({
                 'success': True,
                 'message': 'License verified successfully!',
                 'verification_details': verification_result
             }), 200
         else:
+            # Update supplier's license status to 'rejected' or 'pending' for manual review
+            supplier_id = request.form.get('supplier_id')
+            if supplier_id:
+                status_to_set = 'rejected'
+                if verification_result.get('error') == 'PDF processing not fully implemented yet. Please upload an image.':
+                    status_to_set = 'pending' # Mark as pending if PDF and needs manual review
+                db['suppliers'].update_one(
+                    {'_id': ObjectId(supplier_id)},
+                    {'$set': {'license_status': status_to_set, 'license_details': verification_result}}
+                )
             return jsonify({
                 'success': False,
                 'message': 'License verification failed.',
@@ -1441,6 +1458,30 @@ def verify_license_endpoint():
             }), 400
     
     return jsonify({'success': False, 'message': 'Something went wrong during file upload.'}), 500
+
+@app.route('/api/license/status/<user_id>', methods=['GET'])
+@require_auth
+def get_license_status(current_user, user_id):
+    """
+    API endpoint to retrieve the license verification status for a given user ID.
+    """
+    try:
+        # Ensure the requesting user is authorized to view this status
+        if current_user['user_id'] != user_id:
+            return jsonify({'success': False, 'message': 'Unauthorized access'}), 403
+
+        supplier = db['suppliers'].find_one({'_id': ObjectId(user_id)})
+        if not supplier:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+
+        status = supplier.get('license_status', 'not-verified')
+        license_details = supplier.get('license_details', {})
+
+        return jsonify({'success': True, 'status': status, 'license_details': license_details})
+
+    except Exception as e:
+        logger.error(f"Error getting license status for user {user_id}: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 # Vendor-specific routes
 @app.route('/api/vendor/register', methods=['POST'])
