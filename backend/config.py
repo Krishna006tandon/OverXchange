@@ -16,7 +16,7 @@ class Config:
     DATABASE_NAME = os.environ.get('DATABASE_NAME') or 'OverXchange'
     
     # Gemini API Key
-    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    GEMINI_API_KEY = 'AIzaSyCXWJfWeZge2nBAhsUZ6y88jiGsVqiwt2k'
 
     # CORS Settings - Restrict to specific origins in production
     ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5000', 'http://localhost:8080', 'http://127.0.0.1:8080']

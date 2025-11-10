@@ -16,6 +16,13 @@ import google.generativeai as genai
 from PIL import Image # Import Image from PIL
 import io # Import io for handling image bytes
 
+# from google.oauth2 import id_token
+# from google.auth.transport import requests as google_requests
+# from PIL import Image  # Commented out for now
+
+# Import security modules
+from config import Config
+from security import SecurityUtils
 # Setup logging
 logging.basicConfig(
     level=getattr(logging, Config.LOG_LEVEL),
@@ -26,17 +33,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# from google.oauth2 import id_token
-# from google.auth.transport import requests as google_requests
-# from PIL import Image  # Commented out for now
-
-# Import security modules
-from config import Config
-from security import SecurityUtils
-
 app = Flask(__name__)
 app.config.from_object(Config)
 Config.init_app(app)
+
+# Configure Gemini API
+if Config.GEMINI_API_KEY:
+    genai.configure(api_key=Config.GEMINI_API_KEY)
+    # Initialize Gemini Vision Pro model
+    gemini_vision_model = genai.GenerativeModel('models/gemini-2.5-flash')
+    logger.info("Gemini API configured and model initialized.")
+else:
+    logger.warning("GEMINI_API_KEY not found. Gemini API features will be disabled.")
 
 # Secure CORS configuration
 CORS(app, resources={
@@ -48,15 +56,41 @@ CORS(app, resources={
     }
 })
 
+# MongoDB setup with environment variable
+mongo_client = MongoClient(Config.MONGODB_URI)
+db = mongo_client[Config.DATABASE_NAME]
 
-# Configure Gemini API
-if Config.GEMINI_API_KEY:
-    genai.configure(api_key=Config.GEMINI_API_KEY)
-    # Initialize Gemini Vision Pro model
-    gemini_vision_model = genai.GenerativeModel('models/gemini-2.5-flash')
-    logger.info("Gemini API configured and model initialized.")
-else:
-    logger.warning("GEMINI_API_KEY not found. Gemini API features will be disabled.")
+# Collections
+users_collection = db['users']
+suppliers_collection = db['suppliers']
+stocks_collection = db['stocks']
+coupons_collection = db['coupons']
+admins_collection = db['admins']
+orders_collection = db['orders']
+
+# Vendor-specific collections
+vendor_users = db['vendor_users']
+vendor_listings = db['vendor_listings']
+vendor_transactions = db['vendor_transactions']
+vendor_chats = db['vendor_chats']
+vendor_feedback = db['vendor_feedback']
+vendor_analytics = db['vendor_analytics']
+
+# Payment collections
+payments_collection = db['payments']
+
+# Setup logging
+logging.basicConfig(
+    level=getattr(logging, Config.LOG_LEVEL),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Allowed image extensions for upload
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 def allowed_file(filename):
     return '.' in filename and \
