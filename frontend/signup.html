@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
     <title>Signup - OverXchange</title>
     <script src="https://accounts.google.com/gsi/client" onload="initGoogleSignIn()" async defer></script>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <!-- Custom Styles -->
     <link rel="stylesheet" href="modern-styles.css">
     <style>
@@ -32,10 +33,25 @@
             padding: 50px 40px;
             width: 100%;
             max-width: 500px;
-            box-shadow: var(--shadow-medium);
+            box-shadow: var(--shadow-heavy);
             transform-style: preserve-3d;
             position: relative;
             overflow: hidden;
+            animation: card-float 8s ease-in-out infinite;
+        }
+
+        @keyframes card-float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .signup-card:hover {
+            box-shadow: var(--shadow-heavy);
+            transform: translateY(-5px) scale(1.01);
         }
 
         .signup-card::before {
@@ -47,11 +63,13 @@
             height: 6px;
             background: var(--secondary-gradient);
             transform: scaleX(0);
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease-in-out;
+            transform-origin: left;
         }
 
         .signup-card:hover::before {
             transform: scaleX(1);
+            transform-origin: right;
         }
 
         .signup-header {
@@ -175,8 +193,8 @@
         .input-3d:focus {
             outline: none;
             border-color: var(--pink);
-            box-shadow: var(--shadow-pink);
-            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.5);
+            transform: translateY(-3px) scale(1.02);
         }
 
         .input-3d:focus + .input-icon {
@@ -195,10 +213,11 @@
             cursor: pointer;
             transition: var(--transition);
             transform-style: preserve-3d;
-            box-shadow: var(--shadow-light);
+            box-shadow: 0 5px 0 var(--dark-blue), 0 8px 20px rgba(30, 58, 138, 0.3);
             position: relative;
             overflow: hidden;
             margin-top: 10px;
+            transform: perspective(1000px) rotateX(0deg);
         }
 
         .signup-btn::before {
@@ -213,8 +232,8 @@
         }
 
         .signup-btn:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: var(--shadow-medium);
+            transform: perspective(1000px) translateY(-5px) rotateX(10deg) scale(1.02);
+            box-shadow: 0 8px 0 var(--dark-blue-2), 0 12px 30px rgba(30, 58, 138, 0.4);
         }
 
         .signup-btn:hover::before {
@@ -222,7 +241,8 @@
         }
 
         .signup-btn:active {
-            transform: translateY(-2px) scale(1.01);
+            transform: perspective(1000px) translateY(2px) rotateX(2deg) scale(1.01);
+            box-shadow: 0 2px 0 var(--dark-blue-2), 0 4px 10px rgba(30, 58, 138, 0.3);
         }
 
         .signup-footer {
@@ -438,6 +458,7 @@
         <div class="mode-indicator">🌙 Dark Mode</div>
     </button>
 
+    <script src="js/security.js"></script>
     <script>
         // --- Existing scripts from login.html for Google Sign-In ---
         function handleSuccessfulLogin(data) {
@@ -542,7 +563,72 @@
         // Signup Form Handling
         document.getElementById('signup-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            // ... (rest of the original signup form handling)
+            
+            const form = e.target;
+            const email = form.email.value;
+            const password = form.password.value;
+            const confirmPassword = form['confirm-password'].value;
+            const errorMessage = document.getElementById('error-message');
+
+            // Clear previous errors
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            // Validation using SecurityUtils
+            if (!SecurityUtils.validateEmail(email)) {
+                errorMessage.textContent = 'Invalid email format.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Passwords do not match.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            const passwordValidation = SecurityUtils.validatePassword(password);
+            if (!passwordValidation.valid) {
+                errorMessage.innerHTML = passwordValidation.errors.join('<br>');
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // If validation passes, proceed with form submission
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            data.user_type = selectedUserType;
+
+            // Sanitize inputs before sending
+            for (const key in data) {
+                if (typeof data[key] === 'string') {
+                    data[key] = SecurityUtils.sanitizeInput(data[key]);
+                }
+            }
+
+            try {
+                const response = await fetch(`/api/signup/${selectedUserType}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    document.getElementById('success-message').textContent = 'Signup successful! Please log in.';
+                    document.getElementById('success-message').style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    errorMessage.textContent = result.message || 'Signup failed.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'An error occurred. Please try again.';
+                errorMessage.style.display = 'block';
+            }
         });
 
         // Input focus effects
@@ -552,5 +638,14 @@
     </script>
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+        <p>&copy; 2025 OverXchange. All rights reserved.</p>
+    </footer>
 </body>
 </html>
