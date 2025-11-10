@@ -6543,36 +6543,47 @@
                     body: formData
                 });
 
-                const result = await response.json();
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`);
+                }
 
-                if (result.success) {
-                    // Update status based on verification result
-                    const verificationResult = result.verification_result;
-                    let status = 'pending';
-                    
-                    if (verificationResult.is_valid === true) {
-                        status = 'verified';
-                        alert('🎉 License verified automatically! You are now a verified supplier.');
-                    } else if (verificationResult.is_valid === 'manual_review') {
-                        status = 'pending';
-                        alert('License submitted for manual review. We will verify it within 24 hours.');
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const result = await response.json();
+                    if (result.success) {
+                        // Update status based on verification result
+                        const verificationResult = result.verification_result;
+                        let status = 'pending';
+                        
+                        if (verificationResult.is_valid === true) {
+                            status = 'verified';
+                            alert('🎉 License verified automatically! You are now a verified supplier.');
+                        } else if (verificationResult.is_valid === 'manual_review') {
+                            status = 'pending';
+                            alert('License submitted for manual review. We will verify it within 24 hours.');
+                        } else {
+                            status = 'rejected';
+                            alert('License verification failed. Please check your document and try again.');
+                        }
+
+                        updateVerificationStatus(status);
+                        localStorage.setItem(`verification_${userId}`, status);
+
+                        // Show verification details
+                        if (verificationResult.confidence) {
+                            console.log('Verification Details:', verificationResult);
+                        }
+
+                        // Reset file selection
+                        removeFile();
                     } else {
-                        status = 'rejected';
-                        alert('License verification failed. Please check your document and try again.');
+                        alert('Error: ' + result.message);
                     }
-
-                    updateVerificationStatus(status);
-                    localStorage.setItem(`verification_${userId}`, status);
-
-                    // Show verification details
-                    if (verificationResult.confidence) {
-                        console.log('Verification Details:', verificationResult);
-                    }
-
-                    // Reset file selection
-                    removeFile();
                 } else {
-                    alert('Error: ' + result.message);
+                    // Handle non-JSON response (e.g., HTML error page)
+                    const errorText = await response.text();
+                    throw new Error(`Unexpected server response (not JSON). Status: ${response.status}. Response: ${errorText.substring(0, 200)}...`);
                 }
 
             } catch (error) {

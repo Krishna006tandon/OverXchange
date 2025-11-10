@@ -1406,7 +1406,7 @@ def validate_coupon(coupon_code):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@app.route('/api/verify-license', methods=['POST'])
+@app.route('/api/license/upload', methods=['POST'])
 def verify_license_endpoint():
     """
     API endpoint to upload a license file and verify it using Gemini.
