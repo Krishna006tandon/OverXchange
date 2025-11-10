@@ -944,20 +944,33 @@ def download_bill(current_user, order_id):
         if not order:
             return jsonify({'success': False, 'message': 'Order not found'}), 404
 
+        # Fetch vendor details
+        vendor_id = order.get('vendor_id')
+        vendor_info = None
+        if vendor_id:
+            vendor_info = db['vendors'].find_one({'_id': ObjectId(vendor_id)})
+
         bill_html = f"""
         <!DOCTYPE html>
         <html>
         <head>
             <title>Invoice for Order #{str(order['_id'])}</title>
             <style>
-                body {{ font-family: sans-serif; margin: 20px; }}
-                .invoice-box {{ max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; color: #555; }}
+                body {{ font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; margin: 20px; color: #555; }}
+                .invoice-box {{ max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; }}
                 .invoice-box table {{ width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }}
-                .invoice-box table td {{ padding: 5px; vertical-align: top; }}
+                .invoice-box table td {{ padding: 8px; vertical-align: top; }}
                 .invoice-box table tr.top table td {{ padding-bottom: 20px; }}
-                .invoice-box table tr.heading td {{ background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }}
+                .invoice-box table tr.information table td {{ padding-bottom: 30px; }}
+                .invoice-box table tr.heading td {{ background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; padding: 10px 8px; }}
+                .invoice-box table tr.details td {{ padding-bottom: 20px; }}
                 .invoice-box table tr.item td {{ border-bottom: 1px solid #eee; }}
+                .invoice-box table tr.item.last td {{ border-bottom: none; }}
                 .invoice-box table tr.total td:nth-child(2) {{ border-top: 2px solid #eee; font-weight: bold; }}
+                .invoice-box .title {{ font-size: 45px; line-height: 45px; color: #333; }}
+                .invoice-box .section-title {{ font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; color: #333; }}
+                .text-right {{ text-align: right; }}
+                .text-left {{ text-align: left; }}
             </style>
         </head>
         <body>
@@ -968,9 +981,10 @@ def download_bill(current_user, order_id):
                             <table>
                                 <tr>
                                     <td class="title"><h2>OverXchange Inc.</h2></td>
-                                    <td>
+                                    <td class="text-right">
                                         Invoice #: {str(order['_id'])}<br>
-                                        Created: {order.get('created_at').strftime('%B %d, %Y')}<br>
+                                        Created: {order.get('created_at').strftime('%B %d, %Y') if order.get('created_at') else 'N/A'}<br>
+                                        Order Status: {order.get('status', 'N/A').capitalize()}<br>
                                     </td>
                                 </tr>
                             </table>
@@ -981,36 +995,76 @@ def download_bill(current_user, order_id):
                             <table>
                                 <tr>
                                     <td>
-                                        Customer: {order.get('customer_info', {}).get('firstName', 'N/A')} {order.get('customer_info', {}).get('lastName', '')}<br>
-                                        {order.get('shipping_address', {}).get('addressLine1', '')}<br>
-                                        {order.get('shipping_address', {}).get('city', '')}, {order.get('shipping_address', {}).get('state', '')} {order.get('shipping_address', {}).get('pincode', '')}
+                                        <div class="section-title">Customer Details:</div>
+                                        <strong>{order.get('customer_info', {}).get('firstName', 'N/A')} {order.get('customer_info', {}).get('lastName', '')}</strong><br>
+                                        {order.get('shipping_address', {}).get('addressLine1', 'N/A')}<br>
+                                        {order.get('shipping_address', {}).get('city', 'N/A')}, {order.get('shipping_address', {}).get('state', 'N/A')} {order.get('shipping_address', {}).get('pincode', 'N/A')}<br>
+                                        Phone: {order.get('customer_info', {}).get('phone', 'N/A')}<br>
+                                        Email: {order.get('customer_info', {}).get('email', 'N/A')}
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="section-title">Vendor Details:</div>
+                                        <strong>{vendor_info.get('name', 'N/A') if vendor_info else 'N/A'}</strong><br>
+                                        {vendor_info.get('email', 'N/A') if vendor_info else 'N/A'}<br>
+                                        {vendor_info.get('phone', 'N/A') if vendor_info else 'N/A'}<br>
+                                        {vendor_info.get('address', 'N/A') if vendor_info else 'N/A'}
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
                     <tr class="heading">
-                        <td>Item</td>
-                        <td style="text-align: right;">Price</td>
+                        <td>Item Description</td>
+                        <td class="text-right">Price</td>
                     </tr>
         """
 
         for so in order.get('supplier_orders', []):
-            bill_html += f"<tr class='heading'><td colspan='2'>Supplier: {so.get('supplier_name', 'N/A')}</td></tr>"
+            # Fetch full supplier details if needed, otherwise use what's in so
+            supplier_full_info = db['suppliers'].find_one({'_id': ObjectId(so['supplier_id'])}) if so.get('supplier_id') else None
+            
+            bill_html += f"""
+                <tr class="heading">
+                    <td colspan="2">
+                        Supplier: <strong>{so.get('supplier_name', 'N/A')}</strong>
+                        {f"<br>Email: {supplier_full_info.get('email', 'N/A')}" if supplier_full_info and supplier_full_info.get('email') else ''}
+                        {f"<br>Phone: {supplier_full_info.get('phone', 'N/A')}" if supplier_full_info and supplier_full_info.get('phone') else ''}
+                    </td>
+                </tr>
+            """
             for item in so.get('items', []):
                 bill_html += f"""
                     <tr class="item">
                         <td>{item.get('name', 'N/A')} (x{item.get('quantity', 0)})</td>
-                        <td style="text-align: right;">₹{item.get('price', 0) * item.get('quantity', 0):.2f}</td>
+                        <td class="text-right">₹{item.get('price', 0) * item.get('quantity', 0):.2f}</td>
                     </tr>
                 """
         
         bill_html += f"""
                     <tr class="total">
                         <td></td>
-                        <td style="text-align: right;">Total: ₹{order.get('total_amount', 0):.2f}</td>
+                        <td class="text-right">Subtotal: ₹{order.get('subtotal', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Tax: ₹{order.get('tax', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Shipping: ₹{order.get('shipping_cost', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Discount: -₹{order.get('discount', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right"><strong>Total: ₹{order.get('total_amount', 0):.2f}</strong></td>
                     </tr>
                 </table>
+                <div style="margin-top: 30px; text-align: center; font-size: 14px; color: #777;">
+                    Thank you for your business!
+                </div>
             </div>
         </body>
         </html>
