@@ -1,101 +1,109 @@
 #!/usr/bin/env python3
 """
-Test script for License Verification with Green Ticks
+Full License Upload & Verification Workflow Test Script
+Author: Kajal's Workflow Test
 """
 
 import requests
-import json
-import time
+import os
 
-def test_verification_workflow_with_ticks():
-    """Test the complete verification workflow with green ticks"""
-    base_url = "https://overxchange-production.up.railway.app"
-    
-    print("🔧 Testing License Verification Workflow with Green Ticks")
-    print("=" * 70)
-    
-    # Step 1: Test admin login
-    print("\n1️⃣ Testing Admin Login...")
+BASE_URL = "https://overxchange-production.up.railway.app"
+
+# Dummy file create karenge agar exist nahi hai
+DUMMY_FILE = "dummy_license.pdf"
+if not os.path.exists(DUMMY_FILE):
+    with open(DUMMY_FILE, "wb") as f:
+        f.write(b"%PDF-1.4\n%Dummy PDF for testing\n")
+
+def supplier_upload_license():
+    """Supplier uploads license (dummy file)"""
+    print("\n1️⃣ Supplier License Uploading...")
+    files = {'license': open(DUMMY_FILE, 'rb')}
+    data = {
+        "supplier_id": "SAMPLE_SUPPLIER_ID",  # Replace with actual supplier id if available
+        "notes": "Testing License Upload"
+    }
+    try:
+        response = requests.post(f"{BASE_URL}/api/supplier/license/upload", files=files, data=data)
+        if response.status_code == 200:
+            print("   ✅ License uploaded successfully (status = pending)")
+            return True
+        else:
+            print(f"   ❌ License upload failed: {response.text}")
+            return False
+    except Exception as e:
+        print(f"   ❌ Error during upload: {str(e)}")
+        return False
+
+def admin_login():
+    """Admin login to perform actions"""
+    print("\n2️⃣ Admin Login...")
     admin_login_data = {
         "email": "admin@overxchange.com",
         "password": "admin123"
     }
-    
     try:
-        response = requests.post(f"{base_url}/api/admin/login", json=admin_login_data)
+        response = requests.post(f"{BASE_URL}/api/admin/login", json=admin_login_data)
         if response.status_code == 200:
             print("   ✅ Admin login successful")
+            return True
         else:
             print(f"   ❌ Admin login failed: {response.text}")
-            return
+            return False
     except Exception as e:
-        print(f"   ❌ Admin login error: {str(e)}")
-        return
-    
-    # Step 2: Check pending licenses
-    print("\n2️⃣ Checking Pending Licenses...")
+        print(f"   ❌ Error during admin login: {str(e)}")
+        return False
+
+def get_pending_licenses():
+    """Get pending licenses for admin review"""
+    print("\n3️⃣ Fetching Pending Licenses...")
     try:
-        response = requests.get(f"{base_url}/api/admin/licenses/pending")
+        response = requests.get(f"{BASE_URL}/api/admin/licenses/pending")
         if response.status_code == 200:
             data = response.json()
-            pending_count = len(data.get('licenses', []))
-            print(f"   📋 Found {pending_count} pending licenses")
-            
-            if pending_count > 0:
-                print("   📄 Pending licenses:")
-                for license in data['licenses']:
-                    print(f"      - {license.get('supplier_name', 'Unknown')} ({license.get('file_name', 'Unknown file')})")
+            licenses = data.get('licenses', [])
+            print(f"   📋 Pending licenses found: {len(licenses)}")
+            for l in licenses:
+                print(f"      - ID: {l.get('_id')} | Supplier: {l.get('supplier_name')} | File: {l.get('file_name')}")
+            return licenses
         else:
-            print(f"   ❌ Failed to get pending licenses: {response.text}")
+            print(f"   ❌ Failed to fetch pending licenses: {response.text}")
+            return []
     except Exception as e:
-        print(f"   ❌ Error getting pending licenses: {str(e)}")
-    
-    # Step 3: Simulate license approval (if there are pending licenses)
-    print("\n3️⃣ Simulating License Approval...")
+        print(f"   ❌ Error fetching pending licenses: {str(e)}")
+        return []
+
+def verify_license(license_id, action="approve"):
+    """Approve or reject a license"""
+    print(f"\n4️⃣ Performing Admin Action → {action.upper()} license {license_id}")
+    approval_data = {
+        "action": action,
+        "notes": f"Test action: {action}",
+        "license_number": "22119005000732",
+        "business_name": "Test Business",
+        "address": "Test Address"
+    }
     try:
-        response = requests.get(f"{base_url}/api/admin/licenses/pending")
+        response = requests.post(f"{BASE_URL}/api/admin/license/verify/{license_id}", json=approval_data)
         if response.status_code == 200:
-            data = response.json()
-            pending_licenses = data.get('licenses', [])
-            
-            if pending_licenses:
-                # Approve the first pending license
-                license_id = pending_licenses[0]['_id']
-                print(f"   🎯 Approving license: {license_id}")
-                
-                approval_data = {
-                    "action": "approve",
-                    "notes": "Test approval - License verified successfully",
-                    "license_number": "22119005000732",
-                    "business_name": "Test Business",
-                    "address": "Test Address"
-                }
-                
-                response = requests.post(f"{base_url}/api/admin/license/verify/{license_id}", json=approval_data)
-                if response.status_code == 200:
-                    result = response.json()
-                    if result.get('success'):
-                        print("   ✅ License approved successfully!")
-                        print("   🎉 Supplier should now see green ticks (✅) in their dashboard")
-                    else:
-                        print(f"   ❌ License approval failed: {result.get('message')}")
-                else:
-                    print(f"   ❌ License approval request failed: {response.text}")
+            result = response.json()
+            if result.get('success'):
+                print(f"   ✅ License {action}d successfully!")
             else:
-                print("   ℹ️  No pending licenses to approve")
+                print(f"   ❌ License {action} failed: {result.get('message')}")
         else:
-            print(f"   ❌ Failed to get pending licenses for approval: {response.text}")
+            print(f"   ❌ License {action} request failed: {response.text}")
     except Exception as e:
-        print(f"   ❌ Error during license approval: {str(e)}")
-    
-    # Step 4: Check verification statistics
-    print("\n4️⃣ Checking Verification Statistics...")
+        print(f"   ❌ Error during license {action}: {str(e)}")
+
+def check_stats():
+    """Check updated license statistics"""
+    print("\n5️⃣ Checking License Statistics...")
     try:
-        response = requests.get(f"{base_url}/api/admin/licenses/stats")
+        response = requests.get(f"{BASE_URL}/api/admin/licenses/stats")
         if response.status_code == 200:
-            data = response.json()
-            stats = data.get('stats', {})
-            print(f"   📊 Updated Statistics:")
+            stats = response.json().get('stats', {})
+            print(f"   📊 Stats:")
             print(f"      - Pending: {stats.get('pending', 0)}")
             print(f"      - Verified Today: {stats.get('verified_today', 0)}")
             print(f"      - Rejected Today: {stats.get('rejected_today', 0)}")
@@ -105,33 +113,29 @@ def test_verification_workflow_with_ticks():
             print(f"   ❌ Failed to get stats: {response.text}")
     except Exception as e:
         print(f"   ❌ Error getting stats: {str(e)}")
-    
-    print("\n" + "=" * 70)
-    print("🎯 Verification Workflow Test Summary:")
-    print("✅ Admin login system working")
-    print("✅ Pending licenses API working")
-    print("✅ License approval system working")
-    print("✅ Statistics tracking working")
-    print("\n💡 Green Ticks Implementation:")
-    print("1. ✅ License status indicator shows green tick when verified")
-    print("2. ✅ Supplier name shows green tick in header")
-    print("3. ✅ Welcome message shows green tick")
-    print("4. ✅ Success notification appears on verification")
-    print("5. ✅ Animated effects for better user experience")
 
-def test_supplier_verification_status():
-    """Test supplier verification status API"""
-    print("\n🔧 Testing Supplier Verification Status")
-    print("=" * 50)
+def run_full_workflow():
+    print("🔧 Full License Workflow Test")
+    print("="*60)
     
-    # This would test the supplier's verification status
-    # In a real scenario, you'd need a supplier ID
-    print("📝 Note: To test supplier verification status:")
-    print("   1. Supplier uploads license (status: pending)")
-    print("   2. Admin approves license (status: verified)")
-    print("   3. Supplier dashboard shows green ticks (✅)")
-    print("   4. All supplier name displays show verification badge")
+    if not supplier_upload_license():
+        return
+    
+    if not admin_login():
+        return
+    
+    pending = get_pending_licenses()
+    if pending:
+        first_license_id = pending[0].get('_id')
+        action = input("\n👉 Approve or Reject this license? (approve/reject): ").strip().lower()
+        if action not in ["approve", "reject"]:
+            print("   ❌ Invalid action. Defaulting to approve.")
+            action = "approve"
+        verify_license(first_license_id, action)
+    else:
+        print("   ℹ️  No pending licenses to review.")
+    
+    check_stats()
 
 if __name__ == "__main__":
-    test_verification_workflow_with_ticks()
-    test_supplier_verification_status() 
+    run_full_workflow()

@@ -11,8 +11,9 @@ import re
 import logging
 import json
 from functools import wraps
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
+import requests
+# from google.oauth2 import id_token
+# from google.auth.transport import requests as google_requests
 # from PIL import Image  # Commented out for now
 
 # Import security modules
@@ -53,6 +54,9 @@ vendor_chats = db['vendor_chats']
 vendor_feedback = db['vendor_feedback']
 vendor_analytics = db['vendor_analytics']
 
+# Payment collections
+payments_collection = db['payments']
+
 # Setup logging
 logging.basicConfig(
     level=getattr(logging, Config.LOG_LEVEL),
@@ -62,6 +66,13 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# Allowed image extensions for upload
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Initialize admin collection with default admin if not exists
 def initialize_admin():
@@ -177,6 +188,7 @@ def login():
         
         username = SecurityUtils.sanitize_input(data.get('username', ''))
         password = data.get('password', '')
+        logger.info(f"Login attempt for user: {username}")
         
         # Validate input
         if not username or not password:
@@ -201,6 +213,7 @@ def login():
         
         if not user:
             SecurityUtils.log_security_event('LOGIN_FAILED', details=f'User not found: {username}')
+            logger.warning(f"Login failed: User not found for {username}")
             return jsonify({'success': False, 'message': 'User not found'}), 404
         
         if not SecurityUtils.verify_password(password, user['password']):
@@ -361,11 +374,11 @@ def get_user_collection(user_type):
 @app.route('/api/profile/<user_type>/<user_id>', methods=['GET'])
 @require_auth
 @rate_limit(max_requests=100, window=3600)
-def get_profile(user_type, user_id):
+def get_profile(current_user, user_type, user_id):
     try:
         # Verify user can access this profile
-        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
-            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
+        if current_user['user_id'] != user_id or current_user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=current_user['user_id'], details=f'Attempted to access {user_type}/{user_id}')
             return jsonify({'error': 'Unauthorized access'}), 403
         
         collection = get_user_collection(user_type)
@@ -388,11 +401,11 @@ def get_profile(user_type, user_id):
 @app.route('/api/profile/<user_type>/<user_id>', methods=['PUT'])
 @require_auth
 @rate_limit(max_requests=50, window=3600)
-def update_profile(user_type, user_id):
+def update_profile(current_user, user_type, user_id):
     try:
         # Verify user can update this profile
-        if request.user['user_id'] != user_id or request.user['user_type'] != user_type:
-            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=request.user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
+        if current_user['user_id'] != user_id or current_user['user_type'] != user_type:
+            SecurityUtils.log_security_event('UNAUTHORIZED_ACCESS', user_id=current_user['user_id'], details=f'Attempted to update {user_type}/{user_id}')
             return jsonify({'error': 'Unauthorized access'}), 403
         
         collection = get_user_collection(user_type)
@@ -444,6 +457,8 @@ def get_stocks():
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
+        if not stock.get('image_url'):
+            stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks/supplier/<supplier_id>', methods=['GET'])
@@ -453,39 +468,123 @@ def get_supplier_stocks(supplier_id):
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
+        if not stock.get('image_url'):
+            stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks', methods=['POST'])
 def add_stock():
     """Add a new stock item"""
-    data = request.json
-    data['created_at'] = datetime.now()
-    data['updated_at'] = datetime.now()
-    data['last_updated'] = datetime.now()
-    data['stock_history'] = [{
-        'action': 'stock_added',
-        'quantity_change': data.get('quantity', 0),
-        'previous_stock': 0,
-        'new_stock': data.get('quantity', 0),
-        'timestamp': datetime.now()
-    }]
-    result = db['stocks'].insert_one(data)
-    return jsonify({'success': True, 'message': 'Stock added successfully!', 'id': str(result.inserted_id)})
+    try:
+        data = request.form.to_dict()
+        
+        # Convert numeric fields from string
+        numeric_fields = ['quantity_available', 'price_per_unit', 'minimum_order_quantity', 'weight']
+        for field in numeric_fields:
+            if field in data and data[field]:
+                try:
+                    data[field] = float(data[field])
+                except (ValueError, TypeError):
+                    data[field] = 0
+
+        data['is_organic'] = data.get('is_organic', 'false').lower() == 'true'
+        
+        # Handle image upload
+        if 'product_image' in request.files:
+            image_file = request.files['product_image']
+            if image_file and image_file.filename != '':
+                if not allowed_file(image_file.filename):
+                    return jsonify({'success': False, 'message': 'Invalid file type. Please upload an image (png, jpg, jpeg, gif, webp).'}), 400
+                filename = SecurityUtils.sanitize_filename(image_file.filename)
+                
+                try:
+                    token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+                    if not token:
+                        logger.error("BLOB_READ_WRITE_TOKEN not set.")
+                        return jsonify({'success': False, 'message': 'Image storage is not configured.'}), 500
+
+                    headers = {
+                        'x-api-version': '5',
+                        'authorization': f'Bearer {token}',
+                        'x-content-type': image_file.mimetype
+                    }
+                    
+                    upload_url = f'https://blob.vercel-storage.com/{filename}'
+                    
+                    file_content = image_file.read()
+
+                    response = requests.put(
+                        upload_url,
+                        data=file_content,
+                        headers=headers,
+                        timeout=30
+                    )
+                    response.raise_for_status()
+                    
+                    blob_data = response.json()
+                    data['image_url'] = blob_data['url']
+
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Failed to upload image to Vercel Blob: {e}")
+                    return jsonify({'success': False, 'message': 'Error uploading image.'}), 500
+                except Exception as e:
+                    logger.error(f"An unexpected error occurred during image upload: {e}")
+                    return jsonify({'success': False, 'message': 'An internal error occurred.'}), 500
+
+        data['created_at'] = datetime.now()
+        data['updated_at'] = datetime.now()
+        data['last_updated'] = datetime.now()
+        data['stock_history'] = [{
+            'action': 'stock_added',
+            'quantity_change': data.get('quantity_available', 0),
+            'previous_stock': 0,
+            'new_stock': data.get('quantity_available', 0),
+            'timestamp': datetime.now()
+        }]
+        result = db['stocks'].insert_one(data)
+        return jsonify({'success': True, 'message': 'Stock added successfully!', 'id': str(result.inserted_id)})
+    except Exception as e:
+        logger.error(f"Error adding stock: {e}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @app.route('/api/stocks/<stock_id>', methods=['PUT'])
 def update_stock(stock_id):
     """Update a stock item"""
     try:
-        data = request.json
+        data = request.form.to_dict()
+
+        # Convert numeric fields from string
+        numeric_fields = ['quantity_available', 'price_per_unit', 'minimum_order_quantity', 'weight']
+        for field in numeric_fields:
+            if field in data and data[field]:
+                try:
+                    data[field] = float(data[field])
+                except (ValueError, TypeError):
+                    # Keep existing value if conversion fails
+                    pass
+
+        data['is_organic'] = data.get('is_organic', 'false').lower() == 'true'
+
+        # Handle image upload
+        if 'product_image' in request.files:
+            image_file = request.files['product_image']
+            if image_file.filename != '':
+                filename = SecurityUtils.sanitize_filename(image_file.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image_file.save(image_path)
+                data['image_url'] = filename
         
         # Get current stock to calculate quantity change
         current_stock = db['stocks'].find_one({'_id': ObjectId(stock_id)})
         if not current_stock:
             return jsonify({'success': False, 'message': 'Stock not found'}), 404
         
-        current_quantity = current_stock.get('quantity', 0)
-        new_quantity = data.get('quantity', current_quantity)
+        current_quantity = current_stock.get('quantity_available', 0)
+        new_quantity = float(data.get('quantity_available', current_quantity))
         quantity_change = new_quantity - current_quantity
+        current_quantity = current_stock.get('quantity_available', 0)
+        new_quantity = data.get('quantity_available', current_quantity)
+        quantity_change = float(new_quantity) - float(current_quantity)
         
         # Prepare update data
         update_data = data.copy()
@@ -525,6 +624,456 @@ def delete_stock(stock_id):
     if result.deleted_count == 0:
         return jsonify({'success': False, 'message': 'Stock not found'}), 404
     return jsonify({'success': True, 'message': 'Stock deleted successfully!'})
+
+@app.route('/api/orders', methods=['POST'])
+@require_auth
+def create_order(current_user):
+    """Create a new order from a vendor"""
+    try:
+        data = request.json
+        vendor_id = current_user['user_id']
+
+        # Basic validation
+        if not data.get('items') or not data.get('shipping_address'):
+            return jsonify({'success': False, 'message': 'Missing order data'}), 400
+
+        # Group items by supplier
+        supplier_orders = {}
+        for item in data['items']:
+            supplier_id = item.get('supplierId')
+            if supplier_id not in supplier_orders:
+                # Fetch supplier details to get the name
+                supplier_doc = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+                supplier_name = supplier_doc.get('name', 'Unknown Supplier') if supplier_doc else 'Unknown Supplier'
+                
+                supplier_orders[supplier_id] = {
+                    'supplier_id': supplier_id,
+                    'supplier_name': supplier_name, # Add supplier_name here
+                    'items': [],
+                    'subtotal': 0,
+                    'status': 'pending'
+                }
+            supplier_orders[supplier_id]['items'].append(item)
+            supplier_orders[supplier_id]['subtotal'] += item['price'] * item['quantity']
+
+        # Create the main order document
+        order_doc = {
+            'vendor_id': ObjectId(vendor_id),
+            'customer_info': data.get('customer_info'), # Assuming customer_info is passed from frontend
+            'shipping_address': data['shipping_address'],
+            'total_amount': data['total_amount'],
+            'subtotal': data['subtotal'],
+            'tax': data['tax'],
+            'shipping_cost': data.get('shipping_cost', 0),
+            'discount': data.get('discount', 0),
+            'coupon_code': data.get('coupon_code'),
+            'status': 'pending', # Overall order status
+            'order_date': datetime.utcnow(), # Add order_date
+            'created_at': datetime.utcnow(),
+            'supplier_orders': list(supplier_orders.values()) # Embed supplier-specific orders
+        }
+
+        result = orders_collection.insert_one(order_doc)
+        
+        # Could potentially trigger stock deduction here in a real scenario
+
+        return jsonify({'success': True, 'message': 'Order placed successfully!', 'order_id': str(result.inserted_id)})
+
+    except Exception as e:
+        logger.error(f"Order creation error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/vendor/orders', methods=['GET'])
+@require_auth
+def get_vendor_orders(current_user):
+    """Get all orders for the currently logged-in vendor"""
+    try:
+        vendor_id = current_user['user_id']
+        orders = list(orders_collection.find({'vendor_id': ObjectId(vendor_id)}).sort('created_at', -1))
+
+        for order in orders:
+            order['_id'] = str(order['_id'])
+            order['vendor_id'] = str(order['vendor_id'])
+            # Convert ObjectId in supplier_orders items as well
+            for supplier_order in order.get('supplier_orders', []):
+                supplier_order['supplier_id'] = str(supplier_order['supplier_id'])
+                for item in supplier_order.get('items', []):
+                    item['id'] = str(item['id'])
+
+        return jsonify({'success': True, 'orders': orders})
+
+    except Exception as e:
+        logger.error(f"Get vendor orders error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/supplier/orders', methods=['GET'])
+@require_auth
+def get_supplier_orders(current_user):
+    """Get all orders for the currently logged-in supplier"""
+    try:
+        supplier_id = current_user['user_id']
+        
+        # Find orders where this supplier is part of the supplier_orders array
+        orders = list(orders_collection.find({'supplier_orders.supplier_id': supplier_id}).sort('created_at', -1))
+
+        for order in orders:
+            order['_id'] = str(order['_id'])
+            order['vendor_id'] = str(order['vendor_id'])
+            # Convert ObjectId in supplier_orders items as well
+            for supplier_order in order.get('supplier_orders', []):
+                supplier_order['supplier_id'] = str(supplier_order['supplier_id'])
+                for item in supplier_order.get('items', []):
+                    item['id'] = str(item['id'])
+
+        return jsonify({'success': True, 'orders': orders})
+
+    except Exception as e:
+        logger.error(f"Get supplier orders error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>', methods=['GET'])
+@require_auth
+def get_order_details(current_user, order_id):
+    """Get details for a specific order"""
+    try:
+        # Add validation for order_id
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        # Security check: Ensure the user (vendor or supplier) is part of this order
+        user_id = current_user['user_id']
+        user_type = current_user['user_type']
+
+        is_vendor = user_type == 'vendor' and str(order.get('vendor_id')) == user_id
+        is_supplier = user_type == 'supplier' and any(str(so.get('supplier_id')) == user_id for so in order.get('supplier_orders', []))
+
+        if not (is_vendor or is_supplier or user_type == 'admin'):
+            return jsonify({'success': False, 'message': 'Unauthorized to view this order'}), 403
+
+        # Convert ObjectIds to strings for JSON serialization
+        order['_id'] = str(order['_id'])
+        if 'vendor_id' in order:
+            order['vendor_id'] = str(order['vendor_id'])
+        for so in order.get('supplier_orders', []):
+            if 'supplier_id' in so:
+                so['supplier_id'] = str(so['supplier_id'])
+
+        return jsonify({'success': True, 'order': order})
+
+    except Exception as e:
+        logger.error(f"Get order details error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/accept', methods=['POST'])
+@require_auth
+def accept_order(current_user, order_id):
+    """Accept a supplier's portion of an order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        supplier_id = current_user['user_id']
+        data = request.json
+        acceptance_notes = data.get('acceptance_notes')
+        estimated_delivery = data.get('estimated_delivery')
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        supplier_order_found = False
+        stock_update_messages = []
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_id') == supplier_id and so.get('status') == 'pending':
+                so['status'] = 'accepted'
+                so['acceptance_notes'] = acceptance_notes
+                so['estimated_delivery'] = estimated_delivery
+                supplier_order_found = True
+
+                for item in so.get('items', []):
+                    stock_item = stocks_collection.find_one({'_id': ObjectId(item['id'])})
+                    if stock_item:
+                        new_quantity = stock_item.get('quantity_available', 0) - item.get('quantity', 0)
+                        if new_quantity < 0:
+                            stock_update_messages.append(f"Warning: Not enough stock for {item['name']}.")
+                            new_quantity = 0
+                        
+                        stocks_collection.update_one(
+                            {'_id': ObjectId(item['id'])},
+                            {'$set': {'quantity_available': new_quantity, 'updated_at': datetime.utcnow()}}
+                        )
+                        stock_update_messages.append(f"Stock for {item['name']} updated to {new_quantity}.")
+                    else:
+                        stock_update_messages.append(f"Warning: Stock item with ID {item['id']} not found.")
+                break
+        
+        if not supplier_order_found:
+            return jsonify({'success': False, 'message': 'No pending order found for this supplier.'}), 400
+
+        orders_collection.update_one({'_id': ObjectId(order_id)}, {'$set': {'supplier_orders': order['supplier_orders']}})
+        return jsonify({'success': True, 'message': 'Order accepted successfully!', 'stock_updated': True, 'stock_message': " ".join(stock_update_messages)})
+
+    except Exception as e:
+        logger.error(f"Accept order error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/reject', methods=['POST'])
+@require_auth
+def reject_order(current_user, order_id):
+    """Reject a supplier's portion of an order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        supplier_id = current_user['user_id']
+        data = request.json
+        rejection_reason = data.get('rejection_reason', 'No reason provided')
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        supplier_order_found = False
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_id') == supplier_id and so.get('status') == 'pending':
+                so['status'] = 'rejected'
+                so['rejection_reason'] = rejection_reason
+                supplier_order_found = True
+                break
+        
+        if not supplier_order_found:
+            return jsonify({'success': False, 'message': 'No pending order found for this supplier'}), 400
+
+        orders_collection.update_one({'_id': ObjectId(order_id)}, {'$set': {'supplier_orders': order['supplier_orders']}})
+        return jsonify({'success': True, 'message': 'Order rejected successfully!'})
+
+    except Exception as e:
+        logger.error(f"Reject order error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/status', methods=['PUT'])
+@require_auth
+def update_order_status(current_user, order_id):
+    """Update the status of a supplier's portion of an order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        data = request.json
+        new_status = data.get('status')
+        if not new_status:
+            return jsonify({'success': False, 'message': 'New status is required'}), 400
+
+        supplier_id = current_user['user_id']
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        supplier_order_found = False
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_id') == supplier_id:
+                so['status'] = new_status
+                supplier_order_found = True
+                break
+        
+        if not supplier_order_found:
+            return jsonify({'success': False, 'message': 'No order found for this supplier'}), 400
+
+        orders_collection.update_one({'_id': ObjectId(order_id)}, {'$set': {'supplier_orders': order['supplier_orders']}})
+        return jsonify({'success': True, 'message': f'Order status updated to {new_status}'})
+
+    except Exception as e:
+        logger.error(f"Update order status error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/delivery', methods=['PUT'])
+@require_auth
+def update_delivery_info(current_user, order_id):
+    """Update delivery info for a supplier's portion of an order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        data = request.json
+        supplier_id = current_user['user_id']
+        tracking_number = data.get('tracking_number')
+        estimated_delivery = data.get('estimated_delivery')
+        delivery_notes = data.get('delivery_notes')
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        supplier_order_found = False
+        for so in order.get('supplier_orders', []):
+            if so.get('supplier_id') == supplier_id:
+                if tracking_number:
+                    so['tracking_number'] = tracking_number
+                if estimated_delivery:
+                    so['estimated_delivery'] = estimated_delivery
+                if delivery_notes:
+                    so['delivery_notes'] = delivery_notes
+                supplier_order_found = True
+                break
+        
+        if not supplier_order_found:
+            return jsonify({'success': False, 'message': 'No order found for this supplier'}), 400
+
+        orders_collection.update_one({'_id': ObjectId(order_id)}, {'$set': {'supplier_orders': order['supplier_orders']}})
+        return jsonify({'success': True, 'message': 'Delivery information updated successfully!'})
+
+    except Exception as e:
+        logger.error(f"Update delivery info error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/orders/<order_id>/bill', methods=['GET'])
+@require_auth
+def download_bill(current_user, order_id):
+    """Generate an HTML bill for a specific order"""
+    try:
+        if not ObjectId.is_valid(order_id):
+            return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
+
+        order = orders_collection.find_one({'_id': ObjectId(order_id)})
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        # Fetch vendor details
+        vendor_id = order.get('vendor_id')
+        vendor_info = None
+        if vendor_id:
+            vendor_info = db['vendors'].find_one({'_id': ObjectId(vendor_id)})
+
+        bill_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Invoice for Order #{str(order['_id'])}</title>
+            <style>
+                body {{ font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; margin: 20px; color: #555; }}
+                .invoice-box {{ max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; }}
+                .invoice-box table {{ width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }}
+                .invoice-box table td {{ padding: 8px; vertical-align: top; }}
+                .invoice-box table tr.top table td {{ padding-bottom: 20px; }}
+                .invoice-box table tr.information table td {{ padding-bottom: 30px; }}
+                .invoice-box table tr.heading td {{ background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; padding: 10px 8px; }}
+                .invoice-box table tr.details td {{ padding-bottom: 20px; }}
+                .invoice-box table tr.item td {{ border-bottom: 1px solid #eee; }}
+                .invoice-box table tr.item.last td {{ border-bottom: none; }}
+                .invoice-box table tr.total td:nth-child(2) {{ border-top: 2px solid #eee; font-weight: bold; }}
+                .invoice-box .title {{ font-size: 45px; line-height: 45px; color: #333; }}
+                .invoice-box .section-title {{ font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; color: #333; }}
+                .text-right {{ text-align: right; }}
+                .text-left {{ text-align: left; }}
+            </style>
+        </head>
+        <body>
+            <div class="invoice-box">
+                <table>
+                    <tr class="top">
+                        <td colspan="2">
+                            <table>
+                                <tr>
+                                    <td class="title"><h2>OverXchange Inc.</h2></td>
+                                    <td class="text-right">
+                                        Invoice #: {str(order['_id'])}<br>
+                                        Created: {order.get('created_at').strftime('%B %d, %Y') if order.get('created_at') else 'N/A'}<br>
+                                        Order Status: {order.get('status', 'N/A').capitalize()}<br>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="information">
+                        <td colspan="2">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div class="section-title">Customer Details:</div>
+                                        <strong>{order.get('customer_info', {}).get('firstName', 'N/A')} {order.get('customer_info', {}).get('lastName', '')}</strong><br>
+                                        {order.get('shipping_address', {}).get('addressLine1', 'N/A')}<br>
+                                        {order.get('shipping_address', {}).get('city', 'N/A')}, {order.get('shipping_address', {}).get('state', 'N/A')} {order.get('shipping_address', {}).get('pincode', 'N/A')}<br>
+                                        Phone: {order.get('customer_info', {}).get('phone', 'N/A')}<br>
+                                        Email: {order.get('customer_info', {}).get('email', 'N/A')}
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="section-title">Vendor Details:</div>
+                                        <strong>{vendor_info.get('name', 'N/A') if vendor_info else 'N/A'}</strong><br>
+                                        {vendor_info.get('email', 'N/A') if vendor_info else 'N/A'}<br>
+                                        {vendor_info.get('phone', 'N/A') if vendor_info else 'N/A'}<br>
+                                        {vendor_info.get('address', 'N/A') if vendor_info else 'N/A'}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="heading">
+                        <td>Item Description</td>
+                        <td class="text-right">Price</td>
+                    </tr>
+        """
+
+        for so in order.get('supplier_orders', []):
+            # Fetch full supplier details if needed, otherwise use what's in so
+            supplier_full_info = db['suppliers'].find_one({'_id': ObjectId(so['supplier_id'])}) if so.get('supplier_id') else None
+            
+            bill_html += f"""
+                <tr class="heading">
+                    <td colspan="2">
+                        Supplier: <strong>{so.get('supplier_name', 'N/A')}</strong>
+                        {f"<br>Email: {supplier_full_info.get('email', 'N/A')}" if supplier_full_info and supplier_full_info.get('email') else ''}
+                        {f"<br>Phone: {supplier_full_info.get('phone', 'N/A')}" if supplier_full_info and supplier_full_info.get('phone') else ''}
+                    </td>
+                </tr>
+            """
+            for item in so.get('items', []):
+                bill_html += f"""
+                    <tr class="item">
+                        <td>{item.get('name', 'N/A')} (x{item.get('quantity', 0)})</td>
+                        <td class="text-right">₹{item.get('price', 0) * item.get('quantity', 0):.2f}</td>
+                    </tr>
+                """
+        
+        bill_html += f"""
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Subtotal: ₹{order.get('subtotal', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Tax: ₹{order.get('tax', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Shipping: ₹{order.get('shipping_cost', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Discount: -₹{order.get('discount', 0):.2f}</td>
+                    </tr>
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right"><strong>Total: ₹{order.get('total_amount', 0):.2f}</strong></td>
+                    </tr>
+                </table>
+                <div style="margin-top: 30px; text-align: center; font-size: 14px; color: #777;">
+                    Thank you for your business!
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        return jsonify({'success': True, 'bill_html': bill_html})
+    except Exception as e:
+        logger.error(f"Download bill error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
 
 @app.route('/api/dashboard/<supplier_id>', methods=['GET'])
 def get_dashboard_data(supplier_id):
@@ -1831,123 +2380,391 @@ def verify_license_by_state(license_number):
 
 
 # Google Sign-In Handlers
-@app.route('/api/config/google-client-id', methods=['GET'])
-def get_google_client_id():
-    return jsonify({'client_id': app.config['GOOGLE_CLIENT_ID']})
+# @app.route('/api/config/google-client-id', methods=['GET'])
+# def get_google_client_id():
+#     return jsonify({'client_id': app.config['GOOGLE_CLIENT_ID']})
+#
+#
+#
+# @app.route('/api/auth/google', methods=['POST'])
+# @rate_limit(max_requests=10, window=300)
+# def google_auth():
+#     try:
+#         data = request.json
+#         token = data.get('token')
+#         if not token:
+#             return jsonify({'success': False, 'message': 'No token provided'}), 400
+#
+#         try:
+#             idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+#             email = idinfo['email']
+#             name = idinfo.get('name', '')
+#
+#         except ValueError:
+#             # Invalid token
+#             return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+#
+#         # Check if user exists as a vendor or supplier
+#         user = db.vendors.find_one({'email': email})
+#         user_type = 'vendor'
+#         if not user:
+#             user = db.suppliers.find_one({'email': email})
+#             user_type = 'supplier'
+#
+#         if user:
+#             # User exists, log them in
+#             # Note: This flow bypasses password check for Google-authenticated users
+#             jwt_token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
+#             SecurityUtils.log_security_event('GOOGLE_LOGIN_SUCCESS', user_id=str(user['_id']))
+#             return jsonify({
+#                 'success': True,
+#                 'message': 'Login successful',
+#                 'user_type': user_type,
+#                 'user_id': str(user['_id']),
+#                 'name': user.get('name'),
+#                 'token': jwt_token
+#             })
+#         else:
+#             # New user, needs to select a role
+#             SecurityUtils.log_security_event('GOOGLE_SIGNUP_INITIATED', details=f'Email: {email}')
+#             return jsonify({
+#                 'success': True, # Important: Use success=True to indicate a valid Google login, but action is needed
+#                 'action': 'select_role',
+#                 'message': 'New user. Please select a role to complete registration.',
+#                 'email': email,
+#                 'name': name,
+#                 'google_token': token # Pass the token back to be used in the next step
+#             })
+#
+#     except Exception as e:
+#         logger.error(f"Google auth error: {str(e)}")
+#         SecurityUtils.log_security_event('GOOGLE_AUTH_ERROR', details=str(e))
+#         return jsonify({'success': False, 'message': 'Internal server error'}), 500
+#
+# @app.route('/api/auth/google/complete', methods=['POST'])
+# @rate_limit(max_requests=5, window=300)
+# def google_auth_complete():
+#     try:
+#         data = request.json
+#         token = data.get('token')
+#         role = data.get('role')
+#
+#         if not token or not role:
+#             return jsonify({'success': False, 'message': 'Token and role are required'}), 400
+#
+#         if role not in ['vendor', 'supplier']:
+#             return jsonify({'success': False, 'message': 'Invalid role specified'}), 400
+#
+#         try:
+#             # Verify the token again for security
+#             idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+#             email = idinfo['email']
+#             name = idinfo.get('name', '')
+#         except ValueError:
+#             return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
+#
+#         # Double-check that user doesn't exist to prevent race conditions
+#         if db.vendors.find_one({'email': email}) or db.suppliers.find_one({'email': email}):
+#              return jsonify({'success': False, 'message': 'User already exists.'}), 409
+#
+#         # Create new user in the correct collection
+#         collection = db.vendors if role == 'vendor' else db.suppliers
+#         user_data = {
+#             'email': email,
+#             'name': name,
+#             'created_at': datetime.utcnow(),
+#             'status': 'active',
+#             'auth_method': 'google' # To indicate the user was created via Google
+#         }
+#         result = collection.insert_one(user_data)
+#         user_id = result.inserted_id
+#
+#         # Log them in by generating a JWT
+#         jwt_token = SecurityUtils.generate_jwt_token(str(user_id), role)
+#         SecurityUtils.log_security_event('GOOGLE_SIGNUP_SUCCESS', user_id=str(user_id), details=f'Role: {role}')
+#
+#         return jsonify({
+#             'success': True,
+#             'message': 'Registration complete. Login successful.',
+#             'user_type': role,
+#             'user_id': str(user_id),
+#             'name': name,
+#             'token': jwt_token
+#         })
+#
+#     except Exception as e:
+#         logger.error(f"Google auth completion error: {str(e)}")
+#         SecurityUtils.log_security_event('GOOGLE_AUTH_COMPLETE_ERROR', details=str(e))
+#         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
+# ==================== Payment Settings & Payment Workflow APIs ====================
 
-
-@app.route('/api/auth/google', methods=['POST'])
-@rate_limit(max_requests=10, window=300)
-def google_auth():
+@app.route('/api/supplier/payment-settings/<supplier_id>', methods=['GET'])
+@require_auth
+def get_payment_settings(current_user, supplier_id):
+    """Get payment settings for a supplier"""
     try:
-        data = request.json
-        token = data.get('token')
-        if not token:
-            return jsonify({'success': False, 'message': 'No token provided'}), 400
+        # Verify supplier owns this account or is admin
+        if current_user['user_id'] != supplier_id and current_user.get('user_type') != 'admin':
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
-        try:
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
-            email = idinfo['email']
-            name = idinfo.get('name', '')
+        supplier = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+        if not supplier:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
 
-        except ValueError:
-            # Invalid token
-            return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
-
-        # Check if user exists as a vendor or supplier
-        user = db.vendors.find_one({'email': email})
-        user_type = 'vendor'
-        if not user:
-            user = db.suppliers.find_one({'email': email})
-            user_type = 'supplier'
-
-        if user:
-            # User exists, log them in
-            # Note: This flow bypasses password check for Google-authenticated users
-            jwt_token = SecurityUtils.generate_jwt_token(str(user['_id']), user_type)
-            SecurityUtils.log_security_event('GOOGLE_LOGIN_SUCCESS', user_id=str(user['_id']))
-            return jsonify({
-                'success': True,
-                'message': 'Login successful',
-                'user_type': user_type,
-                'user_id': str(user['_id']),
-                'name': user.get('name'),
-                'token': jwt_token
-            })
-        else:
-            # New user, needs to select a role
-            SecurityUtils.log_security_event('GOOGLE_SIGNUP_INITIATED', details=f'Email: {email}')
-            return jsonify({
-                'success': True, # Important: Use success=True to indicate a valid Google login, but action is needed
-                'action': 'select_role',
-                'message': 'New user. Please select a role to complete registration.',
-                'email': email,
-                'name': name,
-                'google_token': token # Pass the token back to be used in the next step
-            })
-
+        payment_settings = supplier.get('payment_settings', {})
+        return jsonify({
+            'success': True,
+            'payment_settings': payment_settings
+        })
     except Exception as e:
-        logger.error(f"Google auth error: {str(e)}")
-        SecurityUtils.log_security_event('GOOGLE_AUTH_ERROR', details=str(e))
+        logger.error(f"Error getting payment settings: {str(e)}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
-@app.route('/api/auth/google/complete', methods=['POST'])
-@rate_limit(max_requests=5, window=300)
-def google_auth_complete():
+@app.route('/api/supplier/payment-settings/<supplier_id>', methods=['PUT'])
+@require_auth
+def update_payment_settings(current_user, supplier_id):
+    """Update payment settings for a supplier"""
     try:
+        # Verify supplier owns this account
+        if current_user['user_id'] != supplier_id:
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
         data = request.json
-        token = data.get('token')
-        role = data.get('role')
-
-        if not token or not role:
-            return jsonify({'success': False, 'message': 'Token and role are required'}), 400
-
-        if role not in ['vendor', 'supplier']:
-            return jsonify({'success': False, 'message': 'Invalid role specified'}), 400
-
-        try:
-            # Verify the token again for security
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config['GOOGLE_CLIENT_ID'])
-            email = idinfo['email']
-            name = idinfo.get('name', '')
-        except ValueError:
-            return jsonify({'success': False, 'message': 'Invalid Google token'}), 401
-
-        # Double-check that user doesn't exist to prevent race conditions
-        if db.vendors.find_one({'email': email}) or db.suppliers.find_one({'email': email}):
-             return jsonify({'success': False, 'message': 'User already exists.'}), 409
-
-        # Create new user in the correct collection
-        collection = db.vendors if role == 'vendor' else db.suppliers
-        user_data = {
-            'email': email,
-            'name': name,
-            'created_at': datetime.utcnow(),
-            'status': 'active',
-            'auth_method': 'google' # To indicate the user was created via Google
+        payment_settings = {
+            'preferred_method': data.get('preferred_method'),
+            'bank_details': data.get('bank_details'),
+            'upi_id': data.get('upi_id'),
+            'qr_code_url': data.get('qr_code_url'),
+            'updated_at': datetime.utcnow()
         }
-        result = collection.insert_one(user_data)
-        user_id = result.inserted_id
 
-        # Log them in by generating a JWT
-        jwt_token = SecurityUtils.generate_jwt_token(str(user_id), role)
-        SecurityUtils.log_security_event('GOOGLE_SIGNUP_SUCCESS', user_id=str(user_id), details=f'Role: {role}')
+        suppliers_collection.update_one(
+            {'_id': ObjectId(supplier_id)},
+            {'$set': {'payment_settings': payment_settings}}
+        )
 
         return jsonify({
             'success': True,
-            'message': 'Registration complete. Login successful.',
-            'user_type': role,
-            'user_id': str(user_id),
-            'name': name,
-            'token': jwt_token
+            'message': 'Payment settings updated successfully'
         })
-
     except Exception as e:
-        logger.error(f"Google auth completion error: {str(e)}")
-        SecurityUtils.log_security_event('GOOGLE_AUTH_COMPLETE_ERROR', details=str(e))
+        logger.error(f"Error updating payment settings: {str(e)}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
+@app.route('/api/supplier/upload-qr-code', methods=['POST'])
+@require_auth
+def upload_qr_code(current_user):
+    """Upload QR code image for supplier"""
+    try:
+        if 'qr_code' not in request.files:
+            return jsonify({'success': False, 'message': 'No file provided'}), 400
+
+        file = request.files['qr_code']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'No file selected'}), 400
+
+        if not allowed_file(file.filename):
+            return jsonify({'success': False, 'message': 'Invalid file type'}), 400
+
+        # Create uploads directory if it doesn't exist
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads', 'qr_codes')
+        os.makedirs(upload_dir, exist_ok=True)
+
+        # Generate unique filename
+        supplier_id = request.form.get('supplier_id') or current_user['user_id']
+        filename = f"qr_{supplier_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.{file.filename.rsplit('.', 1)[1].lower()}"
+        filepath = os.path.join(upload_dir, filename)
+
+        file.save(filepath)
+
+        # Generate URL (adjust based on your deployment)
+        qr_code_url = f"/uploads/qr_codes/{filename}"
+
+        return jsonify({
+            'success': True,
+            'qr_code_url': qr_code_url,
+            'message': 'QR code uploaded successfully'
+        })
+    except Exception as e:
+        logger.error(f"Error uploading QR code: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/supplier/payment-details/<supplier_id>', methods=['GET'])
+@require_auth
+def get_supplier_payment_details(current_user, supplier_id):
+    """Get supplier payment details for vendor payment form"""
+    try:
+        supplier = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+        if not supplier:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+
+        payment_settings = supplier.get('payment_settings', {})
+        preferred_method = payment_settings.get('preferred_method')
+
+        # Calculate pending amount (sum of earnings from completed orders)
+        pending_amount = 0
+        completed_orders = orders_collection.find({
+            'supplier_orders.supplier_id': supplier_id,
+            'supplier_orders.status': {'$in': ['completed', 'delivered']}
+        })
+
+        for order in completed_orders:
+            for supplier_order in order.get('supplier_orders', []):
+                if str(supplier_order.get('supplier_id')) == supplier_id:
+                    subtotal = supplier_order.get('subtotal', 0)
+                    # Calculate earnings (95% after 5% commission)
+                    earnings = subtotal * 0.95
+                    pending_amount += earnings
+
+        # Subtract already paid amounts
+        paid_payments = payments_collection.find({
+            'supplier_id': ObjectId(supplier_id),
+            'status': {'$in': ['done', 'verification']}
+        })
+        for payment in paid_payments:
+            pending_amount -= payment.get('amount', 0)
+
+        payment_details = {
+            'preferred_method': preferred_method,
+            'bank_details': payment_settings.get('bank_details'),
+            'upi_id': payment_settings.get('upi_id'),
+            'qr_code_url': payment_settings.get('qr_code_url'),
+            'pending_amount': max(0, pending_amount)  # Ensure non-negative
+        }
+
+        return jsonify({
+            'success': True,
+            'payment_details': payment_details
+        })
+    except Exception as e:
+        logger.error(f"Error getting payment details: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/vendor/payments', methods=['POST'])
+@require_auth
+def create_vendor_payment(current_user):
+    """Create a vendor payment to supplier"""
+    try:
+        data = request.json
+        vendor_id = current_user['user_id']
+        supplier_id = data.get('supplier_id')
+        amount = float(data.get('amount', 0))
+        payment_method = data.get('payment_method')
+        transaction_id = data.get('transaction_id')
+
+        if not supplier_id or not amount or not payment_method:
+            return jsonify({'success': False, 'message': 'Missing required fields'}), 400
+
+        if not transaction_id:
+            return jsonify({'success': False, 'message': 'Transaction ID is required'}), 400
+
+        # Verify supplier exists
+        supplier = suppliers_collection.find_one({'_id': ObjectId(supplier_id)})
+        if not supplier:
+            return jsonify({'success': False, 'message': 'Supplier not found'}), 404
+
+        # Get supplier's preferred payment method
+        payment_settings = supplier.get('payment_settings', {})
+        preferred_method = payment_settings.get('preferred_method', 'auto')
+        if payment_method == 'auto':
+            payment_method = preferred_method
+
+        # Create payment record
+        payment_doc = {
+            'vendor_id': ObjectId(vendor_id),
+            'supplier_id': ObjectId(supplier_id),
+            'amount': amount,
+            'payment_method': payment_method,
+            'transaction_id': transaction_id,
+            'status': 'verification',
+            'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow()
+        }
+
+        result = payments_collection.insert_one(payment_doc)
+
+        return jsonify({
+            'success': True,
+            'message': 'Payment submitted for verification',
+            'payment_id': str(result.inserted_id)
+        })
+    except Exception as e:
+        logger.error(f"Error creating payment: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/payments', methods=['GET'])
+@require_auth
+def get_payments(current_user):
+    """Get payments list for supplier or admin"""
+    try:
+        user_id = current_user['user_id']
+        user_type = current_user.get('user_type', 'supplier')
+
+        query = {}
+        if user_type == 'supplier':
+            query['supplier_id'] = ObjectId(user_id)
+        elif user_type == 'vendor':
+            query['vendor_id'] = ObjectId(user_id)
+        # Admin can see all payments
+
+        payments = list(payments_collection.find(query).sort('created_at', -1))
+
+        # Convert ObjectId to string
+        for payment in payments:
+            payment['_id'] = str(payment['_id'])
+            payment['vendor_id'] = str(payment['vendor_id'])
+            payment['supplier_id'] = str(payment['supplier_id'])
+
+        return jsonify({
+            'success': True,
+            'payments': payments
+        })
+    except Exception as e:
+        logger.error(f"Error getting payments: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/payments/<payment_id>/status', methods=['PUT'])
+@require_auth
+def update_payment_status(current_user, payment_id):
+    """Update payment status (Done/Undone)"""
+    try:
+        data = request.json
+        new_status = data.get('status')  # 'done' or 'undone'
+
+        if new_status not in ['done', 'undone']:
+            return jsonify({'success': False, 'message': 'Invalid status'}), 400
+
+        payment = payments_collection.find_one({'_id': ObjectId(payment_id)})
+        if not payment:
+            return jsonify({'success': False, 'message': 'Payment not found'}), 404
+
+        user_id = current_user['user_id']
+        user_type = current_user.get('user_type', 'supplier')
+
+        # Verify user has permission (supplier or admin)
+        if user_type != 'admin' and str(payment['supplier_id']) != user_id:
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+        # Update payment status
+        payments_collection.update_one(
+            {'_id': ObjectId(payment_id)},
+            {'$set': {
+                'status': new_status,
+                'updated_at': datetime.utcnow(),
+                'verified_by': user_id,
+                'verified_at': datetime.utcnow()
+            }}
+        )
+
+        message = 'Payment verified successfully.' if new_status == 'done' else 'Payment marked as undone.'
+        return jsonify({
+            'success': True,
+            'message': message
+        })
+    except Exception as e:
+        logger.error(f"Error updating payment status: {str(e)}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     # Use environment variables for host and port

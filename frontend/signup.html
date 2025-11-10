@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
     <title>Signup - OverXchange</title>
-    <script src="https://accounts.google.com/gsi/client" onload="initGoogleSignIn()" async defer></script>
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
     <!-- Custom Styles -->
     <link rel="stylesheet" href="modern-styles.css">
     <style>
@@ -41,9 +48,12 @@
         }
 
         @keyframes card-float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px);
             }
+
             50% {
                 transform: translateY(-10px);
             }
@@ -197,7 +207,7 @@
             transform: translateY(-3px) scale(1.02);
         }
 
-        .input-3d:focus + .input-icon {
+        .input-3d:focus+.input-icon {
             color: var(--pink);
         }
 
@@ -310,19 +320,19 @@
                 padding: 40px 30px;
                 margin: 20px;
             }
-            
+
             .signup-title {
                 font-size: 2rem;
             }
-            
+
             .form-row {
                 grid-template-columns: 1fr;
             }
-            
+
             .user-type-selector {
                 flex-direction: column;
             }
-            
+
             .back-home {
                 top: 20px;
                 left: 20px;
@@ -332,6 +342,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Animated Background -->
     <div class="animated-bg">
@@ -377,7 +388,8 @@
                     <div class="form-group">
                         <label class="form-label" for="first-name">First Name</label>
                         <div class="input-group">
-                            <input type="text" id="first-name" name="first_name" class="input-3d" placeholder="Enter first name" required>
+                            <input type="text" id="first-name" name="first_name" class="input-3d"
+                                placeholder="Enter first name" required>
                             <i class="fas fa-user input-icon"></i>
                         </div>
                     </div>
@@ -385,7 +397,8 @@
                     <div class="form-group">
                         <label class="form-label" for="last-name">Last Name</label>
                         <div class="input-group">
-                            <input type="text" id="last-name" name="last_name" class="input-3d" placeholder="Enter last name" required>
+                            <input type="text" id="last-name" name="last_name" class="input-3d"
+                                placeholder="Enter last name" required>
                             <i class="fas fa-user input-icon"></i>
                         </div>
                     </div>
@@ -394,7 +407,8 @@
                 <div class="form-group">
                     <label class="form-label" for="email">Email Address</label>
                     <div class="input-group">
-                        <input type="email" id="email" name="email" class="input-3d" placeholder="Enter your email" required>
+                        <input type="email" id="email" name="email" class="input-3d" placeholder="Enter your email"
+                            required>
                         <i class="fas fa-envelope input-icon"></i>
                     </div>
                 </div>
@@ -402,7 +416,8 @@
                 <div class="form-group">
                     <label class="form-label" for="phone">Phone Number</label>
                     <div class="input-group">
-                        <input type="tel" id="phone" name="phone" class="input-3d" placeholder="Enter phone number" required>
+                        <input type="tel" id="phone" name="phone" class="input-3d" placeholder="Enter phone number"
+                            required>
                         <i class="fas fa-phone input-icon"></i>
                     </div>
                 </div>
@@ -410,23 +425,26 @@
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
                     <div class="input-group">
-                        <input type="password" id="password" name="password" class="input-3d" placeholder="Create a password" required>
+                        <input type="password" id="password" name="password" class="input-3d"
+                            placeholder="Create a password" required>
                         <i class="fas fa-lock input-icon"></i>
                     </div>
                 </div>
 
-            <div class="form-group">
+                <div class="form-group">
                     <label class="form-label" for="confirm-password">Confirm Password</label>
                     <div class="input-group">
-                        <input type="password" id="confirm-password" name="confirm_password" class="input-3d" placeholder="Confirm your password" required>
+                        <input type="password" id="confirm-password" name="confirm_password" class="input-3d"
+                            placeholder="Confirm your password" required>
                         <i class="fas fa-lock input-icon"></i>
                     </div>
-            </div>
+                </div>
 
-            <div class="form-group">
+                <div class="form-group">
                     <label class="form-label" for="address">Address</label>
                     <div class="input-group">
-                        <input type="text" id="address" name="address" class="input-3d" placeholder="Enter your address" required>
+                        <input type="text" id="address" name="address" class="input-3d" placeholder="Enter your address"
+                            required>
                         <i class="fas fa-map-marker-alt input-icon"></i>
                     </div>
                 </div>
@@ -436,11 +454,7 @@
                 </button>
             </form>
 
-            <div style="text-align: center; margin: 20px 0; color: var(--text-secondary);">OR</div>
 
-            <button type="button" id="google-signin-btn" class="signup-btn google-btn">
-                <i class="fab fa-google"></i> Sign Up with Google
-            </button>
 
             <div class="signup-footer">
                 <p>Already have an account? <a href="login.html">Sign in here</a></p>
@@ -460,110 +474,77 @@
 
     <script src="js/security.js"></script>
     <script>
-        // --- Existing scripts from login.html for Google Sign-In ---
-        function handleSuccessfulLogin(data) {
-            const successMessage = document.getElementById('success-message');
-            localStorage.setItem('user_id', data.user_id);
-            localStorage.setItem('user_type', data.user_type);
-            localStorage.setItem('user_name', data.name || '');
-            localStorage.setItem('token', data.token);
 
-            successMessage.textContent = 'Login successful! Redirecting...';
-            successMessage.style.display = 'block';
 
-            setTimeout(() => {
-                if (data.user_type === 'vendor') {
-                    window.location.href = 'vendor-dashboard.html';
-                } else if (data.user_type === 'supplier') {
-                    window.location.href = 'supply-dashboard.html';
-                } else if (data.user_type === 'admin') {
-                    window.location.href = 'admin-license-verification.html';
-                } else {
-                    window.location.href = 'profile.html';
-                }
-            }, 1500);
-        }
+        // This function will be called after the DOM is loaded
+        function setupPage() {
+            // User Type Selector
+            const userTypeBtns = document.querySelectorAll('.user-type-btn');
+            let selectedUserType = 'vendor';
 
-        async function initGoogleSignIn() {
-            try {
-                const response = await fetch('/api/config/google-client-id');
-                const config = await response.json();
-                const clientId = config.client_id;
+            userTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    userTypeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedUserType = this.dataset.type;
+                });
+            });
 
-                if (!clientId) {
-                    console.error('Google Client ID not found.');
-                    document.getElementById('error-message').textContent = 'Google Sign-In is not configured.';
-                    document.getElementById('error-message').style.display = 'block';
+            // Signup Form Handling
+            document.getElementById('signup-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const errorMessage = document.getElementById('error-message');
+                const successMessage = document.getElementById('success-message');
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (password !== confirmPassword) {
+                    errorMessage.textContent = 'Passwords do not match.';
+                    errorMessage.style.display = 'block';
                     return;
                 }
 
-                google.accounts.id.initialize({
-                    client_id: clientId,
-                    callback: handleCredentialResponse
-                });
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
 
-                document.getElementById('google-signin-btn').addEventListener('click', () => {
-                    google.accounts.id.prompt();
-                });
-            } catch (error) {
-                console.error('Error fetching Google Client ID:', error);
-                document.getElementById('error-message').textContent = 'Could not initialize Google Sign-In.';
-                document.getElementById('error-message').style.display = 'block';
-            }
-        }
+                const endpoint = selectedUserType === 'vendor' ? '/api/signup/vendor' : '/api/signup/supplier';
 
-        async function handleCredentialResponse(response) {
-            const errorMessage = document.getElementById('error-message');
-            try {
-                const res = await fetch('/api/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
-                });
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
 
-                const data = await res.json();
+                    const result = await response.json();
 
-                if (res.ok && data.success) {
-                    if (data.action === 'select_role') {
-                        const params = new URLSearchParams({
-                            name: data.name,
-                            email: data.email,
-                            token: data.google_token
-                        });
-                        window.location.href = `role_selection.html?${params.toString()}`;
+                    if (response.ok && result.success) {
+                        successMessage.textContent = 'Signup successful! Redirecting to login...';
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
                     } else {
-                        handleSuccessfulLogin(data);
+                        errorMessage.textContent = result.message || 'Signup failed. Please try again.';
+                        errorMessage.style.display = 'block';
                     }
-                } else {
-                    errorMessage.textContent = data.message || 'Google Sign-In failed.';
+                } catch (error) {
+                    errorMessage.textContent = 'An error occurred. Please check your connection and try again.';
                     errorMessage.style.display = 'block';
                 }
-            } catch (error) {
-                errorMessage.textContent = 'Error during Google Sign-In. Please try again.';
-                errorMessage.style.display = 'block';
-            }
-        }
-        
-        // --- Original signup.html scripts ---
-        function toggleTheme() {
-            // ... (theme toggle logic is duplicated but will work)
-        }
-        // User Type Selector
-        const userTypeBtns = document.querySelectorAll('.user-type-btn');
-        let selectedUserType = 'vendor';
-
-        userTypeBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                userTypeBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                selectedUserType = this.dataset.type;
             });
-        });
+        }
 
         // Signup Form Handling
-        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+        document.getElementById('signup-form').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const form = e.target;
             const email = form.email.value;
             const password = form.password.value;
@@ -630,12 +611,10 @@
                 errorMessage.style.display = 'block';
             }
         });
-
-        // Input focus effects
-        document.querySelectorAll('.input-3d').forEach(input => {
-            // ... (rest of the original input focus effects)
-        });
+        // Add event listener to run setupPage when the DOM is ready
+        document.addEventListener('DOMContentLoaded', setupPage);
     </script>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -648,4 +627,6 @@
         <p>&copy; 2025 OverXchange. All rights reserved.</p>
     </footer>
 </body>
+</head>
+
 </html>

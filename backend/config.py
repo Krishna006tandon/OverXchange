@@ -1,4 +1,5 @@
 import os
+import tempfile
 from datetime import timedelta
 
 class Config:
@@ -15,15 +16,11 @@ class Config:
     DATABASE_NAME = os.environ.get('DATABASE_NAME') or 'OverXchange'
     
     # CORS Settings - Restrict to specific origins in production
-    ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:5000').split(',')
+    ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5000', 'http://localhost:8080', 'http://127.0.0.1:8080']
     
     # Rate Limiting
     RATELIMIT_DEFAULT = "200 per day;50 per hour;10 per minute"
     RATELIMIT_STORAGE_URL = "memory://"
-    
-    # File Upload Security
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'}
     
     # Security Headers
     SECURITY_HEADERS = {
@@ -31,7 +28,7 @@ class Config:
         'X-Frame-Options': 'DENY',
         'X-XSS-Protection': '1; mode=block',
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.mongodb.com https://accounts.google.com;"
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://api.mongodb.com https://accounts.google.com https://cdn.jsdelivr.net;"
     }
     
     # Session Security
@@ -57,9 +54,7 @@ class Config:
     # Development vs Production
     DEBUG = os.environ.get('FLASK_ENV') == 'development'
 
-    # Google OAuth Settings
-    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
-    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+
     
     @staticmethod
     def init_app(app):

@@ -6,7 +6,8 @@ import uuid
 app = Flask(__name__)
 
 # Configure upload folder
-UPLOAD_FOLDER = 'static/invoices'
+basedir = os.path.abspath(os.path.dirname(__file__))
+UPLOAD_FOLDER = os.path.join(basedir, 'static/invoices')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 

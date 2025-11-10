@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
     <title>Login - OverXchange</title>
-    <script src="https://accounts.google.com/gsi/client" onload="initGoogleSignIn()" async defer></script>
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
     <!-- Custom Styles -->
     <link rel="stylesheet" href="modern-styles.css">
     <style>
@@ -41,9 +48,12 @@
         }
 
         @keyframes card-float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px);
             }
+
             50% {
                 transform: translateY(-10px);
             }
@@ -53,7 +63,7 @@
             box-shadow: var(--shadow-heavy);
             transform: translateY(-5px) scale(1.01);
         }
-        
+
         .login-card::before {
             content: '';
             position: absolute;
@@ -152,7 +162,7 @@
             transform: translateY(-3px) scale(1.02);
         }
 
-        .input-3d:focus + .input-icon {
+        .input-3d:focus+.input-icon {
             color: var(--pink);
         }
 
@@ -270,11 +280,11 @@
                 padding: 40px 30px;
                 margin: 20px;
             }
-            
+
             .login-title {
                 font-size: 2rem;
             }
-            
+
             .back-home {
                 top: 20px;
                 left: 20px;
@@ -284,6 +294,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Animated Background -->
     <div class="animated-bg">
@@ -318,7 +329,8 @@
                 <div class="form-group">
                     <label class="form-label" for="email">Email Address</label>
                     <div class="input-group">
-                        <input type="email" id="email" name="email" class="input-3d" placeholder="Enter your email" required>
+                        <input type="email" id="email" name="email" class="input-3d" placeholder="Enter your email"
+                            required>
                         <i class="fas fa-envelope input-icon"></i>
                     </div>
                 </div>
@@ -326,7 +338,8 @@
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
                     <div class="input-group">
-                        <input type="password" id="password" name="password" class="input-3d" placeholder="Enter your password" required>
+                        <input type="password" id="password" name="password" class="input-3d"
+                            placeholder="Enter your password" required>
                         <i class="fas fa-lock input-icon"></i>
                     </div>
                 </div>
@@ -336,11 +349,7 @@
                 </button>
             </form>
 
-            <div style="text-align: center; margin: 20px 0; color: var(--text-secondary);">OR</div>
 
-            <button type="button" id="google-signin-btn" class="login-btn google-btn">
-                <i class="fab fa-google"></i> Sign In with Google
-            </button>
 
             <div class="login-footer">
                 <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
@@ -362,62 +371,8 @@
         // Enhanced Theme Toggle Functionality
         function toggleTheme() {
             const body = document.body;
-            const sunIcon = document.querySelector('.theme-toggle .sun-icon');
-            const moonIcon = document.querySelector('.theme-toggle .moon-icon');
-            const symbolLabel = document.querySelector('.theme-toggle .symbol-label');
-            const modeIndicator = document.querySelector('.theme-toggle .mode-indicator');
-            
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                sunIcon.style.transform = 'rotateY(0deg) scale(1)';
-                moonIcon.style.transform = 'rotateY(-90deg) scale(0.8)';
-                sunIcon.style.opacity = '1';
-                moonIcon.style.opacity = '0';
-                symbolLabel.textContent = '☀️ Light Mode';
-                modeIndicator.textContent = '🌙 Dark Mode';
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                sunIcon.style.transform = 'rotateY(90deg) scale(0.8)';
-                moonIcon.style.transform = 'rotateY(0deg) scale(1)';
-                sunIcon.style.opacity = '0';
-                moonIcon.style.opacity = '1';
-                symbolLabel.textContent = '🌙 Dark Mode';
-                modeIndicator.textContent = '☀️ Light Mode';
-            }
+            // ... (theme logic)
         }
-
-        // Login Form Handling
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('error-message');
-            const successMessage = document.getElementById('success-message');
-            
-            errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
-            
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: email, password: password })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok && data.success) {
-                    handleSuccessfulLogin(data);
-                } else {
-                    errorMessage.textContent = data.message || data.error || 'Login failed. Please try again.';
-                    errorMessage.style.display = 'block';
-                }
-            } catch (error) {
-                errorMessage.textContent = 'Network error. Please check your connection.';
-                errorMessage.style.display = 'block';
-            }
-        });
 
         function handleSuccessfulLogin(data) {
             const successMessage = document.getElementById('success-message');
@@ -442,77 +397,52 @@
             }, 1500);
         }
 
-        // Google Sign-In
-        async function initGoogleSignIn() {
-            try {
-                const response = await fetch('/api/config/google-client-id');
-                const config = await response.json();
-                const clientId = config.client_id;
 
-                if (!clientId) {
-                    console.error('Google Client ID not found.');
-                    document.getElementById('error-message').textContent = 'Google Sign-In is not configured.';
-                    document.getElementById('error-message').style.display = 'block';
-                    return;
-                }
 
-                google.accounts.id.initialize({
-                    client_id: clientId,
-                    callback: handleCredentialResponse
-                });
+        // Setup event listeners after the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // Login Form Handling
+            document.getElementById('login-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
 
-                document.getElementById('google-signin-btn').addEventListener('click', () => {
-                    google.accounts.id.prompt();
-                });
-            } catch (error) {
-                console.error('Error fetching Google Client ID:', error);
-                document.getElementById('error-message').textContent = 'Could not initialize Google Sign-In.';
-                document.getElementById('error-message').style.display = 'block';
-            }
-        }
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const errorMessage = document.getElementById('error-message');
+                const successMessage = document.getElementById('success-message');
 
-        async function handleCredentialResponse(response) {
-            const errorMessage = document.getElementById('error-message');
-            try {
-                const res = await fetch('/api/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
-                });
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
 
-                const data = await res.json();
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: email, password: password })
+                    });
 
-                if (res.ok && data.success) {
-                    if (data.action === 'select_role') {
-                        // New user, redirect to role selection
-                        const params = new URLSearchParams({
-                            name: data.name,
-                            email: data.email,
-                            token: data.google_token
-                        });
-                        window.location.href = `role_selection.html?${params.toString()}`;
-                    } else {
-                        // Existing user, login was successful
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
                         handleSuccessfulLogin(data);
+                    } else {
+                        errorMessage.textContent = data.message || data.error || 'Login failed. Please try again.';
+                        errorMessage.style.display = 'block';
                     }
-                } else {
-                    errorMessage.textContent = data.message || 'Google Sign-In failed.';
+                } catch (error) {
+                    errorMessage.textContent = 'Network error. Please check your connection.';
                     errorMessage.style.display = 'block';
                 }
-            } catch (error) {
-                errorMessage.textContent = 'Error during Google Sign-In. Please try again.';
-                errorMessage.style.display = 'block';
-            }
-        }
-
-        // Input focus effects
-        document.querySelectorAll('.input-3d').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'translateY(-2px)';
             });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'translateY(0)';
+
+            // Input focus effects
+            document.querySelectorAll('.input-3d').forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+
+                input.addEventListener('blur', function () {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
             });
         });
     </script>
@@ -528,4 +458,6 @@
         <p>&copy; 2025 OverXchange. All rights reserved.</p>
     </footer>
 </body>
+</head>
+
 </html>
