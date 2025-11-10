@@ -4,21 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
+
     <title>Login - OverXchange</title>
 
     <!-- Bootstrap CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <!-- Font Awesome -->
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"
         integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
     <!-- Custom Styles -->
     <link rel="stylesheet" href="modern-styles.css">
     <style>
@@ -40,12 +45,12 @@
             padding: 50px 40px;
             width: 100%;
             max-width: 450px;
-            box-shadow: var(--shadow-heavy);
+            box-shadow: var(--shadow-medium);
             transform-style: preserve-3d;
             position: relative;
             overflow: hidden;
-            animation: card-float 8s ease-in-out infinite;
         }
+
 
         @keyframes card-float {
 
@@ -64,6 +69,8 @@
             transform: translateY(-5px) scale(1.01);
         }
 
+
+
         .login-card::before {
             content: '';
             position: absolute;
@@ -73,13 +80,11 @@
             height: 6px;
             background: var(--secondary-gradient);
             transform: scaleX(0);
-            transition: transform 0.5s ease-in-out;
-            transform-origin: left;
+            transition: transform 0.3s ease;
         }
 
         .login-card:hover::before {
             transform: scaleX(1);
-            transform-origin: right;
         }
 
         .login-header {
@@ -158,8 +163,8 @@
         .input-3d:focus {
             outline: none;
             border-color: var(--pink);
-            box-shadow: 0 0 25px rgba(236, 72, 153, 0.5);
-            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-pink);
+            transform: translateY(-2px);
         }
 
         .input-3d:focus+.input-icon {
@@ -178,11 +183,10 @@
             cursor: pointer;
             transition: var(--transition);
             transform-style: preserve-3d;
-            box-shadow: 0 5px 0 var(--dark-blue), 0 8px 20px rgba(30, 58, 138, 0.3);
+            box-shadow: var(--shadow-light);
             position: relative;
             overflow: hidden;
             margin-top: 10px;
-            transform: perspective(1000px) rotateX(0deg);
         }
 
         .login-btn::before {
@@ -197,13 +201,12 @@
         }
 
         .login-btn:hover {
-            transform: perspective(1000px) translateY(-5px) rotateX(10deg) scale(1.02);
-            box-shadow: 0 8px 0 var(--dark-blue-2), 0 12px 30px rgba(30, 58, 138, 0.4);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-medium);
         }
 
         .login-btn:active {
-            transform: perspective(1000px) translateY(2px) rotateX(2deg) scale(1.01);
-            box-shadow: 0 2px 0 var(--dark-blue-2), 0 4px 10px rgba(30, 58, 138, 0.3);
+            transform: translateY(-2px) scale(1.01);
         }
 
         .login-footer {
@@ -448,15 +451,6 @@
     </script>
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <footer class="footer">
-        <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Contact Us</a>
-        </div>
-        <p>&copy; 2025 OverXchange. All rights reserved.</p>
-    </footer>
 </body>
 </head>
 
