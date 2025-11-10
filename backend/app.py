@@ -12,6 +12,10 @@ import logging
 import json
 from functools import wraps
 import requests
+import google.generativeai as genai
+from PIL import Image # Import Image from PIL
+import io # Import io for handling image bytes
+
 # from google.oauth2 import id_token
 # from google.auth.transport import requests as google_requests
 # from PIL import Image  # Commented out for now
@@ -23,6 +27,15 @@ from security import SecurityUtils
 app = Flask(__name__)
 app.config.from_object(Config)
 Config.init_app(app)
+
+# Configure Gemini API
+if Config.GEMINI_API_KEY:
+    genai.configure(api_key=Config.GEMINI_API_KEY)
+    # Initialize Gemini Vision Pro model
+    gemini_vision_model = genai.GenerativeModel('models/gemini-2.5-flash')
+    logger.info("Gemini API configured and model initialized.")
+else:
+    logger.warning("GEMINI_API_KEY not found. Gemini API features will be disabled.")
 
 # Secure CORS configuration
 CORS(app, resources={
@@ -634,8 +647,22 @@ def create_order(current_user):
         vendor_id = current_user['user_id']
 
         # Basic validation
-        if not data.get('items') or not data.get('shipping_address'):
-            return jsonify({'success': False, 'message': 'Missing order data'}), 400
+        if not data.get('items'):
+            return jsonify({'success': False, 'message': 'Missing order items'}), 400
+        
+        # Validate and structure customer_info
+        customer_info = data.get('customer_info', {})
+        if not all(customer_info.get(key) for key in ['firstName', 'email', 'phone']):
+            return jsonify({'success': False, 'message': 'Customer first name, email, and phone are required'}), 400
+        
+        # Validate and structure shipping_address
+        shipping_address = data.get('shipping_address', {})
+        if not all(shipping_address.get(key) for key in ['addressLine1', 'city', 'state', 'pincode']):
+            return jsonify({'success': False, 'message': 'Shipping address (addressLine1, city, state, pincode) is required'}), 400
+
+        payment_method = data.get('payment_method')
+        if not payment_method:
+            return jsonify({'success': False, 'message': 'Payment method is required'}), 400
 
         # Group items by supplier
         supplier_orders = {}
@@ -659,14 +686,15 @@ def create_order(current_user):
         # Create the main order document
         order_doc = {
             'vendor_id': ObjectId(vendor_id),
-            'customer_info': data.get('customer_info'), # Assuming customer_info is passed from frontend
-            'shipping_address': data['shipping_address'],
+            'customer_info': customer_info,
+            'shipping_address': shipping_address,
             'total_amount': data['total_amount'],
             'subtotal': data['subtotal'],
             'tax': data['tax'],
             'shipping_cost': data.get('shipping_cost', 0),
             'discount': data.get('discount', 0),
             'coupon_code': data.get('coupon_code'),
+            'payment_method': payment_method, # Add payment method here
             'status': 'pending', # Overall order status
             'order_date': datetime.utcnow(), # Add order_date
             'created_at': datetime.utcnow(),
@@ -938,17 +966,25 @@ def download_bill(current_user, order_id):
     """Generate an HTML bill for a specific order"""
     try:
         if not ObjectId.is_valid(order_id):
+            logger.warning(f"Invalid order ID format: {order_id}")
             return jsonify({'success': False, 'message': 'Invalid order ID format'}), 400
 
         order = orders_collection.find_one({'_id': ObjectId(order_id)})
         if not order:
+            logger.warning(f"Order not found for ID: {order_id}")
             return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+        logger.debug(f"Full order object for bill: {json.dumps(order, default=str, indent=2)}")
 
         # Fetch vendor details
         vendor_id = order.get('vendor_id')
         vendor_info = None
         if vendor_id:
+            logger.debug(f"Fetching vendor info for vendor_id: {vendor_id}")
             vendor_info = db['vendors'].find_one({'_id': ObjectId(vendor_id)})
+            logger.debug(f"Vendor info fetched: {json.dumps(vendor_info, default=str, indent=2)}")
+        else:
+            logger.warning(f"vendor_id not found in order: {order_id}")
 
         bill_html = f"""
         <!DOCTYPE html>
@@ -1020,8 +1056,10 @@ def download_bill(current_user, order_id):
         """
 
         for so in order.get('supplier_orders', []):
+            logger.debug(f"Processing supplier_order: {json.dumps(so, default=str, indent=2)}")
             # Fetch full supplier details if needed, otherwise use what's in so
             supplier_full_info = db['suppliers'].find_one({'_id': ObjectId(so['supplier_id'])}) if so.get('supplier_id') else None
+            logger.debug(f"Supplier full info: {json.dumps(supplier_full_info, default=str, indent=2)}")
             
             bill_html += f"""
                 <tr class="heading">
@@ -1029,6 +1067,8 @@ def download_bill(current_user, order_id):
                         Supplier: <strong>{so.get('supplier_name', 'N/A')}</strong>
                         {f"<br>Email: {supplier_full_info.get('email', 'N/A')}" if supplier_full_info and supplier_full_info.get('email') else ''}
                         {f"<br>Phone: {supplier_full_info.get('phone', 'N/A')}" if supplier_full_info and supplier_full_info.get('phone') else ''}
+                        {f"<br>Est. Delivery: {so.get('estimated_delivery', 'Not specified')}"}
+                        {f"<br>Tracking: {so.get('tracking_number', 'Not available')}"}
                     </td>
                 </tr>
             """
@@ -1041,6 +1081,10 @@ def download_bill(current_user, order_id):
                 """
         
         bill_html += f"""
+                    <tr class="total">
+                        <td></td>
+                        <td class="text-right">Payment Method: {order.get('payment_method', 'N/A')}</td>
+                    </tr>
                     <tr class="total">
                         <td></td>
                         <td class="text-right">Subtotal: ₹{order.get('subtotal', 0):.2f}</td>
@@ -1348,6 +1392,42 @@ def validate_coupon(coupon_code):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/verify-license', methods=['POST'])
+def verify_license_endpoint():
+    """
+    API endpoint to upload a license file and verify it using Gemini.
+    """
+    if 'license_file' not in request.files:
+        return jsonify({'success': False, 'message': 'No license_file part in the request'}), 400
+    
+    license_file = request.files['license_file']
+    
+    if license_file.filename == '':
+        return jsonify({'success': False, 'message': 'No selected file'}), 400
+    
+    if license_file:
+        file_content = license_file.read()
+        file_type = license_file.content_type
+        
+        logger.info(f"Received file for license verification: {license_file.filename} ({file_type})")
+        
+        verification_result = verify_license_automatically(file_content, file_type)
+        
+        if verification_result.get('is_valid'):
+            return jsonify({
+                'success': True,
+                'message': 'License verified successfully!',
+                'verification_details': verification_result
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'License verification failed.',
+                'verification_details': verification_result
+            }), 400
+    
+    return jsonify({'success': False, 'message': 'Something went wrong during file upload.'}), 500
+
 # Vendor-specific routes
 @app.route('/api/vendor/register', methods=['POST'])
 @rate_limit(max_requests=3, window=3600)
@@ -1367,7 +1447,7 @@ def vendor_register():
         'email': data['email'],
         'password': hashed_password,
         'company': data.get('company', ''),
-        'location': data.get('location', ''),
+        'address': data.get('address', ''), # Changed from 'location' to 'address'
         'phone': data.get('phone', ''),
         'trust_score': 5.0,
         'total_transactions': 0,
@@ -1702,180 +1782,138 @@ def send_vendor_notifications(listing):
 # License Verification System
 def verify_license_automatically(file_content, file_type):
     """
-    Automatically verify food license using OCR and pattern matching
+    Automatically verify food license using Gemini Vision Pro for OCR and analysis.
     """
-    try:
-        # Convert file to text for analysis
-        text_content = ""
-        
-        if file_type.startswith('image'):
-            # For images, we'll use basic text extraction
-            # In production, you'd use proper OCR like Tesseract
-            # text_content = extract_text_from_image(file_content)
-            pass
-        elif file_type == 'application/pdf':
-            # For PDFs, extract text
-            # text_content = extract_text_from_pdf(file_content)
-            pass
-        
-        # Convert to uppercase for better matching
-        text_content = text_content.upper()
-        
-        # Check for license indicators
-        verification_score = 0
-        verification_details = {
-            'is_valid': False,
-            'confidence': 0,
-            'found_elements': [],
-            'missing_elements': [],
-            'verification_date': datetime.now().isoformat()
-        }
-        
-        # License type indicators
-        license_keywords = [
-            'FOOD LICENSE', 'FOOD SAFETY', 'FSSAI', 'FOOD AUTHORITY',
-            'LICENSE NO', 'LICENSE NUMBER', 'REGISTRATION NO',
-            'FOOD BUSINESS', 'FOOD ESTABLISHMENT', 'FOOD VENDOR'
-        ]
-        
-        # Government authority indicators
-        authority_keywords = [
-            'GOVERNMENT OF INDIA', 'MINISTRY OF HEALTH',
-            'FOOD SAFETY AND STANDARDS AUTHORITY', 'FSSAI',
-            'DEPARTMENT OF FOOD SAFETY', 'MUNICIPAL CORPORATION',
-            'FOOD AND DRUG ADMINISTRATION', 'GOVERNMENT OF WEST BENGAL',
-            'DEPARTMENT OF HEALTH FAMILY WELFARE'
-        ]
-        
-        # License number patterns
-        license_patterns = [
-            r'\b\d{14}\b',  # 14-digit FSSAI license
-            r'\b[A-Z]{2}\d{2}[A-Z]{2}\d{4}\b',  # State format
-            r'\bLICENSE[:\s]*([A-Z0-9]{8,15})\b',  # License: XXXXXXXX
-            r'\bREG[:\s]*([A-Z0-9]{8,15})\b',  # Reg: XXXXXXXX
-        ]
-        
-        # Check for license keywords
-        found_keywords = []
-        for keyword in license_keywords:
-            if keyword in text_content:
-                found_keywords.append(keyword)
-                verification_score += 10
-        
-        # Check for authority keywords
-        found_authorities = []
-        for authority in authority_keywords:
-            if authority in text_content:
-                found_authorities.append(authority)
-                verification_score += 15
-        
-        # Check for license number patterns
-        found_license_numbers = []
-        for pattern in license_patterns:
-            matches = re.findall(pattern, text_content)
-            if matches:
-                found_license_numbers.extend(matches)
-                verification_score += 20
-        
-        # Check for date patterns (validity dates)
-        date_patterns = [
-            r'\bVALID\s+(FROM|UNTIL)\s+(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',
-            r'\bVALID[:\s]*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',
-            r'\bEXPIRY[:\s]*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',
-            r'\bISSUED[:\s]*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',
-            r'\bDATE[:\s]*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b'
-        ]
-        
-        found_dates = []
-        for pattern in date_patterns:
-            matches = re.findall(pattern, text_content)
-            if matches:
-                found_dates.extend(matches)
-                verification_score += 10
-        
-        # Check for business details
-        business_indicators = [
-            'BUSINESS NAME', 'ESTABLISHMENT NAME', 'OWNER NAME',
-            'ADDRESS', 'LOCATION', 'CONTACT'
-        ]
-        
-        found_business_details = []
-        for indicator in business_indicators:
-            if indicator in text_content:
-                found_business_details.append(indicator)
-                verification_score += 5
-        
-        # Determine verification result
-        verification_details['found_elements'] = {
-            'keywords': found_keywords,
-            'authorities': found_authorities,
-            'license_numbers': found_license_numbers,
-            'dates': found_dates,
-            'business_details': found_business_details
-        }
-        
-        # Check if this is a valid FSSAI license
-        is_valid_fssai_license = False
-        
-        # Simple text-based verification for demo
-        # Check if text contains essential FSSAI license elements
-        has_fssai = 'FSSAI' in text_content
-        has_food_safety = 'FOOD SAFETY' in text_content
-        has_registration = 'REGISTRATION' in text_content
-        has_license_number = '22119005000732' in text_content  # Specific number from your license
-        has_government = 'GOVERNMENT' in text_content
-        has_validity = 'VALID' in text_content
-        
-        # All essential elements must be present
-        if has_fssai and has_food_safety and has_registration and has_license_number and has_government and has_validity:
-            is_valid_fssai_license = True
-        
-        # For demo purposes, if no text was extracted, always reject
-        if not text_content.strip():
-            verification_details['is_valid'] = False
-            verification_details['confidence'] = 0
-            verification_details['missing_elements'].append('No text could be extracted from the document')
-        else:
-            # Set verification result based on FSSAI license validation
-            if is_valid_fssai_license:
-                verification_details['is_valid'] = True
-                verification_details['confidence'] = 100
-            else:
-                verification_details['is_valid'] = False
-                verification_details['confidence'] = 0
-            
-            # Add debug info for demo
-            print(f"DEBUG: Extracted text: {text_content[:200]}...")
-            print(f"DEBUG: Verification checks:")
-            print(f"  - FSSAI: {has_fssai}")
-            print(f"  - FOOD SAFETY: {has_food_safety}")
-            print(f"  - REGISTRATION: {has_registration}")
-            print(f"  - LICENSE NUMBER: {has_license_number}")
-            print(f"  - GOVERNMENT: {has_government}")
-            print(f"  - VALIDITY: {has_validity}")
-            print(f"DEBUG: Is valid FSSAI license: {is_valid_fssai_license}")
-            print(f"DEBUG: Found elements: {verification_details['found_elements']}")
-        
-        # Add missing elements for improvement
-        missing_elements = []
-        if not found_keywords:
-            missing_elements.append('FSSAI license keywords not found')
-        if not found_authorities:
-            missing_elements.append('Government authority not found')
-        if not found_license_numbers:
-            missing_elements.append('License number not found')
-        if not found_dates:
-            missing_elements.append('Validity dates not found')
-        
-        verification_details['missing_elements'] = missing_elements
-        
-        return verification_details
-        
-    except Exception as e:
+    if not Config.GEMINI_API_KEY:
+        logger.error("Gemini API key not configured. License verification cannot proceed.")
         return {
             'is_valid': False,
             'confidence': 0,
-            'error': str(e),
+            'error': 'Gemini API key not configured',
+            'verification_date': datetime.now().isoformat()
+        }
+
+    try:
+        text_content = ""
+        image_parts = []
+
+        if file_type.startswith('image/'):
+            image = Image.open(io.BytesIO(file_content))
+            image_parts.append({
+                'mime_type': file_type,
+                'data': io.BytesIO(file_content).getvalue()
+            })
+            logger.info(f"Processing image file of type: {file_type}")
+        elif file_type == 'application/pdf':
+            # Placeholder for PDF handling:
+            # For a full implementation, you would convert each PDF page to an image
+            # using a library like PyMuPDF or pdf2image, and then process each image.
+            # Example (requires PyMuPDF: pip install PyMuPDF):
+            # import fitz # PyMuPDF
+            # doc = fitz.open(stream=file_content, filetype="pdf")
+            # for page_num in range(len(doc)):
+            #     page = doc.load_page(page_num)
+            #     pix = page.get_pixmap()
+            #     img_bytes = pix.tobytes("png")
+            #     image_parts.append({
+            #         'mime_type': 'image/png',
+            #         'data': img_bytes
+            #     })
+            logger.warning("PDF processing is a placeholder. Only image files are fully supported for Gemini Vision Pro.")
+            return {
+                'is_valid': False,
+                'confidence': 0,
+                'error': 'PDF processing not fully implemented yet. Please upload an image.',
+                'verification_date': datetime.now().isoformat()
+            }
+        else:
+            return {
+                'is_valid': False,
+                'confidence': 0,
+                'error': 'Unsupported file type for license verification.',
+                'verification_date': datetime.now().isoformat()
+            }
+
+        prompt_parts = [
+            "Analyze this document for food license verification. Extract the following information:\n",
+            "- Is this a valid food license document? (Yes/No)\n",
+            "- What is the License Number? (e.g., FSSAI 14-digit number or other)\n",
+            "- What is the Name of the Food Business Operator/Establishment?\n",
+            "- What is the Address of the Food Business?\n",
+            "- What is the Date of Issue?\n",
+            "- What is the Validity/Expiry Date?\n",
+            "- What is the Issuing Authority? (e.g., FSSAI, State Food Safety Department)\n",
+            "If any information is missing or unclear, state 'N/A'. Provide the response in a structured JSON format."
+        ]
+
+        # Add image parts to the prompt
+        for img_part in image_parts:
+            prompt_parts.append(img_part)
+        
+        logger.info("Sending request to Gemini Vision Pro for license analysis.")
+        response = gemini_vision_model.generate_content(prompt_parts)
+        
+        gemini_output = response.text
+        logger.debug(f"Gemini raw output: {gemini_output}")
+
+        # Attempt to parse Gemini's JSON output
+        try:
+            # Gemini might wrap JSON in markdown, so try to extract it
+            if '```json' in gemini_output:
+                json_str = gemini_output.split('```json')[1].split('```')[0].strip()
+            else:
+                json_str = gemini_output.strip()
+            
+            analysis_result = json.loads(json_str)
+            logger.info("Successfully parsed Gemini's JSON output.")
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse Gemini's JSON output: {e}. Raw output: {gemini_output}")
+            # Fallback to simpler text analysis if JSON parsing fails
+            analysis_result = {
+                "Is this a valid food license document?": "No",
+                "License Number": "N/A",
+                "Name of the Food Business Operator/Establishment": "N/A",
+                "Address of the Food Business": "N/A",
+                "Date of Issue": "N/A",
+                "Validity/Expiry Date": "N/A",
+                "Issuing Authority": "N/A",
+                "raw_gemini_output": gemini_output # Keep raw output for debugging
+            }
+            if "valid food license" in gemini_output.lower() and "yes" in gemini_output.lower():
+                analysis_result["Is this a valid food license document?"] = "Yes"
+
+        is_valid = analysis_result.get("Is this a valid food license document?", "No").lower() == "yes"
+        license_number = analysis_result.get("License Number", "N/A")
+        business_name = analysis_result.get("Name of the Food Business Operator/Establishment", "N/A")
+        address = analysis_result.get("Address of the Food Business", "N/A")
+        date_of_issue = analysis_result.get("Date of Issue", "N/A")
+        validity_date = analysis_result.get("Validity/Expiry Date", "N/A")
+        issuing_authority = analysis_result.get("Issuing Authority", "N/A")
+
+        confidence = 100 if is_valid else 0 # Simple confidence for now
+
+        verification_details = {
+            'is_valid': is_valid,
+            'confidence': confidence,
+            'license_number': license_number,
+            'business_name': business_name,
+            'address': address,
+            'date_of_issue': date_of_issue,
+            'validity_date': validity_date,
+            'issuing_authority': issuing_authority,
+            'verification_date': datetime.now().isoformat(),
+            'raw_gemini_output': gemini_output # For debugging/auditing
+        }
+        
+        logger.info(f"License verification result: {verification_details}")
+        return verification_details
+
+    except Exception as e:
+        logger.error(f"Error during Gemini-based license verification: {str(e)}")
+        return {
+            'is_valid': False,
+            'confidence': 0,
+            'error': f'Internal server error during AI verification: {str(e)}',
             'verification_date': datetime.now().isoformat()
         }
 
