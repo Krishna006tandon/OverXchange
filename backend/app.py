@@ -2169,10 +2169,56 @@ def verify_license_automatically(file_content, file_type):
         business_name = analysis_result.get("Name of the Food Business Operator/Establishment", "N/A")
         address = analysis_result.get("Address of the Food Business", "N/A")
         date_of_issue = analysis_result.get("Date of Issue", "N/A")
-        validity_date = analysis_result.get("Validity/Expiry Date", "N/A")
+        validity_date_str = analysis_result.get("Validity/Expiry Date", "N/A")
         issuing_authority = analysis_result.get("Issuing Authority", "N/A")
 
-        confidence = 100 if is_valid else 0 # Simple confidence for now
+        confidence = 100 if is_valid else 0 # Start with AI's initial confidence
+
+        # --- Additional Validation Logic ---
+        # 1. Check for "N/A" in critical fields
+        if license_number == "N/A" or business_name == "N/A" or address == "N/A":
+            is_valid = False
+            confidence = 0
+            logger.warning(f"License verification failed: Critical information missing (N/A found). License Number: {license_number}, Business Name: {business_name}, Address: {address}")
+
+        # 2. Validate Validity/Expiry Date
+        if is_valid and validity_date_str != "N/A":
+            try:
+                # Attempt to parse various date formats
+                parsed_validity_date = None
+                date_formats = [
+                    "%d/%m/%Y",  # 16/06/2020
+                    "%Y-%m-%d",  # 2025-06-15
+                    "%d-%m-%Y",  # 16-06-2020
+                    "%d %b %Y",  # 16 Jun 2020
+                    "%d %B %Y"   # 16 June 2020
+                ]
+                for fmt in date_formats:
+                    try:
+                        parsed_validity_date = datetime.strptime(validity_date_str, fmt)
+                        break
+                    except ValueError:
+                        continue
+                
+                if parsed_validity_date:
+                    if parsed_validity_date < datetime.now():
+                        is_valid = False
+                        confidence = 0
+                        logger.warning(f"License verification failed: License expired on {validity_date_str}.")
+                else:
+                    is_valid = False # Could not parse date, consider invalid
+                    confidence = 0
+                    logger.warning(f"License verification failed: Could not parse validity date '{validity_date_str}'.")
+            except Exception as e:
+                is_valid = False
+                confidence = 0
+                logger.error(f"Error parsing validity date '{validity_date_str}': {e}")
+        elif is_valid and validity_date_str == "N/A":
+            is_valid = False # Validity date is critical, if N/A, consider invalid
+            confidence = 0
+            logger.warning("License verification failed: Validity/Expiry Date is missing (N/A).")
+
+        # --- End Additional Validation Logic ---
 
         verification_details = {
             'is_valid': is_valid,
@@ -2181,7 +2227,7 @@ def verify_license_automatically(file_content, file_type):
             'business_name': business_name,
             'address': address,
             'date_of_issue': date_of_issue,
-            'validity_date': validity_date,
+            'validity_date': validity_date_str, # Keep original string for display
             'issuing_authority': issuing_authority,
             'verification_date': datetime.now().isoformat(),
             'raw_gemini_output': gemini_output # For debugging/auditing
