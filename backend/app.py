@@ -571,13 +571,47 @@ def get_suppliers():
 
 @app.route('/api/stocks', methods=['GET'])
 def get_stocks():
-    """Get all stocks"""
-    stocks = list(db['stocks'].find({}))
+    """Get all stocks with supplier information"""
+    pipeline = [
+        {
+            '$addFields': {
+                'supplier_obj_id': { '$toObjectId': '$supplier_id' }
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'suppliers',
+                'localField': 'supplier_obj_id',
+                'foreignField': '_id',
+                'as': 'supplier_info'
+            }
+        },
+        {
+            '$unwind': {
+                'path': '$supplier_info',
+                'preserveNullAndEmptyArrays': True
+            }
+        },
+        {
+            '$addFields': {
+                'supplier_name': '$supplier_info.name'
+            }
+        },
+        {
+            '$project': {
+                'supplier_info': 0,
+                'supplier_obj_id': 0
+            }
+        }
+    ]
+    stocks = list(db['stocks'].aggregate(pipeline))
     for stock in stocks:
         stock['_id'] = str(stock['_id'])
         stock['supplier_id'] = str(stock['supplier_id'])
+        if not stock.get('supplier_name'):
+            stock['supplier_name'] = 'Unknown Supplier'
         if not stock.get('image_url'):
-            stock['image_url'] = f"https://via.placeholder.com/150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
+            stock['image_url'] = f"https://placehold.co/150x150/808080/FFFFFF?text={stock.get('product_name', 'Product').replace(' ', '+')}"
     return jsonify({'success': True, 'stocks': stocks})
 
 @app.route('/api/stocks/supplier/<supplier_id>', methods=['GET'])
