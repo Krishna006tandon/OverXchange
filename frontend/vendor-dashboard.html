@@ -88,6 +88,70 @@
         .product-actions .add-to-cart-btn {
             flex-grow: 1;
         }
+        header {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .nav-link:hover {
+            background-color: #f9fafb;
+            color: #333;
+        }
+        .page-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .modern-table th, .modern-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .modern-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        .product-card, .analytics-card {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .modal {
+            animation: fadeIn 0.3s ease-out;
+        }
+        .modal-content {
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            border-radius: 15px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modern-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        .modern-table tbody tr:nth-child(even) {
+            background-color: #fcfcfd;
+        }
+        .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .status.shipped { background-color: #e0f2fe; color: #0ea5e9; }
+        .status.pending { background-color: #fef9c3; color: #f59e0b; }
+        .status.delivered { background-color: #dcfce7; color: #22c55e; }
+        .status.cancelled { background-color: #fee2e2; color: #ef4444; }
     </style>
 </head>
 <body>
@@ -330,25 +394,7 @@
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody">
-                            <!-- Dummy Data -->
-                            <tr>
-                                <td>#12345</td>
-                                <td>Tomatoes (5kg), Onions (10kg)</td>
-                                <td><span class="status shipped">Shipped</span></td>
-                                <td><button class="btn-secondary">Track</button></td>
-                            </tr>
-                            <tr>
-                                <td>#12346</td>
-                                <td>Potatoes (20kg)</td>
-                                <td><span class="status pending">Pending</span></td>
-                                <td><button class="btn-secondary">Cancel</button></td>
-                            </tr>
-                             <tr>
-                                <td>#12347</td>
-                                <td>Milk (50L), Cheese (10kg)</td>
-                                <td><span class="status delivered">Delivered</span></td>
-                                <td><button class="btn-secondary">View Invoice</button></td>
-                            </tr>
+                            <!-- Orders will be dynamically inserted here -->
                         </tbody>
                     </table>
                 </div>
@@ -483,10 +529,57 @@
             }
         }
 
+        let mockOrders = [
+            { id: '12345', items: 'Tomatoes (5kg), Onions (10kg)', status: 'shipped' },
+            { id: '12346', items: 'Potatoes (20kg)', status: 'pending' },
+            { id: '12347', items: 'Milk (50L), Cheese (10kg)', status: 'delivered' },
+            { id: '12348', items: 'Rice (25kg)', status: 'pending' },
+            { id: '12349', items: 'Chicken (15kg)', status: 'cancelled' },
+        ];
+
+        function renderOrders() {
+            const tableBody = document.getElementById('ordersTableBody');
+            tableBody.innerHTML = '';
+            mockOrders.forEach(order => {
+                const row = document.createElement('tr');
+                let actionButton = '';
+                if (order.status === 'shipped') {
+                    actionButton = `<button class="btn-secondary" onclick="trackOrder('${order.id}')">Track</button>`;
+                } else if (order.status === 'pending') {
+                    actionButton = `<button class="btn-secondary" onclick="cancelOrder('${order.id}')">Cancel</button>`;
+                } else if (order.status === 'delivered') {
+                    actionButton = `<button class="btn-secondary" onclick="viewInvoice('${order.id}')">View Invoice</button>`;
+                }
+
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${order.items}</td>
+                    <td><span class="status ${order.status}">${order.status}</span></td>
+                    <td>${actionButton}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
         function loadOrders() {
-            // In a real application, you would fetch orders from an API here.
-            // For now, the data is hardcoded in the HTML.
-            console.log("Orders tab loaded");
+            renderOrders();
+        }
+
+        function trackOrder(orderId) {
+            alert(`Tracking for order #${orderId}: Your order is on its way! Tracking link: https://example.com/track?id=${orderId}`);
+        }
+
+        function cancelOrder(orderId) {
+            const order = mockOrders.find(o => o.id === orderId);
+            if (order && confirm(`Are you sure you want to cancel order #${orderId}?`)) {
+                order.status = 'cancelled';
+                renderOrders();
+            }
+        }
+
+        function viewInvoice(orderId) {
+            // Redirect to a generic invoice page for this example
+            window.location.href = 'sample_bill.html';
         }
 
         // Event listeners for navigation links
