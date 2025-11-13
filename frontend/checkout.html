@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="vendornet.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         .checkout-container {
             max-width: 800px;
@@ -17,35 +16,40 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        .supplier-group {
+        .order-summary, .payment-method {
             margin-bottom: 2rem;
             border: 1px solid #eee;
             border-radius: 10px;
             padding: 1.5rem;
         }
-        .supplier-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .supplier-header img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 1rem;
-        }
-        .cart-item {
+        .summary-item, .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.5rem 0;
             border-bottom: 1px solid #eee;
         }
-        .qr-code-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .total-row {
+            font-weight: bold;
+            border-top: 2px solid #333;
+            border-bottom: none;
             margin-top: 1rem;
+        }
+        .place-order-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .place-order-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -58,6 +62,7 @@
             </div>
             <ul>
                 <li><a href="vendor-dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="cart.html" class="nav-link">Cart</a></li>
             </ul>
         </nav>
     </header>
@@ -65,109 +70,77 @@
     <main>
         <div class="checkout-container">
             <div class="page-header">
-                <h1><i class="fas fa-credit-card"></i> Checkout</h1>
-                <p>Complete your payment by scanning the QR codes below.</p>
+                <h1><i class="fas fa-shopping-cart"></i> Checkout</h1>
             </div>
-            <div id="checkout-summary"></div>
+
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div id="summary-items"></div>
+                <div class="total-row">
+                    <span>Total</span>
+                    <span id="summary-total"></span>
+                </div>
+            </div>
+
+            <div class="payment-method">
+                <h2>Payment Method</h2>
+                <div>
+                    <input type="radio" id="cod" name="payment" value="cod" checked>
+                    <label for="cod">Cash on Delivery</label>
+                </div>
+            </div>
+
+            <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
         </div>
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            loadCheckout();
+            loadOrderSummary();
         });
 
-        function loadCheckout() {
+        function loadOrderSummary() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const summaryContainer = document.getElementById('checkout-summary');
+            const summaryContainer = document.getElementById('summary-items');
+            const totalContainer = document.getElementById('summary-total');
+            let total = 0;
 
             if (cart.length === 0) {
                 summaryContainer.innerHTML = '<p>Your cart is empty.</p>';
+                totalContainer.innerText = '₹0.00';
                 return;
             }
 
-            // Group items by supplier
-            const suppliers = {};
+            summaryContainer.innerHTML = '';
             cart.forEach(item => {
-                if (!suppliers[item.supplierId]) {
-                    suppliers[item.supplierId] = {
-                        items: [],
-                        total: 0,
-                        name: '', // We need to get this from the item
-                        upi_id: '', // We need to get this from the item
-                        logo: '' // We need to get this from the item
-                    };
-                }
-                suppliers[item.supplierId].items.push(item);
-                suppliers[item.supplierId].total += item.price * item.quantity;
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.innerHTML = `
+                    <span>${item.name} (x${item.quantity})</span>
+                    <span>₹${itemTotal.toFixed(2)}</span>
+                `;
+                summaryContainer.appendChild(summaryItem);
             });
 
-            // Fetch product details to get supplier info
-            fetch('/api/stocks')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const stocks = data.stocks;
-                        // Add supplier info to our suppliers object
-                        for (const supplierId in suppliers) {
-                            const itemInCart = suppliers[supplierId].items[0];
-                            const stockInfo = stocks.find(s => s._id === itemInCart.id);
-                            if (stockInfo) {
-                                suppliers[supplierId].name = stockInfo.supplier_name;
-                                suppliers[supplierId].upi_id = stockInfo.supplier_upi_id;
-                                suppliers[supplierId].logo = stockInfo.supplier_business_logo_url;
-                            }
-                        }
-                        renderCheckout(suppliers);
-                    }
-                });
+            totalContainer.innerText = `₹${total.toFixed(2)}`;
         }
 
-        function renderCheckout(suppliers) {
-            const summaryContainer = document.getElementById('checkout-summary');
-            summaryContainer.innerHTML = '';
-
-            for (const supplierId in suppliers) {
-                const supplier = suppliers[supplierId];
-                const supplierGroup = document.createElement('div');
-                supplierGroup.className = 'supplier-group';
-
-                let itemsHtml = '';
-                supplier.items.forEach(item => {
-                    itemsHtml += `
-                        <div class="cart-item">
-                            <span>${item.name} (x${item.quantity})</span>
-                            <span>₹${(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                    `;
-                });
-
-                const upiUrl = `upi://pay?pa=${supplier.upi_id}&pn=${encodeURIComponent(supplier.name)}&am=${supplier.total.toFixed(2)}&tn=OrderPayment`;
-
-                supplierGroup.innerHTML = `
-                    <div class="supplier-header">
-                        <img src="${supplier.logo || 'https://placehold.co/50x50/808080/FFFFFF?text=Logo'}" alt="${supplier.name}">
-                        <h3>${supplier.name}</h3>
-                    </div>
-                    ${itemsHtml}
-                    <div class="cart-item">
-                        <strong>Total</strong>
-                        <strong>₹${supplier.total.toFixed(2)}</strong>
-                    </div>
-                    <div class="qr-code-container">
-                        <h4>Scan to Pay</h4>
-                        <div id="qrcode-${supplierId}"></div>
-                        <p>UPI ID: ${supplier.upi_id}</p>
-                    </div>
-                `;
-                summaryContainer.appendChild(supplierGroup);
-
-                new QRCode(document.getElementById(`qrcode-${supplierId}`), {
-                    text: upiUrl,
-                    width: 128,
-                    height: 128,
-                });
-            }
+        function placeOrder() {
+            // In a real application, you would send the order to the server here.
+            // For this example, we'll just clear the cart and show a confirmation.
+            
+            localStorage.removeItem('cart');
+            
+            const container = document.querySelector('.checkout-container');
+            container.innerHTML = `
+                <div style="text-align: center;">
+                    <h2><i class="fas fa-check-circle" style="color: green;"></i> Order Placed Successfully!</h2>
+                    <p>Your order will be delivered soon.</p>
+                    <a href="vendor-dashboard.html" class="nav-link">Go to Dashboard</a>
+                </div>
+            `;
         }
     </script>
 </body>
