@@ -100,6 +100,7 @@
             <ul>
                 <li><a href="#" class="nav-link active" data-section="dashboardContainer">Dashboard</a></li>
                 <li><a href="#" class="nav-link" data-section="v2vContainer">Vendor 2 Vendor</a></li>
+                <li><a href="#" class="nav-link" data-section="ordersContainer">Orders</a></li>
                 <li><a href="#" class="nav-link" data-section="analyticsContainer">Analytics</a></li>
                 <li><a href="#" class="nav-link" data-section="messagesContainer">Messages</a></li>
                 <li><a href="#" class="nav-link" data-section="cartContainer"><i class="fas fa-shopping-cart"></i> Cart</a></li>
@@ -313,6 +314,46 @@
                 </div>
             </div>
 
+            <div id="ordersContainer" class="content-section" style="display: none;">
+                <div class="page-header">
+                    <h1><i class="fas fa-box"></i> Your Orders</h1>
+                    <p>Track the status of your incoming orders</p>
+                </div>
+                <div class="table-container">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Items</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Dummy Data -->
+                            <tr>
+                                <td>#12345</td>
+                                <td>Tomatoes (5kg), Onions (10kg)</td>
+                                <td><span class="status shipped">Shipped</span></td>
+                                <td><button class="btn-secondary">Track</button></td>
+                            </tr>
+                            <tr>
+                                <td>#12346</td>
+                                <td>Potatoes (20kg)</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td><button class="btn-secondary">Cancel</button></td>
+                            </tr>
+                             <tr>
+                                <td>#12347</td>
+                                <td>Milk (50L), Cheese (10kg)</td>
+                                <td><span class="status delivered">Delivered</span></td>
+                                <td><button class="btn-secondary">View Invoice</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div id="analyticsContainer" class="content-section" style="display: none;">
                 <div class="analytics-header">
                     <h2><i class="fas fa-chart-line"></i> Analytics</h2>
@@ -437,7 +478,15 @@
                 loadAnalytics();
             } else if (sectionId === 'cartContainer') {
                 loadCart();
+            } else if (sectionId === 'ordersContainer') {
+                loadOrders();
             }
+        }
+
+        function loadOrders() {
+            // In a real application, you would fetch orders from an API here.
+            // For now, the data is hardcoded in the HTML.
+            console.log("Orders tab loaded");
         }
 
         // Event listeners for navigation links
