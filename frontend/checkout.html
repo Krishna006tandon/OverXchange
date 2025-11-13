@@ -279,6 +279,142 @@
             }
         }
 
+        .coupon-section {
+            margin-top: 1rem;
+        }
+
+        .coupon-dropdown {
+            min-width: 220px;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-color);
+            background-color: #ffffff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .coupon-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .coupon-dropdown.empty {
+            color: var(--text-light);
+        }
+
+        .coupon-input-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .coupon-input-group > * {
+            flex: 1;
+        }
+
+        .coupon-select-wrapper {
+            flex: 0 0 230px;
+            position: relative;
+        }
+
+        .coupon-select-wrapper::after {
+            content: '\f0d7';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-light);
+        }
+
+        .coupon-select-wrapper select {
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .apply-coupon-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .apply-coupon-btn:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-1px);
+        }
+
+        .apply-coupon-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .coupon-message {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+
+        .coupon-message.success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .coupon-message.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .applied-coupon-display {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+        }
+
+        .applied-coupon-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #065f46;
+        }
+
+        .applied-coupon-info i {
+            color: var(--success-color);
+            margin-right: 0.5rem;
+        }
+
+        .remove-coupon-btn {
+            background: transparent;
+            border: 1px solid #86efac;
+            color: #065f46;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-coupon-btn:hover {
+            background: #dcfce7;
+            border-color: var(--success-color);
+        }
+
     </style>
 </head>
 <body>
@@ -344,6 +480,32 @@
                     </div>
 
                     <div class="form-section">
+                        <h2 class="section-title"><i class="fas fa-tag"></i>Coupon Code</h2>
+                        <div class="coupon-section">
+                            <div class="coupon-input-group">
+                                <div id="couponDropdownWrapper" class="coupon-select-wrapper" style="display: none;">
+                                    <select id="couponDropdown" class="coupon-dropdown empty" onchange="handleCouponSelect(this.value)">
+                                        <option value="">Select an active coupon</option>
+                                    </select>
+                                </div>
+                                <input type="text" id="couponCode" placeholder="Enter coupon code" style="flex: 1;">
+                                <button type="button" id="applyCouponBtn" onclick="applyCoupon()" class="apply-coupon-btn">
+                                    Apply
+                                </button>
+                            </div>
+                            <div id="couponMessage" class="coupon-message"></div>
+                            <div id="appliedCouponDisplay" class="applied-coupon-display" style="display: none;">
+                                <div class="applied-coupon-info">
+                                    <span><i class="fas fa-check-circle"></i> <strong id="appliedCouponCode"></strong> applied</span>
+                                    <button type="button" onclick="removeCoupon()" class="remove-coupon-btn">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
                         <h2 class="section-title"><i class="fas fa-credit-card"></i>Payment</h2>
                         <p>All transactions are secure and encrypted.</p>
                         <!-- Payment fields would go here -->
@@ -385,6 +547,7 @@
 
     <script>
         let appliedCoupon = null;
+        let availableCoupons = [];
 
         document.addEventListener('DOMContentLoaded', function() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -395,9 +558,11 @@
             const storedCoupon = localStorage.getItem('appliedCoupon');
             if (storedCoupon) {
                 appliedCoupon = JSON.parse(storedCoupon);
+                displayAppliedCoupon();
             }
             renderOrderItems(cart);
             updateOrderSummary(cart);
+            initializeCouponDropdown(cart);
         });
 
         function renderOrderItems(cart) {
@@ -549,8 +714,273 @@
             window.scrollTo(0, 0);
         }
 
+        async function initializeCouponDropdown(cart) {
+            const dropdownWrapper = document.getElementById('couponDropdownWrapper');
+            const dropdown = document.getElementById('couponDropdown');
+
+            if (!dropdownWrapper || !dropdown) return;
+
+            const couponMessage = document.getElementById('couponMessage');
+
+            const cartHasItems = cart.length > 0;
+            if (!cartHasItems) {
+                dropdownWrapper.style.display = 'none';
+                return;
+            }
+
+            const firstSupplierId = cart[0].supplierId;
+            const allSameSupplier = cart.every(item => item.supplierId === firstSupplierId);
+
+            if (!allSameSupplier) {
+                dropdownWrapper.style.display = 'none';
+                couponMessage.textContent = 'Coupons only apply to orders from a single supplier.';
+                couponMessage.className = 'coupon-message error';
+                return;
+            }
+
+            dropdownWrapper.style.display = 'block';
+            dropdown.disabled = true;
+            dropdown.classList.add('empty');
+            dropdown.innerHTML = '<option value="">Loading active coupons...</option>';
+
+            await loadAvailableCoupons(firstSupplierId, cart);
+        }
+
+        async function loadAvailableCoupons(supplierId, cart) {
+            const dropdownWrapper = document.getElementById('couponDropdownWrapper');
+            const dropdown = document.getElementById('couponDropdown');
+            const couponMessage = document.getElementById('couponMessage');
+
+            if (!dropdownWrapper || !dropdown) return;
+
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+            try {
+                const queryParams = new URLSearchParams({ supplier_id: supplierId });
+                const authToken = localStorage.getItem('token');
+
+                const response = await fetch(`/api/coupons?${queryParams.toString()}`, {
+                    headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+                });
+
+                const result = await response.json();
+
+                if (!result.success || !Array.isArray(result.coupons)) {
+                    dropdown.innerHTML = '<option value="">No active coupons available</option>';
+                    dropdown.disabled = true;
+                    dropdown.classList.add('empty');
+                    availableCoupons = [];
+                    return;
+                }
+
+                const now = new Date();
+                availableCoupons = result.coupons.filter(coupon => {
+                    if (coupon.status !== 'active') return false;
+
+                    const validUntilRaw = coupon.valid_until;
+                    let validUntil = null;
+
+                    if (validUntilRaw) {
+                        if (typeof validUntilRaw === 'string') {
+                            validUntil = new Date(validUntilRaw);
+                        } else if (validUntilRaw.$date) {
+                            validUntil = new Date(validUntilRaw.$date);
+                        } else {
+                            validUntil = new Date(validUntilRaw);
+                        }
+                        if (isNaN(validUntil.getTime())) {
+                            validUntil = null;
+                        }
+                    }
+
+                    if (validUntil && validUntil < now) return false;
+
+                    const usageLimit = Number(coupon.usage_limit || 0);
+                    const usedCount = Number(coupon.used_count || 0);
+                    if (usageLimit && usedCount >= usageLimit) return false;
+
+                    const minOrderAmount = Number(coupon.min_order_amount || 0);
+                    if (subtotal < minOrderAmount) return false;
+
+                    return true;
+                });
+
+                if (availableCoupons.length === 0) {
+                    dropdown.innerHTML = '<option value="">No active coupons available</option>';
+                    dropdown.disabled = true;
+                    dropdown.classList.add('empty');
+                    return;
+                }
+
+                dropdown.disabled = false;
+                dropdown.classList.remove('empty');
+                dropdown.innerHTML = '<option value="">Select an active coupon</option>';
+
+                availableCoupons.forEach(coupon => {
+                    const option = document.createElement('option');
+                    option.value = coupon.code;
+                    option.textContent = `${coupon.code} — ${coupon.title}`;
+                    dropdown.appendChild(option);
+                });
+
+                updateCouponDropdownSelection();
+                couponMessage.textContent = '';
+                couponMessage.className = 'coupon-message';
+            } catch (error) {
+                dropdown.innerHTML = '<option value="">Unable to load coupons</option>';
+                dropdown.disabled = true;
+                dropdown.classList.add('empty');
+                console.error('Failed to load coupons:', error);
+            }
+        }
+
+        function handleCouponSelect(couponCode) {
+            const input = document.getElementById('couponCode');
+            const messageEl = document.getElementById('couponMessage');
+
+            if (!couponCode) {
+                input.value = '';
+                messageEl.textContent = '';
+                messageEl.className = 'coupon-message';
+                return;
+            }
+
+            input.value = couponCode;
+            applyCoupon();
+        }
+
+        async function applyCoupon() {
+            const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+            const messageEl = document.getElementById('couponMessage');
+            const applyBtn = document.getElementById('applyCouponBtn');
+            
+            if (!couponCode) {
+                messageEl.textContent = 'Please enter a coupon code.';
+                messageEl.className = 'coupon-message error';
+                return;
+            }
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                messageEl.textContent = 'Your cart is empty.';
+                messageEl.className = 'coupon-message error';
+                return;
+            }
+
+            // Check if all items are from the same supplier
+            const firstSupplierId = cart[0].supplierId;
+            const allSameSupplier = cart.every(item => item.supplierId === firstSupplierId);
+
+            if (!allSameSupplier) {
+                messageEl.textContent = 'Coupons only apply to orders from a single supplier.';
+                messageEl.className = 'coupon-message error';
+                appliedCoupon = null;
+                displayAppliedCoupon();
+                updateOrderSummary(cart);
+                return;
+            }
+
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+            applyBtn.disabled = true;
+            applyBtn.textContent = 'Applying...';
+
+            try {
+                const response = await fetch(`/api/coupons/validate/${couponCode}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        supplier_id: firstSupplierId,
+                        order_amount: subtotal
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageEl.textContent = `Coupon '${result.coupon.code}' applied successfully!`;
+                    messageEl.className = 'coupon-message success';
+                    appliedCoupon = result.coupon;
+                    localStorage.setItem('appliedCoupon', JSON.stringify(appliedCoupon));
+                    displayAppliedCoupon();
+                    document.getElementById('couponCode').value = '';
+                } else {
+                    messageEl.textContent = result.message || 'Invalid coupon code.';
+                    messageEl.className = 'coupon-message error';
+                    appliedCoupon = null;
+                    displayAppliedCoupon();
+                    updateCouponDropdownSelection();
+                }
+            } catch (err) {
+                messageEl.textContent = 'Could not validate coupon. Please try again.';
+                messageEl.className = 'coupon-message error';
+                appliedCoupon = null;
+                displayAppliedCoupon();
+                updateCouponDropdownSelection();
+            } finally {
+                applyBtn.disabled = false;
+                applyBtn.textContent = 'Apply';
+            }
+            
+            updateOrderSummary(cart);
+        }
+
+        function removeCoupon() {
+            appliedCoupon = null;
+            localStorage.removeItem('appliedCoupon');
+            displayAppliedCoupon();
+            document.getElementById('couponMessage').textContent = '';
+            document.getElementById('couponMessage').className = 'coupon-message';
+            updateCouponDropdownSelection();
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            updateOrderSummary(cart);
+        }
+
+        function displayAppliedCoupon() {
+            const appliedCouponDisplay = document.getElementById('appliedCouponDisplay');
+            const appliedCouponCode = document.getElementById('appliedCouponCode');
+            
+            if (appliedCoupon) {
+                appliedCouponDisplay.style.display = 'block';
+                appliedCouponCode.textContent = appliedCoupon.code;
+            } else {
+                appliedCouponDisplay.style.display = 'none';
+            }
+        }
+
+        function updateCouponDropdownSelection() {
+            const dropdown = document.getElementById('couponDropdown');
+            if (!dropdown) return;
+
+            if (!availableCoupons || availableCoupons.length === 0) {
+                dropdown.value = '';
+                dropdown.classList.add('empty');
+                return;
+            }
+
+            if (appliedCoupon) {
+                const matchedCoupon = availableCoupons.find(coupon => coupon.code === appliedCoupon.code);
+                dropdown.value = matchedCoupon ? matchedCoupon.code : '';
+                dropdown.classList.toggle('empty', !matchedCoupon);
+            } else {
+                dropdown.value = '';
+                dropdown.classList.add('empty');
+            }
+        }
+
+        // Allow Enter key to apply coupon
+        document.addEventListener('DOMContentLoaded', function() {
+            const couponInput = document.getElementById('couponCode');
+            if (couponInput) {
+                couponInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyCoupon();
+                    }
+                });
+            }
+        });
+
     </script>
-</body>
-</html>
 </body>
 </html> 

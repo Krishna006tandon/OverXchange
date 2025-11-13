@@ -634,10 +634,16 @@ def create_order(current_user):
         if not data.get('items') or not data.get('shipping_address'):
             return jsonify({'success': False, 'message': 'Missing order data'}), 400
 
-        # Group items by supplier
+        # Group items by supplier and calculate order subtotal
         supplier_orders = {}
+        order_subtotal = 0
         for item in data['items']:
             supplier_id = item.get('supplierId')
+            price = float(item.get('price', 0))
+            quantity = float(item.get('quantity', 0))
+            line_total = price * quantity
+            order_subtotal += line_total
+
             if supplier_id not in supplier_orders:
                 supplier_orders[supplier_id] = {
                     'supplier_id': supplier_id,
@@ -646,24 +652,110 @@ def create_order(current_user):
                     'status': 'pending'
                 }
             supplier_orders[supplier_id]['items'].append(item)
-            supplier_orders[supplier_id]['subtotal'] += item['price'] * item['quantity']
+            supplier_orders[supplier_id]['subtotal'] += line_total
+
+        shipping_cost = float(data.get('shipping_cost', 0))
+        tax_amount = float(data.get('tax', 0))
+
+        # Validate and process coupon if provided
+        coupon_code = data.get('coupon_code')
+        discount = data.get('discount', 0)
+        coupon_id = None
+        discount_amount = 0
+        
+        if coupon_code:
+            # Get the first supplier ID (coupons apply to single supplier orders)
+            first_supplier_id = list(supplier_orders.keys())[0] if supplier_orders else None
+            
+            if first_supplier_id:
+                if len(supplier_orders.keys()) > 1:
+                    return jsonify({'success': False, 'message': 'Coupons can only be applied to orders from a single supplier'}), 400
+
+                # Validate coupon
+                coupon = db['coupons'].find_one({
+                    'code': coupon_code.upper(),
+                    'supplier_id': first_supplier_id
+                })
+                
+                if coupon:
+                    # Check if coupon is active
+                    if coupon.get('status') != 'active':
+                        return jsonify({'success': False, 'message': 'Coupon is not active'}), 400
+                    
+                    # Check if coupon has expired
+                    valid_until = coupon.get('valid_until')
+                    if isinstance(valid_until, str):
+                        valid_until = datetime.fromisoformat(valid_until.replace('Z', '+00:00'))
+                    elif isinstance(valid_until, datetime):
+                        pass
+                    elif isinstance(valid_until, dict) and '$date' in valid_until:
+                        valid_until = datetime.fromisoformat(valid_until['$date'].replace('Z', '+00:00'))
+                    else:
+                        valid_until = None
+                    
+                    if valid_until and datetime.utcnow() > valid_until:
+                        return jsonify({'success': False, 'message': 'Coupon has expired'}), 400
+                    
+                    # Check minimum order amount
+                    subtotal = order_subtotal
+                    min_order_amount = float(coupon.get('min_order_amount', 0))
+                    if subtotal < min_order_amount:
+                        return jsonify({
+                            'success': False, 
+                            'message': f'Minimum order amount of ₹{min_order_amount} required for this coupon'
+                        }), 400
+                    
+                    # Check usage limit
+                    if coupon.get('used_count', 0) >= coupon.get('usage_limit', 0):
+                        return jsonify({'success': False, 'message': 'Coupon usage limit reached'}), 400
+
+                    # Calculate discount amount based on coupon rules
+                    discount_type = coupon.get('discount_type')
+                    discount_value = float(coupon.get('discount_value', 0))
+
+                    if discount_type == 'percentage':
+                        discount_amount = (subtotal * discount_value) / 100
+                        max_discount = coupon.get('max_discount')
+                        if max_discount is not None:
+                            discount_amount = min(discount_amount, float(max_discount))
+                    else:
+                        discount_amount = discount_value
+
+                    discount_amount = min(discount_amount, subtotal)
+                    discount = discount_amount
+                    coupon_id = str(coupon['_id'])
+                else:
+                    return jsonify({'success': False, 'message': 'Invalid coupon code'}), 400
+
+        # Recalculate total amount with validated discount
+        total_amount = order_subtotal + shipping_cost + tax_amount - discount_amount
+        if total_amount < 0:
+            total_amount = 0
 
         # Create the main order document
         order_doc = {
             'vendor_id': ObjectId(vendor_id),
             'shipping_address': data['shipping_address'],
-            'total_amount': data['total_amount'],
-            'subtotal': data['subtotal'],
-            'tax': data['tax'],
-            'shipping_cost': data.get('shipping_cost', 0),
-            'discount': data.get('discount', 0),
-            'coupon_code': data.get('coupon_code'),
+            'total_amount': total_amount,
+            'subtotal': order_subtotal,
+            'tax': tax_amount,
+            'shipping_cost': shipping_cost,
+            'discount': discount_amount,
+            'coupon_code': coupon_code,
+            'coupon_id': coupon_id,
             'status': 'pending', # Overall order status
             'created_at': datetime.utcnow(),
             'supplier_orders': list(supplier_orders.values()) # Embed supplier-specific orders
         }
 
         result = orders_collection.insert_one(order_doc)
+        
+        # Increment coupon usage count if coupon was used
+        if coupon_id:
+            db['coupons'].update_one(
+                {'_id': ObjectId(coupon_id)},
+                {'$inc': {'used_count': 1}}
+            )
         
         # Could potentially trigger stock deduction here in a real scenario
 
