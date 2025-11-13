@@ -544,7 +544,7 @@
                 const row = document.createElement('tr');
                 let actionButton = '';
                 if (order.status === 'shipped') {
-                    actionButton = `<button class="btn-secondary" onclick="trackOrder('${order.id}')">Track</button>`;
+                    actionButton = ''; // No action for shipped orders
                 } else if (order.status === 'pending') {
                     actionButton = `<button class="btn-secondary" onclick="cancelOrder('${order.id}')">Cancel</button>`;
                 } else if (order.status === 'delivered') {
@@ -563,10 +563,6 @@
 
         function loadOrders() {
             renderOrders();
-        }
-
-        function trackOrder(orderId) {
-            alert(`Tracking for order #${orderId}: Your order is on its way! Tracking link: https://example.com/track?id=${orderId}`);
         }
 
         function cancelOrder(orderId) {
