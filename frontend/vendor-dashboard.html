@@ -102,6 +102,7 @@
                 <li><a href="#" class="nav-link" data-section="v2vContainer">Vendor 2 Vendor</a></li>
                 <li><a href="#" class="nav-link" data-section="analyticsContainer">Analytics</a></li>
                 <li><a href="#" class="nav-link" data-section="messagesContainer">Messages</a></li>
+                <li><a href="#" class="nav-link" data-section="cartContainer"><i class="fas fa-shopping-cart"></i> Cart</a></li>
             </ul>
             <div class="user-menu">
                 <span class="user-name" id="userName">Guest</span>
@@ -325,6 +326,22 @@
                 </div>
                 <p>Chat functionality will be implemented here.</p>
             </div>
+
+            <div id="cartContainer" class="content-section" style="display: none;">
+                <div class="page-header">
+                    <h1><i class="fas fa-shopping-cart"></i> Your Cart</h1>
+                    <p>Review your items and proceed to checkout</p>
+                </div>
+                <div id="cartItemsContainer"></div>
+                <div id="cartEmpty" style="display:none;text-align:center;padding:40px;color:#64748b;">
+                    <i class="fas fa-shopping-cart" style="font-size:42px;margin-bottom:8px;"></i>
+                    <div>Your cart is empty</div>
+                </div>
+                <div class="cart-summary" style="margin-top: 24px; text-align: right;">
+                    <h3 id="cartTotal">Total: ₹0.00</h3>
+                    <button class="btn-primary" onclick="goToCheckout()">Proceed to Checkout</button>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -395,6 +412,7 @@
             showSection('dashboardContainer'); // Show dashboard by default
             loadListings(); // Load listings for V2V section
             loadVendorProducts(); // Load supplier products for dashboard
+            updateCartCounter(); // Update cart counter on page load
         });
 
         function showSection(sectionId) {
@@ -412,13 +430,13 @@
             });
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
 
-            // Special handling for V2V section to load listings
+            // Special handling for sections
             if (sectionId === 'v2vContainer') {
                 loadListings();
-            }
-            // Special handling for Analytics section to load analytics
-            if (sectionId === 'analyticsContainer') {
+            } else if (sectionId === 'analyticsContainer') {
                 loadAnalytics();
+            } else if (sectionId === 'cartContainer') {
+                loadCart();
             }
         }
 
@@ -542,7 +560,72 @@
             }
             localStorage.setItem('cart', JSON.stringify(cart));
             alert(`${quantity} x ${productName} added to cart!`);
+            updateCartCounter();
         }
+
+        function updateCartCounter() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartLink = document.querySelector('[data-section="cartContainer"]');
+            if (cartLink) {
+                const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartLink.innerHTML = `<i class="fas fa-shopping-cart"></i> Cart (${count})`;
+            }
+        }
+
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cartItemsContainer');
+            const emptyMsg = document.getElementById('cartEmpty');
+            const summary = document.querySelector('.cart-summary');
+            const totalEl = document.getElementById('cartTotal');
+            
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                emptyMsg.style.display = 'block';
+                summary.style.display = 'none';
+                return;
+            }
+
+            emptyMsg.style.display = 'none';
+            summary.style.display = 'block';
+
+            let total = 0;
+            cart.forEach(item => {
+                const itemTotal = (item.price || 0) * (item.quantity || 0);
+                total += itemTotal;
+                const itemEl = document.createElement('div');
+                itemEl.className = 'cart-item'; // You may need to style this class
+                itemEl.innerHTML = `
+                    <div style="display:flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
+                        <div>
+                            <h4>${item.name}</h4>
+                            <p>Quantity: ${item.quantity} x ₹${item.price}</p>
+                        </div>
+                        <div>
+                            <strong>₹${itemTotal.toFixed(2)}</strong>
+                            <button onclick="removeFromCart('${item.id}')" style="margin-left: 1rem;" class="btn-secondary"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(itemEl);
+            });
+
+            totalEl.textContent = `Total: ₹${total.toFixed(2)}`;
+        }
+
+        function removeFromCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart = cart.filter(item => item.id !== productId);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+            updateCartCounter();
+        }
+
+        function goToCheckout() {
+            window.location.href = 'checkout.html';
+        }
+
 
         function setValidityTime() {
             const now = new Date();

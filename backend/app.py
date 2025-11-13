@@ -339,6 +339,7 @@ def signup_supplier():
         phone = SecurityUtils.sanitize_input(request.form.get('phone', ''))
         email = SecurityUtils.sanitize_input(request.form.get('email', ''))
         gstin = SecurityUtils.sanitize_input(request.form.get('gstin', ''))
+        upi_id = SecurityUtils.sanitize_input(request.form.get('upi_id', ''))
         business_proof = SecurityUtils.sanitize_input(request.form.get('business_proof', '')) # Assuming this is text for now
         moq = request.form.get('moq', 0)
         logistics_options = SecurityUtils.sanitize_input(request.form.get('logistics_options', ''))
@@ -446,6 +447,7 @@ def signup_supplier():
             'warehouse_address': warehouse_address,
             'phone': phone,
             'gstin': gstin,
+            'upi_id': upi_id,
             'business_proof': business_proof,
             'minimum_order_quantity': int(moq) if moq else 0,
             'logistics_options': logistics_options.split(',') if logistics_options else [],
@@ -535,7 +537,7 @@ def update_profile(current_user, user_type, user_id):
         
         # Sanitize input data
         sanitized_data = {}
-        allowed_fields = ['name', 'phone', 'address', 'company_name', 'business_type']
+        allowed_fields = ['name', 'phone', 'address', 'company_name', 'business_type', 'warehouse_address', 'upi_id']
         
         for field in allowed_fields:
             if field in data:
@@ -594,7 +596,9 @@ def get_stocks():
         },
         {
             '$addFields': {
-                'supplier_name': '$supplier_info.name'
+                'supplier_name': '$supplier_info.name',
+                'supplier_upi_id': '$supplier_info.upi_id',
+                'supplier_business_logo_url': '$supplier_info.business_logo_url'
             }
         },
         {

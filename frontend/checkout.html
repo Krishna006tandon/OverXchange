@@ -4,553 +4,171 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - OverXchange</title>
+    <link rel="stylesheet" href="vendornet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --text-color: #2d3748;
-            --text-light: #718096;
-            --bg-color: #f7fafc;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        .header {
-            background: var(--card-bg);
-            box-shadow: var(--shadow);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .logo span {
-            color: var(--secondary-color);
-        }
-
-        .back-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .back-btn:hover {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .main-content {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            color: var(--text-color);
-        }
-
         .checkout-container {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 2rem;
-            align-items: flex-start;
-        }
-
-        .checkout-form {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            padding: 2.5rem;
-        }
-
-        .form-section {
-            margin-bottom: 2.5rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-light);
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-
-        .order-summary {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
+            max-width: 800px;
+            margin: 2rem auto;
             padding: 2rem;
-            position: sticky;
-            top: 100px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-
-        .summary-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
+        .supplier-group {
+            margin-bottom: 2rem;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 1.5rem;
         }
-
-        .order-items .order-item {
+        .supplier-header {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
         }
-
-        .order-item:last-child {
-            border-bottom: none;
-        }
-
-        .order-item-img {
+        .supplier-header img {
             width: 50px;
             height: 50px;
-            border-radius: 8px;
-            background: var(--bg-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
+            border-radius: 50%;
+            margin-right: 1rem;
         }
-
-        .order-item-details h4 {
-            font-weight: 600;
-        }
-        .order-item-details p {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        .order-item-price {
-            margin-left: auto;
-            font-weight: 600;
-        }
-
-        .summary-details {
-            margin-top: 1.5rem;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
-        }
-
-        .summary-row {
+        .cart-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.75rem;
-            color: var(--text-light);
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
         }
-
-        .summary-row span:last-child {
-            font-weight: 600;
-            color: var(--text-color);
-        }
-
-        .summary-row.total {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-color);
+        .qr-code-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
         }
-
-        .place-order-btn {
-            width: 100%;
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1.5rem;
-        }
-
-        .place-order-btn:hover {
-            box-shadow: var(--shadow-lg);
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .alert-success {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        .alert-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        @media (max-width: 992px) {
-            .checkout-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
+    <header>
+        <nav>
             <div class="logo">
                 <svg class="logo-svg" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8 12v1c0 1.1.9 2 2 2h2v2.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                Over<span>Xchange</span>
+                Vendor<span>Net</span>
             </div>
-            <a href="cart.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                Back to Cart
-            </a>
-        </div>
+            <ul>
+                <li><a href="vendor-dashboard.html" class="nav-link">Dashboard</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <main class="main-content">
-        <h1 class="page-title">Checkout</h1>
-
-        <div id="alert-container"></div>
-
+    <main>
         <div class="checkout-container">
-            <div class="checkout-form">
-                <form id="checkoutForm">
-                    <div class="form-section">
-                        <h2 class="section-title"><i class="fas fa-user-circle"></i>Contact Information</h2>
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" required placeholder="you@example.com">
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h2 class="section-title"><i class="fas fa-truck"></i>Shipping Address</h2>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" name="firstName" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="lastName">Last Name</label>
-                                <input type="text" id="lastName" name="lastName" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="addressLine1">Address</label>
-                            <input type="text" id="addressLine1" name="addressLine1" required placeholder="1234 Main St">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="city">City</label>
-                                <input type="text" id="city" name="city" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="state">State / Province</label>
-                                <input type="text" id="state" name="state" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="pincode">ZIP / Postal Code</label>
-                                <input type="text" id="pincode" name="pincode" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h2 class="section-title"><i class="fas fa-credit-card"></i>Payment</h2>
-                        <p>All transactions are secure and encrypted.</p>
-                        <!-- Payment fields would go here -->
-                    </div>
-                </form>
+            <div class="page-header">
+                <h1><i class="fas fa-credit-card"></i> Checkout</h1>
+                <p>Complete your payment by scanning the QR codes below.</p>
             </div>
-
-            <div class="order-summary">
-                <h2 class="summary-title">Order Summary</h2>
-                <div class="order-items" id="orderItems"></div>
-                <div class="summary-details">
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span id="subtotal">₹0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Shipping</span>
-                        <span id="shippingCost">₹50.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>GST (18%)</span>
-                        <span id="taxAmount">₹0.00</span>
-                    </div>
-                    <div class="summary-row" id="discountRow" style="display: none;">
-                        <span>Discount</span>
-                        <span id="discountAmount">- ₹0.00</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total</span>
-                        <span id="totalAmount">₹0.00</span>
-                    </div>
-                </div>
-                <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">
-                    Place Order
-                </button>
-            </div>
+            <div id="checkout-summary"></div>
         </div>
     </main>
 
     <script>
-        let appliedCoupon = null;
-
         document.addEventListener('DOMContentLoaded', function() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            if (cart.length === 0) {
-                window.location.href = 'cart.html';
-                return;
-            }
-            const storedCoupon = localStorage.getItem('appliedCoupon');
-            if (storedCoupon) {
-                appliedCoupon = JSON.parse(storedCoupon);
-            }
-            renderOrderItems(cart);
-            updateOrderSummary(cart);
+            loadCheckout();
         });
 
-        function renderOrderItems(cart) {
-            const orderItemsContainer = document.getElementById('orderItems');
-            let itemsHTML = '';
-            cart.forEach(item => {
-                const imageUrl = item.imageUrl || `https://via.placeholder.com/50/f0f2f5/a0aec0?text=No+Image`;
-                itemsHTML += `
-                    <div class="order-item">
-                        <div class="order-item-img">
-                            <img src="${imageUrl}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div class="order-item-details">
-                            <h4>${item.name}</h4>
-                            <p>Qty: ${item.quantity}</p>
-                        </div>
-                        <div class="order-item-price">₹${(item.price * item.quantity).toFixed(2)}</div>
-                    </div>
-                `;
-            });
-            orderItemsContainer.innerHTML = itemsHTML;
-        }
-
-        function updateOrderSummary(cart) {
-            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            const shipping = 50; // Flat rate for now
-            const tax = subtotal * 0.18;
-            let discount = 0;
-
-            if (appliedCoupon) {
-                if (appliedCoupon.discount_type === 'percentage') {
-                    discount = (subtotal * appliedCoupon.discount_value) / 100;
-                    if (appliedCoupon.max_discount) {
-                        discount = Math.min(discount, appliedCoupon.max_discount);
-                    }
-                } else {
-                    discount = appliedCoupon.discount_value;
-                }
-                document.getElementById('discountRow').style.display = 'flex';
-                document.getElementById('discountAmount').textContent = `- ₹${discount.toFixed(2)}`;
-            } else {
-                document.getElementById('discountRow').style.display = 'none';
-            }
-
-            const total = subtotal + shipping + tax - discount;
-
-            document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
-            document.getElementById('shippingCost').textContent = `₹${shipping.toFixed(2)}`;
-            document.getElementById('taxAmount').textContent = `₹${tax.toFixed(2)}`;
-            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
-        }
-
-        async function placeOrder() {
-            const form = document.getElementById('checkoutForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            const placeOrderBtn = document.getElementById('placeOrderBtn');
-            placeOrderBtn.disabled = true;
-            placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
+        function loadCheckout() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const authToken = localStorage.getItem('token'); // Assumes token is stored in localStorage
+            const summaryContainer = document.getElementById('checkout-summary');
 
-            if (!authToken) {
-                showAlert('You must be logged in to place an order.', 'danger');
-                placeOrderBtn.disabled = false;
-                placeOrderBtn.textContent = 'Place Order';
-                // Optionally redirect to login page
+            if (cart.length === 0) {
+                summaryContainer.innerHTML = '<p>Your cart is empty.</p>';
                 return;
             }
 
-            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            const shipping = 50; // Flat rate
-            const tax = subtotal * 0.18;
-            let discount = 0;
-            let couponCode = null;
-
-            if (appliedCoupon) {
-                if (appliedCoupon.discount_type === 'percentage') {
-                    discount = (subtotal * appliedCoupon.discount_value) / 100;
-                    if (appliedCoupon.max_discount) {
-                        discount = Math.min(discount, appliedCoupon.max_discount);
-                    }
-                } else {
-                    discount = appliedCoupon.discount_value;
+            // Group items by supplier
+            const suppliers = {};
+            cart.forEach(item => {
+                if (!suppliers[item.supplierId]) {
+                    suppliers[item.supplierId] = {
+                        items: [],
+                        total: 0,
+                        name: '', // We need to get this from the item
+                        upi_id: '', // We need to get this from the item
+                        logo: '' // We need to get this from the item
+                    };
                 }
-                couponCode = appliedCoupon.code;
-            }
+                suppliers[item.supplierId].items.push(item);
+                suppliers[item.supplierId].total += item.price * item.quantity;
+            });
 
-            const total = subtotal + shipping + tax - discount;
+            // Fetch product details to get supplier info
+            fetch('/api/stocks')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const stocks = data.stocks;
+                        // Add supplier info to our suppliers object
+                        for (const supplierId in suppliers) {
+                            const itemInCart = suppliers[supplierId].items[0];
+                            const stockInfo = stocks.find(s => s._id === itemInCart.id);
+                            if (stockInfo) {
+                                suppliers[supplierId].name = stockInfo.supplier_name;
+                                suppliers[supplierId].upi_id = stockInfo.supplier_upi_id;
+                                suppliers[supplierId].logo = stockInfo.supplier_business_logo_url;
+                            }
+                        }
+                        renderCheckout(suppliers);
+                    }
+                });
+        }
 
-            const orderData = {
-                shipping_address: {
-                    email: document.getElementById('email').value,
-                    firstName: document.getElementById('firstName').value,
-                    lastName: document.getElementById('lastName').value,
-                    addressLine1: document.getElementById('addressLine1').value,
-                    city: document.getElementById('city').value,
-                    state: document.getElementById('state').value,
-                    pincode: document.getElementById('pincode').value,
-                },
-                items: cart,
-                subtotal: subtotal,
-                shipping_cost: shipping,
-                tax: tax,
-                total_amount: total,
-                discount: discount,
-                coupon_code: couponCode,
-            };
+        function renderCheckout(suppliers) {
+            const summaryContainer = document.getElementById('checkout-summary');
+            summaryContainer.innerHTML = '';
 
-            try {
-                const response = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(orderData)
+            for (const supplierId in suppliers) {
+                const supplier = suppliers[supplierId];
+                const supplierGroup = document.createElement('div');
+                supplierGroup.className = 'supplier-group';
+
+                let itemsHtml = '';
+                supplier.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="cart-item">
+                            <span>${item.name} (x${item.quantity})</span>
+                            <span>₹${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    `;
                 });
 
-                const result = await response.json();
+                const upiUrl = `upi://pay?pa=${supplier.upi_id}&pn=${encodeURIComponent(supplier.name)}&am=${supplier.total.toFixed(2)}&tn=OrderPayment`;
 
-                if (result.success) {
-                    localStorage.removeItem('cart');
-                    localStorage.removeItem('appliedCoupon'); // Clear coupon as well
-                    showAlert('Order placed successfully! You will be redirected shortly.', 'success');
-                    setTimeout(() => window.location.href = 'vendor-dashboard.html', 3000);
-                } else {
-                    showAlert(result.message || 'Failed to place order. Please try again.', 'danger');
-                    placeOrderBtn.disabled = false;
-                    placeOrderBtn.textContent = 'Place Order';
-                }
-            } catch (error) {
-                showAlert('An error occurred while placing the order. Please check your connection.', 'danger');
-                placeOrderBtn.disabled = false;
-                placeOrderBtn.textContent = 'Place Order';
+                supplierGroup.innerHTML = `
+                    <div class="supplier-header">
+                        <img src="${supplier.logo || 'https://placehold.co/50x50/808080/FFFFFF?text=Logo'}" alt="${supplier.name}">
+                        <h3>${supplier.name}</h3>
+                    </div>
+                    ${itemsHtml}
+                    <div class="cart-item">
+                        <strong>Total</strong>
+                        <strong>₹${supplier.total.toFixed(2)}</strong>
+                    </div>
+                    <div class="qr-code-container">
+                        <h4>Scan to Pay</h4>
+                        <div id="qrcode-${supplierId}"></div>
+                        <p>UPI ID: ${supplier.upi_id}</p>
+                    </div>
+                `;
+                summaryContainer.appendChild(supplierGroup);
+
+                new QRCode(document.getElementById(`qrcode-${supplierId}`), {
+                    text: upiUrl,
+                    width: 128,
+                    height: 128,
+                });
             }
         }
-
-        function showAlert(message, type) {
-            const alertContainer = document.getElementById('alert-container');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
-            alertContainer.appendChild(alertDiv);
-            window.scrollTo(0, 0);
-        }
-
     </script>
 </body>
 </html>
-</body>
-</html> 

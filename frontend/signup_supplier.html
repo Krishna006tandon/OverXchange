@@ -150,6 +150,7 @@
             <input type="tel" id="phone" placeholder="Phone (OTP Verified)" required>
             <input type="email" id="email" placeholder="Email (OTP Verified)" required>
             <input type="text" id="gstin" placeholder="GSTIN (Mandatory)" required>
+            <input type="text" id="upiId" placeholder="UPI ID (for payments)" required>
             
             <div class="license-upload-section">
                 <h3>License Verification with AI</h3>
@@ -258,6 +259,7 @@
             const phone = document.getElementById('phone').value;
             const email = document.getElementById('email').value;
             const gstin = document.getElementById('gstin').value;
+            const upiId = document.getElementById('upiId').value;
             const businessProof = document.getElementById('businessProof').value; // This should probably be a file input too
             const moq = document.getElementById('moq').value;
             const logisticsOptions = document.getElementById('logisticsOptions').value;
@@ -278,6 +280,7 @@
             formData.append('phone', phone);
             formData.append('email', email);
             formData.append('gstin', gstin);
+            formData.append('upi_id', upiId);
             formData.append('business_proof', businessProof); // If this is a file, it needs to be handled like licenseDocument
             formData.append('moq', moq);
             formData.append('logistics_options', logisticsOptions);
